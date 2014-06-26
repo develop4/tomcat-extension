@@ -7,17 +7,63 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>tomcat-extension</name>
+	<name>Tomcat Extensions</name>
+	<description>
+    	Build to keep auditors happy, by ensuring that resources in tomcat configuration files can be
+    	encrypted or hidden so that the settings will never appear in plain text.
+    </description>
 	<url>http://develop4.io/Projects/Tomcat</url>
+
+	<developers>
+		<developer>
+			<name>William Timpany</name>
+			<id>wtimpany</id>
+			<email>william.timpany@develop4.co.uk</email>
+		</developer>
+	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jasypt.version>1.9.2</jasypt.version>
 		<junit.version>3.8.1</junit.version>
 		<bouncycastle.version>1.50</bouncycastle.version>
+		<apache.tomcat.version>7.0.54</apache.tomcat.version>
+		<apache.commons.validator>1.4.0</apache.commons.validator>
 	</properties>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>/data/narowner/product/apache/apache-tomcat-7.0.54/lib</outputDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
 	<dependencies>
+
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>${apache.commons.validator}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-catalina</artifactId>
+			<version>${apache.tomcat.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-coyote</artifactId>
+			<version>${apache.tomcat.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.jasypt</groupId>
 			<artifactId>jasypt</artifactId>
