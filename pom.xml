@@ -9,7 +9,7 @@
 
 	<name>Tomcat Extensions</name>
 	<description>
-    	Build to keep auditors happy, by ensuring that resources in tomcat configuration files can be
+    	Build to keep auditors happy, by ensuring that resources in Tomcat configuration files can be
     	encrypted or hidden so that the settings will never appear in plain text.
     </description>
 	<url>http://develop4.io/Projects/Tomcat</url>
@@ -47,43 +47,31 @@
 
 	<dependencies>
 
-<dependency>
-	<groupId>commons-codec</groupId>
-	<artifactId>commons-codec</artifactId>
-	<version>${apache.codec.version}</version>
-				<scope>compile</scope>
-	
-</dependency>
-
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
 			<version>${apache.commons.validator.version}</version>
-						<scope>compile</scope>
-			
+			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-catalina</artifactId>
 			<version>${apache.tomcat.version}</version>
-						<scope>compile</scope>
-			
+			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-coyote</artifactId>
 			<version>${apache.tomcat.version}</version>
-						<scope>compile</scope>
-			
+			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jasypt</groupId>
 			<artifactId>jasypt</artifactId>
 			<version>${jasypt.version}</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<dependency>

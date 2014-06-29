@@ -10,19 +10,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.develop4.security.utils;
+package com.develop4.security.utils.decoders;
 
 import java.util.Properties;
 
-public class NullDecoder implements Decoder {
+import org.bouncycastle.util.encoders.Base64;
 
-	public static final String INFO = "Null Decoder Test v1.00";
+public class Base64Decoder implements Decoder {
 
-    public static final String NAME = "NP";
+	public static final String INFO = "Base64 Decoder Test v1.00";
+
+    public static final String NAME = "B64";
     
-    private static final String NAMESPACE = "null://";
+    private static final String NAMESPACE = "base64://";
     
-	public NullDecoder() {
+	public Base64Decoder() {
 	}
 	
 	public String getNamespace() {
@@ -30,7 +32,7 @@ public class NullDecoder implements Decoder {
 	}
 	
 	public String getDescription() {
-		return "Null Decoder for Testing";
+		return "Base64 Decoder for Testing";
 	}
 	
 	public void init(String passphrase, Properties props) throws Exception {
@@ -43,9 +45,12 @@ public class NullDecoder implements Decoder {
 
 	public String decrypt(String cyphertext) throws Exception {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
-			return cyphertext.replace(NAMESPACE, "");
+			String stripped = cyphertext.replace(NAMESPACE, "");
+			
+			return new String(Base64.decode(stripped.getBytes()));
 		}
-		return cyphertext;	}
+		return cyphertext;	
+	}
 
 
 }

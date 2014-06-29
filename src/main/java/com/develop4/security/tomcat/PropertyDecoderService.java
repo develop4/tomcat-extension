@@ -31,19 +31,19 @@ import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
-import com.develop4.security.utils.Decoder;
+import com.develop4.security.utils.decoders.Decoder;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyDecoderService.class);
 
 	/* Configuration Constants */
-	protected static final String CONSOLE_TIMEOUT = PropertyDecoderService.class.getName() + ".consoleTimeout";
-	protected static final String PASSPHRASE = PropertyDecoderService.class.getName() + ".passphrase";
-	protected static final String CONFIGURATION = PropertyDecoderService.class.getName() + ".configuration";
-	protected static final String PROPERTIES = PropertyDecoderService.class.getName() + ".properties";
-	protected static final String ENCODING = PropertyDecoderService.class.getName() + ".encoding";
-	protected static final String DECODER = PropertyDecoderService.class.getName() + ".decoder";
+	protected static final String CONSOLE_TIMEOUT_PROP = PropertyDecoderService.class.getName() + ".consoleTimeout";
+	protected static final String PASSPHRASE_PROP = PropertyDecoderService.class.getName() + ".passphrase";
+	protected static final String CONFIGURATION_PROP = PropertyDecoderService.class.getName() + ".configuration";
+	protected static final String PROPERTIES_PROP = PropertyDecoderService.class.getName() + ".properties";
+	protected static final String ENCODING_PROP = PropertyDecoderService.class.getName() + ".encoding";
+	protected static final String DECODER_PROP = PropertyDecoderService.class.getName() + ".decoder";
 
 
 	/* Default Values */
@@ -64,7 +64,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		log.info("SecurePropertyDigester Initializing");
 
 		/* get the configuration file to be used for setting up the decoder*/
-		String configurationFile = System.getProperty(CONFIGURATION);
+		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile != null) {
 			configurationFile = IntrospectionUtils.replaceProperties(configurationFile, null,
 					new IntrospectionUtils.PropertySource[] { new SystemPropertySource() });
@@ -76,9 +76,9 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 		
 		/* Get the console timeout value to be used as the default */
-		String csTimeout = System.getProperty(CONSOLE_TIMEOUT);
+		String csTimeout = System.getProperty(CONSOLE_TIMEOUT_PROP);
 		if (csTimeout == null) {
-			csTimeout = this.configuration.getProperty(CONSOLE_TIMEOUT);
+			csTimeout = this.configuration.getProperty(CONSOLE_TIMEOUT_PROP);
 		}
 		if (csTimeout != null) {
 			csTimeout = csTimeout.trim();
@@ -91,9 +91,9 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		
 
 		/* Get the base encoding type */
-		String pEncoding = System.getProperty(ENCODING);
+		String pEncoding = System.getProperty(ENCODING_PROP);
 		if (pEncoding == null) {
-			pEncoding = this.configuration.getProperty(ENCODING);
+			pEncoding = this.configuration.getProperty(ENCODING_PROP);
 		}
 		if (pEncoding != null) {
 			pEncoding = pEncoding.trim();
@@ -112,9 +112,9 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 
 		/* Get the passphrase to be used as the default value */
-		String passphrase = System.getProperty(PASSPHRASE);
+		String passphrase = System.getProperty(PASSPHRASE_PROP);
 		if (passphrase == null) {
-			passphrase = this.configuration.getProperty(PASSPHRASE);
+			passphrase = this.configuration.getProperty(PASSPHRASE_PROP);
 		}
 		if (passphrase != null) {
 			passphrase = passphrase.trim();
@@ -152,9 +152,9 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 		
 		/* get the property file to be used for all application properties */
-		String propertyFile = System.getProperty(PROPERTIES);
+		String propertyFile = System.getProperty(PROPERTIES_PROP);
 		if (propertyFile == null) {
-			propertyFile = this.configuration.getProperty(PROPERTIES);
+			propertyFile = this.configuration.getProperty(PROPERTIES_PROP);
 		}
 		if (propertyFile != null) {
 			propertyFile = IntrospectionUtils.replaceProperties(propertyFile, null,
@@ -174,11 +174,12 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 		// -- TODO: load all the possible decoder mappings here
 		for (int i = 1; i < 40 ; i++) {
-			String className = this.configuration.getProperty(DECODER + "." + i);
+			String className = this.configuration.getProperty(DECODER_PROP + "." + i);
 			try {
 				if (className != null) {
 					Decoder tmpDecoder = (Decoder)Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
+						// -- The init can be used to capture passphrases for each decoder, or prompt for other values.
 						tmpDecoder.init(this.defaultKey, this.configuration);
 						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
 						log.info("Decoder added: " + tmpDecoder.getNamespace() + " " + className);

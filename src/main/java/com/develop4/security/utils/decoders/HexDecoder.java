@@ -10,21 +10,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.develop4.security.utils;
+package com.develop4.security.utils.decoders;
 
 import java.util.Properties;
 
-import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.Hex;
 
-public class Base64Decoder implements Decoder {
+public class HexDecoder implements Decoder {
 
-	public static final String INFO = "Base64 Decoder Test v1.00";
+	public static final String INFO = "Hexadecimal Decoder Test v1.00";
 
-    public static final String NAME = "B64";
+    public static final String NAME = "HEX";
     
-    private static final String NAMESPACE = "base64://";
+    private static final String NAMESPACE = "hex://";
     
-	public Base64Decoder() {
+	public HexDecoder() {
 	}
 	
 	public String getNamespace() {
@@ -32,7 +32,7 @@ public class Base64Decoder implements Decoder {
 	}
 	
 	public String getDescription() {
-		return "Base64 Decoder for Testing";
+		return "Hex Decoder for Testing";
 	}
 	
 	public void init(String passphrase, Properties props) throws Exception {
@@ -47,7 +47,7 @@ public class Base64Decoder implements Decoder {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			String stripped = cyphertext.replace(NAMESPACE, "");
 			
-			return new String(Base64.decode(stripped.getBytes()));
+			return new String(Hex.decode(stripped.getBytes()));
 		}
 		return cyphertext;	
 	}
