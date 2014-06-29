@@ -12,22 +12,40 @@
  */
 package com.develop4.security.utils;
 
-import javax.crypto.Cipher;
+import java.util.Properties;
 
 public class NullDecoder implements Decoder {
 
-	public NullDecoder(String value) {
-		// -- TODO init
+	public static final String INFO = "Null Decoder Test v1.00";
+
+    public static final String NAME = "NP";
+    
+    private static final String NAMESPACE = "null://";
+    
+	public NullDecoder() {
+	}
+	
+	public String getNamespace() {
+		return NAMESPACE;
+	}
+	
+	public String getDescription() {
+		return "Null Decoder for Testing";
+	}
+	
+	public void init(String passphrase, Properties props) throws Exception {
+		// -- TODO Auto-generated method stub
 	}
 	
 	public String encrypt(String cleartext) throws Exception {
-		// -- TODO Auto-generated method stub
-		return cleartext;
+		return NAMESPACE+cleartext;
 	}
 
 	public String decrypt(String cyphertext) throws Exception {
-		// -- TODO Auto-generated method stub
-		return cyphertext;
-	}
+		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
+			return cyphertext.replace(NAMESPACE, "");
+		}
+		return cyphertext;	}
+
 
 }

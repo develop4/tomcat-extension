@@ -12,13 +12,22 @@
  */
 package com.develop4.security.utils;
 
+import java.util.Properties;
+
 /**
  * 
  * @author william timpany
  *
  */
 public abstract interface Decoder {
-	public abstract String encrypt(String paramString) throws Exception;
+	
+	public abstract String getNamespace();
+	
+	public abstract String getDescription();
+	
+	public abstract void init(String passphrase, Properties props) throws Exception;
+	
+	public abstract String encrypt(String plaintext) throws Exception;
 
-	public abstract String decrypt(String paramString) throws Exception;
+	public abstract String decrypt(String cyphertext) throws Exception;
 }

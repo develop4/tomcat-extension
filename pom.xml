@@ -28,7 +28,8 @@
 		<junit.version>3.8.1</junit.version>
 		<bouncycastle.version>1.50</bouncycastle.version>
 		<apache.tomcat.version>7.0.54</apache.tomcat.version>
-		<apache.commons.validator>1.4.0</apache.commons.validator>
+		<apache.commons.validator.version>1.4.0</apache.commons.validator.version>
+		<apache.codec.version>1.9</apache.codec.version>
 	</properties>
 
 	<build>
@@ -46,22 +47,36 @@
 
 	<dependencies>
 
+<dependency>
+	<groupId>commons-codec</groupId>
+	<artifactId>commons-codec</artifactId>
+	<version>${apache.codec.version}</version>
+				<scope>compile</scope>
+	
+</dependency>
+
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
-			<version>${apache.commons.validator}</version>
+			<version>${apache.commons.validator.version}</version>
+						<scope>compile</scope>
+			
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-catalina</artifactId>
 			<version>${apache.tomcat.version}</version>
+						<scope>compile</scope>
+			
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-coyote</artifactId>
 			<version>${apache.tomcat.version}</version>
+						<scope>compile</scope>
+			
 		</dependency>
 
 		<dependency>
