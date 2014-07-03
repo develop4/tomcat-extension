@@ -4,7 +4,7 @@
 
 	<groupId>com.develop4</groupId>
 	<artifactId>tomcat-extension</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>Tomcat Extensions</name>
@@ -31,6 +31,7 @@
 		<apache.codec.version>1.9</apache.codec.version>
 	</properties>
 
+<!--  
 	<build>
 		<plugins>
 			<plugin>
@@ -42,7 +43,15 @@
 			</plugin>
 		</plugins>
 	</build>
+-->
 
+	<distributionManagement>
+		<repository>
+			<id>cde1023-ApplicationGovernance-ThirdParty</id>
+			<name>cde1023 ApplicationGovernance ThirdParty</name>
+			<url>http://cu011.cubit.dbcde.com/content/repositories/cde1023-ApplicationGovernance-ThirdParty</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencies>
 

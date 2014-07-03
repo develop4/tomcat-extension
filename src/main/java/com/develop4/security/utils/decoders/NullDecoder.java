@@ -14,7 +14,9 @@ package com.develop4.security.utils.decoders;
 
 import java.util.Properties;
 
-public class NullDecoder implements Decoder {
+import org.jasypt.encryption.StringEncryptor;
+
+public class NullDecoder implements Decoder, StringEncryptor {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(NullDecoder.class);
 
@@ -41,7 +43,7 @@ public class NullDecoder implements Decoder {
 		return INFO;
 	}
 	
-	public void init(final String passphrase, final Properties properties) throws Exception {
+	public void init(final String passphrase, final Properties properties)  {
 		if(properties != null) {
 			this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
 		}
@@ -50,14 +52,14 @@ public class NullDecoder implements Decoder {
 		}
 	}
 	
-	public String encrypt(String cleartext) throws Exception {
+	public String encrypt(String cleartext)  {
 		if (cleartext == null) {
 			return null;
 		}
 		return NAMESPACE+cleartext;
 	}
 
-	public String decrypt(String cyphertext) throws Exception {
+	public String decrypt(String cyphertext)  {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			return cyphertext.replace(NAMESPACE, "");
 		}

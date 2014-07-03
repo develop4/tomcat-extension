@@ -15,8 +15,9 @@ package com.develop4.security.utils.decoders;
 import java.util.Properties;
 
 import org.bouncycastle.util.encoders.Hex;
+import org.jasypt.encryption.StringEncryptor;
 
-public class HexDecoder implements Decoder {
+public class HexDecoder implements Decoder, StringEncryptor {
 
 	public static final String INFO 		= "Hexadecimal Decoder Test v1.00";
     public static final String NAMESPACE 	= "hex://";
@@ -37,18 +38,18 @@ public class HexDecoder implements Decoder {
 		return INFO;
 	}
 	
-	public void init(String passphrase, Properties props) throws Exception {
+	public void init(String passphrase, Properties props)  {
 		// -- TODO Auto-generated method stub
 	}
 	
-	public String encrypt(String cleartext) throws Exception {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}
 		return NAMESPACE + new String(Hex.encode(cleartext.getBytes()));
 	}
 
-	public String decrypt(String cyphertext) throws Exception {
+	public String decrypt(String cyphertext) {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			String stripped = cyphertext.replace(NAMESPACE, "");
 			

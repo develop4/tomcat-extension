@@ -16,8 +16,9 @@ import java.util.Properties;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
+import org.jasypt.encryption.StringEncryptor;
 
-public class Base64Decoder implements Decoder {
+public class Base64Decoder implements Decoder, StringEncryptor {
 
 	public static final String INFO 		= "Base64 Decoder Test v1.00";
     public static final String DESCRIPTION 	= "B64";
@@ -38,18 +39,18 @@ public class Base64Decoder implements Decoder {
 		return INFO;
 	}
 	
-	public void init(String passphrase, Properties props) throws Exception {
+	public void init(String passphrase, Properties props) {
 		// -- TODO Auto-generated method stub
 	}
 	
-	public String encrypt(String cleartext) throws Exception {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}
 		return NAMESPACE + new String(Base64.encode(cleartext.getBytes()));
 	}
 
-	public String decrypt(String cyphertext) throws Exception {
+	public String decrypt(String cyphertext) {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			String stripped = cyphertext.replace(NAMESPACE, "");
 			

@@ -14,15 +14,16 @@ package com.develop4.security.utils.decoders;
 
 import java.util.Properties;
 
+import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.intf.service.JasyptStatelessService;
 
-public class PBEDecoder implements Decoder {
+public class PBEDecoder implements Decoder, StringEncryptor {
 
 	public static final String INFO 		= "PBE Decoder Test v1.00";
     public static final String NAMESPACE 	= "pbe://";
     public static final String DESCRIPTION 	= "PBE";
     
-    private static final String DEFAULT_PASSPHRASE = "446576656c6f7034546563686e6f6c6f67696573";
+    private static final String DEFAULT_PASSPHRASE = "446576656C6F7034546563686E6F6C6F67696573";
     private static final String DEFAULT_PROVIDER_NAME = "BC";
     private static final String DEFAULT_ALGORITHM_NAME = "PBEWITHSHA256AND256BITAES-CBC-BC";
     private static final String DEFAULT_OBTENTION_ITERATIONS = "1000";
@@ -65,7 +66,7 @@ public class PBEDecoder implements Decoder {
 		return "PBE Decoder for Testing";
 	}
 	
-	public void init(final String passphrase, final Properties properties) throws Exception {
+	public void init(final String passphrase, final Properties properties) {
 		Properties props = new Properties();
 		if(properties != null) {
 			props = properties;
@@ -83,7 +84,7 @@ public class PBEDecoder implements Decoder {
 		this.setSaltGeneratorClassName(props.getProperty(SALT_GENERATOR_CLASS_NAME_PROP, DEFAULT_SALT_GENERATOR_CLASS_NAME));
 	}
 	
-	public String encrypt(String cleartext) throws Exception {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}
@@ -113,7 +114,7 @@ public class PBEDecoder implements Decoder {
                 null);
 	}
 
-	public String decrypt(String cyphertext) throws Exception {
+	public String decrypt(String cyphertext) {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			String stripped = cyphertext.replace(NAMESPACE, "");
 			

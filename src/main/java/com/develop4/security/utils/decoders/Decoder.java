@@ -27,9 +27,9 @@ public abstract interface Decoder {
 	
 	public abstract String getDescription();
 	
-	public abstract void init(String passphrase, Properties props) throws Exception;
+	public abstract void init(String passphrase, Properties props);
 	
-	public abstract String encrypt(String plaintext) throws Exception;
+	public abstract String encrypt(String plaintext);
 
-	public abstract String decrypt(String cyphertext) throws Exception;
+	public abstract String decrypt(String cyphertext);
 }
