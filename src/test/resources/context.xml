@@ -31,12 +31,12 @@
     <Valve className="org.apache.catalina.valves.CometConnectionManagerValve" />
     -->
     
-    <Parameter name="EncryptionTest1" value="${my.test.property.one}" override="false"/>
-    <Parameter name="EncryptionTest2" value="${my.test.property.two}" override="false"/>
-    <Parameter name="EncryptionTest3" value="${my.test.property.three}" override="false"/>
-    <Parameter name="EncryptionTest4" value="${my.test.property.four}" override="false"/>
+    <Environment name="EncryptionTest1" value="${my.test.property.one}" override="false" type="java.lang.String"/>
+    <Environment name="EncryptionTest2" value="${my.test.property.two}" override="false" type="java.lang.String"/>
+    <Environment name="EncryptionTest3" value="${my.test.property.three}" override="false" type="java.lang.String"/>
+    <Environment name="EncryptionTest4" value="${my.test.property.four}" override="false" type="java.lang.String"/>
     
-    <Parameter name="oraclePassword" value="${database.oracle.password}" override="false"/>
-	<Parameter name="schedulerPassowrd" value="${database.schedule.password}" override="false"/>
+    <Environment name="oraclePassword" value="${database.oracle.password}" override="false" type="java.lang.String"/>
+	<Environment name="schedulerPassowrd" value="${database.schedule.password}" override="false" type="java.lang.String"/>
 
 </Context>
