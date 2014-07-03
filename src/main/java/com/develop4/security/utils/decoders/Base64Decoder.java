@@ -15,7 +15,6 @@ package com.develop4.security.utils.decoders;
 import java.util.Properties;
 
 import org.bouncycastle.util.encoders.Base64;
-import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
 public class Base64Decoder implements Decoder, StringEncryptor {
@@ -62,7 +61,7 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("HexDecoder [Namespace:");
+		builder.append("Base64Decoder [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

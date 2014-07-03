@@ -208,7 +208,7 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("HexDecoder [Namespace:");
+		builder.append("PBEDecoder [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());
