@@ -28,7 +28,7 @@ public class PBEDecoder implements Decoder {
     private static final String DEFAULT_OBTENTION_ITERATIONS = "1000";
     private static final String DEFAULT_PROVIDER_CLASS_NAME = "org.bouncycastle.jce.provider.BouncyCastleProvider";
     private static final String DEFAULT_SALT_GENERATOR_CLASS_NAME = null;
-    private static final String DEFAULT_STRING_OUTPUT_TYPE = "hex";
+    private static final String DEFAULT_STRING_OUTPUT_TYPE = "hexadecimal";
 
 
     
