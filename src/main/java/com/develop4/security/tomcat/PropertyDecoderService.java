@@ -14,18 +14,21 @@ package com.develop4.security.tomcat;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
@@ -35,46 +38,53 @@ import com.develop4.security.utils.decoders.Decoder;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyDecoderService.class);
+	private static Log log = LogFactory.getLog(PropertyDecoderService.class);
 
 	/* Configuration Constants */
 	protected static final String CONSOLE_TIMEOUT_PROP = PropertyDecoderService.class.getName() + ".consoleTimeout";
 	protected static final String PASSPHRASE_PROP = PropertyDecoderService.class.getName() + ".passphrase";
 	protected static final String CONFIGURATION_PROP = PropertyDecoderService.class.getName() + ".configuration";
 	protected static final String PROPERTIES_PROP = PropertyDecoderService.class.getName() + ".properties";
-	protected static final String ENCODING_PROP = PropertyDecoderService.class.getName() + ".encoding";
 	protected static final String DECODER_PROP = PropertyDecoderService.class.getName() + ".decoder";
 
-
 	/* Default Values */
+	private static final String BASE64 = "base64://";
+	private static final String HEX = "hex://";
+	private static final Pattern patternUri = Pattern.compile("(^\\S+://)");
+
 	protected static final long DEFAULT_TIMEOUT_VALUE = 30000l;
 	protected static final String DEFAULT_KEY = "446576656c6f7034546563686e6f6c6f67696573";
 
 	private Properties properties = new Properties();
 	private Properties configuration = new Properties();
-	private Map<String,Decoder> decoders = new HashMap<String,Decoder>();
+	private Map<String, Decoder> decoders = new HashMap<String, Decoder>();
 
 	private String defaultKey = DEFAULT_KEY;
 	private long consoleTimeout = 30000l;
-	private boolean isBase64 = false;
-	private boolean isHex = true;
 
 	public PropertyDecoderService() throws Exception {
 		log.info("======================================================================");
 		log.info("SecurePropertyDigester Initializing");
 
-		/* get the configuration file to be used for setting up the decoder*/
+		boolean bob = log.isDebugEnabled();
+		boolean bobb = log.isTraceEnabled();
+
+		/* get the configuration file to be used for setting up the decoder */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile != null) {
 			configurationFile = IntrospectionUtils.replaceProperties(configurationFile, null,
 					new IntrospectionUtils.PropertySource[] { new SystemPropertySource() });
+
 			File pFile = isFile(configurationFile);
 			if (pFile != null) {
-				log.info("Activate configuration file reader");
+				log.info("Activate configuration file reader for file: \"" + pFile.getCanonicalPath() + "\"");
 				this.configuration = readFileProperties(pFile);
+			} else {
+				throw new IllegalArgumentException("Unable to load fonfiguration file:" + configurationFile);
 			}
+
 		}
-		
+
 		/* Get the console timeout value to be used as the default */
 		String csTimeout = System.getProperty(CONSOLE_TIMEOUT_PROP);
 		if (csTimeout == null) {
@@ -82,36 +92,14 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 		if (csTimeout != null) {
 			csTimeout = csTimeout.trim();
-			String tmpTimeout = IntrospectionUtils.replaceProperties(csTimeout, null,
-					new IntrospectionUtils.PropertySource[] { new SystemPropertySource(), new LocalPropertySource(this.configuration) });
+			String tmpTimeout = IntrospectionUtils.replaceProperties(csTimeout, null, new IntrospectionUtils.PropertySource[] {
+					new SystemPropertySource(), new LocalPropertySource(this.configuration) });
 			if (tmpTimeout != null) {
 				this.consoleTimeout = Long.getLong(tmpTimeout, DEFAULT_TIMEOUT_VALUE).longValue();
 			}
 		}
-		
 
-		/* Get the base encoding type */
-		String pEncoding = System.getProperty(ENCODING_PROP);
-		if (pEncoding == null) {
-			pEncoding = this.configuration.getProperty(ENCODING_PROP);
-		}
-		if (pEncoding != null) {
-			pEncoding = pEncoding.trim();
-			String sEncoding = IntrospectionUtils.replaceProperties(pEncoding, null,
-					new IntrospectionUtils.PropertySource[] { new SystemPropertySource() , new LocalPropertySource(this.configuration)});
-			if (sEncoding != null) {
-				sEncoding = sEncoding.trim();
-				if ("base64".equals(sEncoding)) {
-					this.isBase64 = true;
-					this.isHex = false;
-				} else {
-					this.isBase64 = false;
-					this.isHex = true;
-				}
-			}
-		}
-
-		/* Get the passphrase to be used as the default value */
+		/* Get the master key to be used as the default value */
 		String passphrase = System.getProperty(PASSPHRASE_PROP);
 		if (passphrase == null) {
 			passphrase = this.configuration.getProperty(PASSPHRASE_PROP);
@@ -127,17 +115,17 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 					this.defaultKey = tmpPassphrase;
 				}
 			} else {
-				String tmpPassphrase = IntrospectionUtils.replaceProperties(passphrase, null,
-						new IntrospectionUtils.PropertySource[] { new SystemPropertySource(), new LocalPropertySource(this.configuration) });
+				String tmpPassphrase = IntrospectionUtils.replaceProperties(passphrase, null, new IntrospectionUtils.PropertySource[] {
+						new SystemPropertySource(), new LocalPropertySource(this.configuration) });
 				if (tmpPassphrase != null) {
 					File pFile = isFile(tmpPassphrase);
 					if (pFile != null) {
-						log.info("Activate file passphrase reader from file: \"" + pFile.getName() + "\"");
+						log.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
 						this.defaultKey = readFileValue(pFile);
 					} else {
 						URL pUrl = isUrl(tmpPassphrase);
 						if (pUrl != null) {
-							log.info("Activate url passphrase reader from url: \"" + pUrl.toString() + "\"");
+							log.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
 							this.defaultKey = readUrlValue(pUrl);
 						} else {
 							log.info("Activate passphrase from memory");
@@ -148,74 +136,78 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			}
 		}
 		log.info("Passphrase initialized: " + this.defaultKey);
-		
 
-		
 		/* get the property file to be used for all application properties */
 		String propertyFile = System.getProperty(PROPERTIES_PROP);
 		if (propertyFile == null) {
 			propertyFile = this.configuration.getProperty(PROPERTIES_PROP);
 		}
 		if (propertyFile != null) {
-			propertyFile = IntrospectionUtils.replaceProperties(propertyFile, null,
-					new IntrospectionUtils.PropertySource[] { new SystemPropertySource(), new LocalPropertySource(this.configuration) });
+			propertyFile = IntrospectionUtils.replaceProperties(propertyFile, null, new IntrospectionUtils.PropertySource[] {
+					new SystemPropertySource(), new LocalPropertySource(this.configuration) });
 			File pFile = isFile(propertyFile);
 			if (pFile != null) {
-				log.info("Activate file application properties reader.");
+				log.info("Activate file application properties reader from: \"" + pFile.getCanonicalPath() + "\"");
 				this.properties = readFileProperties(pFile);
 			} else {
 				URL pUrl = isUrl(propertyFile);
 				if (pUrl != null) {
-					log.info("Activate url application properties reader.");
+					log.info("Activate url application properties reader from: \"" + pUrl.toString() + "\"");
 					this.properties = readUrlProperties(pUrl);
 				}
 			}
 		}
 
-		// -- TODO: load all the possible decoder mappings here
-		for (int i = 1; i < 40 ; i++) {
+		// -- TODO: load all the possible decoder mappings here, in reverse
+		// order.
+		for (int i = 20; i > 0; i--) {
 			String className = this.configuration.getProperty(DECODER_PROP + "." + i);
 			try {
 				if (className != null) {
-					Decoder tmpDecoder = (Decoder)Class.forName(className).newInstance();
+					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
-						// -- The init can be used to capture passphrases for each decoder, or prompt for other values.
+						log.info("Activate decoder: \"" + tmpDecoder.toString());
 						tmpDecoder.init(this.defaultKey, this.configuration);
 						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
-						log.info("Decoder added: " + tmpDecoder.getNamespace() + " " + className);
 					}
 				}
 			} catch (Exception ex) {
 				log.error("Failed to instanciate decoder class: " + className);
 			}
-			
+
 		}
 
 		log.info("SecurePropertyDigester Initialized");
 		log.info("======================================================================");
 	}
 
-	public String decode(String text) {
-		log.info("Decode value: " + text);
-		if (text == null) {
+	public String decode(String cyphertext) {
+		log.info("Decode value: " + cyphertext);
+		if (cyphertext == null) {
 			return null;
 		}
 		try {
-			if (this.isBase64) {
-				String cleartext = new String(Base64.decode(text.getBytes()));
-				log.info("Decoded using Base64: " + cleartext);
+			if (cyphertext.startsWith(BASE64)) {
+				String stripped = cyphertext.replace(BASE64, "");
+				String cleartext = new String(Base64.decode(stripped.getBytes()));
+				if (log.isDebugEnabled()) {
+					log.debug("Decoded using Base64: " + cleartext);
+				}
 				return cleartext;
-			} else if (this.isHex) {
-				String cleartext = new String(Hex.decode(text.getBytes()));
-				log.info("Decoded using Hex: " + cleartext);
+			} else if (cyphertext.startsWith(HEX)) {
+				String stripped = cyphertext.replace(HEX, "");
+				String cleartext = new String(Hex.decode(stripped.getBytes()));
+				if (log.isDebugEnabled()) {
+					log.debug("Decoded using Hex: " + cleartext);
+				}
 				return cleartext;
 			} else {
-				return text;
+				return cyphertext;
 			}
 		} catch (Exception dex) {
 			log.info("Problem trying to decode the text: " + dex.getMessage());
 		}
-		return text;
+		return cyphertext;
 
 	}
 
@@ -238,18 +230,25 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			return value;
 		}
 		try {
-			// -- TODO: Add all the decoding code here but for now just return
-			// the value and print out some debugging info
-			log.info("Handle Key: \"" + key + "\"  Value: \"" + value + "\"");
-			for(String deckey : this.decoders.keySet()) {
-				if (value.startsWith(deckey)) {
-					Decoder decoder = this.decoders.get(deckey);
-					log.info("Namespace for decoder found: " + deckey + "  decoder: " + decoder.getDescription());
+			if (log.isInfoEnabled()) {
+				log.info("Handle Key: \"" + key + "\"  Value: \"" + value + "\"");
+			}
+			
+			Matcher matcher = patternUri.matcher(value);
+			if (matcher.find()) {
+				String namespaceKey = matcher.group(1);
+				Decoder decoder = this.decoders.get(namespaceKey);
+				if (decoder != null) {
+					if (log.isDebugEnabled()) {
+						log.debug("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
+					}
 					value = decoder.decrypt(value);
-					break;
+					if (log.isDebugEnabled()) {
+						log.debug("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					}
 				}
 			}
-			log.info("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+
 			return value;
 		} catch (Exception x) {
 			log.fatal("Oops decoding has failed:" + key, x);
@@ -277,7 +276,15 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		if ((file.exists()) && (file.isFile()) && (file.isAbsolute() && file.canRead())) {
 			return file;
 		} else {
-			// log.warn("file name is invalid: \"" + fileName + "\"");
+			try {
+				URI tmpUri = new URI(fileName);
+				file = new File(tmpUri);
+				if ((file.exists()) && (file.isFile()) && (file.isAbsolute() && file.canRead())) {
+					return file;
+				}
+			} catch (Exception ex) {
+				;
+			}
 		}
 		return null;
 	}
@@ -316,7 +323,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 		return line;
 	}
-	
+
 	public Properties readFileProperties(File file) throws IOException {
 		Properties returnProperties = new Properties();
 		BufferedReader reader = null;

@@ -21,6 +21,8 @@ import java.util.Properties;
  */
 public abstract interface Decoder {
 	
+	public abstract String getInfo();
+
 	public abstract String getNamespace();
 	
 	public abstract String getDescription();

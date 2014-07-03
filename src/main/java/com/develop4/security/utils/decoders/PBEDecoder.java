@@ -18,9 +18,9 @@ import org.jasypt.intf.service.JasyptStatelessService;
 
 public class PBEDecoder implements Decoder {
 
-	public static final String INFO = "PBE Decoder Test v1.00";
-    public static final String NAME = "PBE";
-    public static final String NAMESPACE = "pbe://";
+	public static final String INFO 		= "PBE Decoder Test v1.00";
+    public static final String NAMESPACE 	= "pbe://";
+    public static final String DESCRIPTION 	= "PBE";
     
     private static final String DEFAULT_PASSPHRASE = "446576656c6f7034546563686e6f6c6f67696573";
     private static final String DEFAULT_PROVIDER_NAME = "BC";
@@ -53,6 +53,10 @@ public class PBEDecoder implements Decoder {
 	public PBEDecoder() {
 	}
 	
+	public String getInfo() {
+		return INFO;
+	}
+	
 	public String getNamespace() {
 		return NAMESPACE;
 	}
@@ -80,7 +84,33 @@ public class PBEDecoder implements Decoder {
 	}
 	
 	public String encrypt(String cleartext) throws Exception {
-		return NAMESPACE+cleartext;
+		if (cleartext == null) {
+			return null;
+		}
+		final JasyptStatelessService service = new JasyptStatelessService();
+		return NAMESPACE + service.encrypt(
+        		cleartext, 
+                this.getPassphrase(),
+                null,
+                null,
+                this.getAlgorithimName(),
+                null,
+                null,
+                this.getObtentionIterations(),
+                null,
+                null,
+                this.getSaltGeneratorClassName(),
+                null,
+                null,
+                this.getProviderName(),
+                null,
+                null,
+                this.getProviderClassName(),
+                null,
+                null,
+                this.getStringOutputType(),
+                null,
+                null);
 	}
 
 	public String decrypt(String cyphertext) throws Exception {
@@ -174,6 +204,17 @@ public class PBEDecoder implements Decoder {
 		this.stringOutputType = stringOutputType;
 	}
 
-
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("HexDecoder [Namespace:");
+		builder.append(getNamespace());
+		builder.append(", Description:");
+		builder.append(getDescription());
+		builder.append(", Info:");
+		builder.append(getInfo());
+		builder.append("]");
+		return builder.toString();
+	}
 
 }

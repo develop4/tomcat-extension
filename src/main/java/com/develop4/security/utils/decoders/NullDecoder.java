@@ -18,15 +18,27 @@ public class NullDecoder implements Decoder {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(NullDecoder.class);
 
-	public static final String INFO = "Null Decoder Test v1.00";
-    public static final String NAME = "NP";
-    public static final String NAMESPACE = "null://";
+	public static final String INFO 		= "Null Decoder Test v1.00";
+    public static final String DESCRIPTION 	= "NULL";
+    public static final String NAMESPACE 	= "null://";
     
 	public static final String DEBUG_PROP = NullDecoder.class.getName() + ".debug";
 
 	private boolean debug = false;
     
 	public NullDecoder() {
+	}
+	
+	public String getNamespace() {
+		return NAMESPACE;
+	}
+	
+	public String getDescription() {
+		return DESCRIPTION;
+	}
+	
+	public String getInfo() {
+		return INFO;
 	}
 	
 	public void init(final String passphrase, final Properties properties) throws Exception {
@@ -38,15 +50,10 @@ public class NullDecoder implements Decoder {
 		}
 	}
 	
-	public String getNamespace() {
-		return NAMESPACE;
-	}
-	
-	public String getDescription() {
-		return "Null Decoder for Testing";
-	}
-	
 	public String encrypt(String cleartext) throws Exception {
+		if (cleartext == null) {
+			return null;
+		}
 		return NAMESPACE+cleartext;
 	}
 
@@ -64,5 +71,17 @@ public class NullDecoder implements Decoder {
 		this.debug = debug;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("HexDecoder [Namespace:");
+		builder.append(getNamespace());
+		builder.append(", Description:");
+		builder.append(getDescription());
+		builder.append(", Info:");
+		builder.append(getInfo());
+		builder.append("]");
+		return builder.toString();
+	}
 
 }

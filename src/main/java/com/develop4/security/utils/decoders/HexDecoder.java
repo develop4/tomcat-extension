@@ -18,21 +18,23 @@ import org.bouncycastle.util.encoders.Hex;
 
 public class HexDecoder implements Decoder {
 
-	public static final String INFO = "Hexadecimal Decoder Test v1.00";
-
-    public static final String NAME = "HEX";
-    
-    private static final String NAMESPACE = "hex://";
+	public static final String INFO 		= "Hexadecimal Decoder Test v1.00";
+    public static final String NAMESPACE 	= "hex://";
+    public static final String DESCRIPTION 	= "HEX";
     
 	public HexDecoder() {
 	}
-	
+
 	public String getNamespace() {
 		return NAMESPACE;
 	}
 	
 	public String getDescription() {
-		return "Hex Decoder for Testing";
+		return DESCRIPTION;
+	}
+	
+	public String getInfo() {
+		return INFO;
 	}
 	
 	public void init(String passphrase, Properties props) throws Exception {
@@ -40,7 +42,10 @@ public class HexDecoder implements Decoder {
 	}
 	
 	public String encrypt(String cleartext) throws Exception {
-		return NAMESPACE+cleartext;
+		if (cleartext == null) {
+			return null;
+		}
+		return NAMESPACE + new String(Hex.encode(cleartext.getBytes()));
 	}
 
 	public String decrypt(String cyphertext) throws Exception {
@@ -50,6 +55,20 @@ public class HexDecoder implements Decoder {
 			return new String(Hex.decode(stripped.getBytes()));
 		}
 		return cyphertext;	
+	}
+
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("HexDecoder [Namespace:");
+		builder.append(getNamespace());
+		builder.append(", Description:");
+		builder.append(getDescription());
+		builder.append(", Info:");
+		builder.append(getInfo());
+		builder.append("]");
+		return builder.toString();
 	}
 
 

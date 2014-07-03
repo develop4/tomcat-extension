@@ -15,14 +15,13 @@ package com.develop4.security.utils.decoders;
 import java.util.Properties;
 
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.Hex;
 
 public class Base64Decoder implements Decoder {
 
-	public static final String INFO = "Base64 Decoder Test v1.00";
-
-    public static final String NAME = "B64";
-    
-    private static final String NAMESPACE = "base64://";
+	public static final String INFO 		= "Base64 Decoder Test v1.00";
+    public static final String DESCRIPTION 	= "B64";
+    public static final String NAMESPACE 	= "base64://";
     
 	public Base64Decoder() {
 	}
@@ -35,12 +34,19 @@ public class Base64Decoder implements Decoder {
 		return "Base64 Decoder for Testing";
 	}
 	
+	public String getInfo() {
+		return INFO;
+	}
+	
 	public void init(String passphrase, Properties props) throws Exception {
 		// -- TODO Auto-generated method stub
 	}
 	
 	public String encrypt(String cleartext) throws Exception {
-		return NAMESPACE+cleartext;
+		if (cleartext == null) {
+			return null;
+		}
+		return NAMESPACE + new String(Base64.encode(cleartext.getBytes()));
 	}
 
 	public String decrypt(String cyphertext) throws Exception {
@@ -52,5 +58,17 @@ public class Base64Decoder implements Decoder {
 		return cyphertext;	
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("HexDecoder [Namespace:");
+		builder.append(getNamespace());
+		builder.append(", Description:");
+		builder.append(getDescription());
+		builder.append(", Info:");
+		builder.append(getInfo());
+		builder.append("]");
+		return builder.toString();
+	}
 
 }
