@@ -35,6 +35,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
 import com.develop4.security.utils.decoders.Decoder;
+import com.develop4.security.utils.decoders.NullDecoder;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
@@ -46,28 +47,29 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	protected static final String CONFIGURATION_PROP = PropertyDecoderService.class.getName() + ".configuration";
 	protected static final String PROPERTIES_PROP = PropertyDecoderService.class.getName() + ".properties";
 	protected static final String DECODER_PROP = PropertyDecoderService.class.getName() + ".decoder";
+	protected static final String DEBUG_PROP = PropertyDecoderService.class.getName() + ".debug";
+
 
 	/* Default Values */
-	private static final String BASE64 = "base64://";
-	private static final String HEX = "hex://";
-	private static final Pattern patternUri = Pattern.compile("(^\\S+://)");
+	protected static final String BASE64 = "base64://";
+	protected static final String HEX = "hex://";
+	protected static final Pattern patternUri = Pattern.compile("(^\\S+://)");
 
 	protected static final long DEFAULT_TIMEOUT_VALUE = 30000l;
 	protected static final String DEFAULT_KEY = "446576656c6f7034546563686e6f6c6f67696573";
 
-	private Properties properties = new Properties();
-	private Properties configuration = new Properties();
-	private Map<String, Decoder> decoders = new HashMap<String, Decoder>();
+	protected Properties properties = new Properties();
+	protected Properties configuration = new Properties();
+	protected Map<String, Decoder> decoders = new HashMap<String, Decoder>();
 
-	private String defaultKey = DEFAULT_KEY;
-	private long consoleTimeout = 30000l;
+	protected String defaultKey = DEFAULT_KEY;
+	protected long consoleTimeout = 30000l;
+	
+	private boolean debug = false;
 
 	public PropertyDecoderService() throws Exception {
 		log.info("======================================================================");
 		log.info("SecurePropertyDigester Initializing");
-
-		boolean bob = log.isDebugEnabled();
-		boolean bobb = log.isTraceEnabled();
 
 		/* get the configuration file to be used for setting up the decoder */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
@@ -83,6 +85,17 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				throw new IllegalArgumentException("Unable to load fonfiguration file:" + configurationFile);
 			}
 
+		}
+		
+		String debugProperty = System.getProperty(DEBUG_PROP);
+		if (debugProperty == null) {
+			debugProperty = this.configuration.getProperty(DEBUG_PROP,"false");
+			if (debugProperty != null) {
+				setDebug(Boolean.parseBoolean(debugProperty));
+			}
+		}
+		if (isDebug()) {
+			log.info("Debug mode has been activated:");
 		}
 
 		/* Get the console timeout value to be used as the default */
@@ -167,6 +180,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
 						log.info("Activate decoder: \"" + tmpDecoder.toString());
+						// -- TODO : only pass parameters that as specific for the decoder
 						tmpDecoder.init(this.defaultKey, this.configuration);
 						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
 					}
@@ -239,12 +253,12 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				String namespaceKey = matcher.group(1);
 				Decoder decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
-					if (log.isDebugEnabled()) {
-						log.debug("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
+					if (isDebug()) {
+						log.info("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
 					}
 					value = decoder.decrypt(value);
-					if (log.isDebugEnabled()) {
-						log.debug("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					if (isDebug()) {
+						log.info("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
 					}
 				}
 			}
@@ -385,5 +399,13 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			}
 		}
 		return returnProperties;
+	}
+
+	public boolean isDebug() {
+		return this.debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 }
