@@ -17,11 +17,11 @@
     </links>
 
     <menu name="Tomcat Extensions">
-      <item name="Introduction" href="index.html"/>
-      <item name="Download" href="download.html"/>
-      <item name="Release Notes" href="release-notes.html" />
-      <item name="General Information" href="about.html"/>
-      <item name="Road Map" href="roadmap.html" />
+      <item name="Introduction" href="/Projects/tomcat-extension/index.html"/>
+      <item name="Download" href="/Projects/tomcat-extension/download.html"/>
+      <item name="Release Notes" href="/Projects/tomcat-extension/release-notes.html" />
+      <item name="General Information" href="/Projects/tomcat-extension/about.html"/>
+      <item name="Road Map" href="/Projects/tomcat-extension/roadmap.html" />
     </menu>
 
     <menu ref="reports"/>
