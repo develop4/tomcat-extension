@@ -75,7 +75,8 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			return IntrospectionUtils.replaceProperties(value, null, 
 					new IntrospectionUtils.PropertySource[] {
 						new SystemPropertySource(), 
-						new LocalPropertySource(this.configuration) 
+						new LocalPropertySource(this.configuration),
+						new LocalPropertySource(this.properties) 
 						}
 					);
 		}
@@ -186,8 +187,8 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			}
 		}
 
-		// -- TODO: load all the possible decoder mappings here, in reverse
-		// order.
+		// -- load the possible decoder mappings here, in reverse order.
+		// -- this will ensure that the correct precedence is preserved.
 		for (int i = 20; i > 0; i--) {
 			String className = this.configuration.getProperty(DECODER_PROP + "." + i);
 			try {
@@ -197,11 +198,11 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 						log.info("Activate decoder: \"" + tmpDecoder.toString());
 						// -- TODO : only pass parameters that as specific for the decoder
 						Properties tmpProperties = new Properties();
-						for (String myKey : this.properties.stringPropertyNames()) {
+						for (String myKey : this.configuration.stringPropertyNames()) {
 							// -- Transfer property settings that begin with the decoder classname to ensure 
 							// -- properties settings do not leak between decoders.
 							if (myKey.startsWith(className)) {
-								tmpProperties.put(myKey, introspectProperty(this.properties.getProperty(myKey)));
+								tmpProperties.put(myKey, introspectProperty(this.configuration.getProperty(myKey)));
 							}
 						}
 						tmpDecoder.init(this.defaultKey, tmpProperties);
@@ -210,6 +211,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				}
 			} catch (Exception ex) {
 				log.error("Failed to instanciate decoder class: " + className);
+				ex.printStackTrace();
 			}
 
 		}

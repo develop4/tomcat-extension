@@ -24,8 +24,15 @@ public class NullDecoder implements Decoder, StringEncryptor {
     public static final String DESCRIPTION 	= "NULL";
     public static final String NAMESPACE 	= "null://";
     
-	public static final String DEBUG_PROP = NullDecoder.class.getName() + ".debug";
+    private static final String DEFAULT_PASSPHRASE = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
+    
+	public static final String DEBUG_PROP = NullDecoder.class.getName() + ".debug";
+	public static final String PASSPHRASE_PROP = NullDecoder.class.getName() + ".passphrase";
+
+    private String passphrase;
+
+	private Properties properties;
 	private boolean debug = false;
     
 	public NullDecoder() {
@@ -43,12 +50,25 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		return INFO;
 	}
 	
-	public void init(final String passphrase, final Properties properties)  {
-		if(properties != null) {
-			this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
+	public void init(final String passphrase, final Properties props)  {
+		if(props != null) {
+			this.properties = props;
 		}
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
+		}
+		
+		// -- do the stuff, allow overriding the passphrase
+		this.setPassphrase(passphrase);
+		if (this.properties.getProperty(PASSPHRASE_PROP) != null){
+			this.setPassphrase(this.properties.getProperty(PASSPHRASE_PROP, DEFAULT_PASSPHRASE));
+		}
+				
+		if (isDebug()) {
+			for (String myKey : this.properties.stringPropertyNames()) {
+				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
+			}
 		}
 	}
 	
@@ -63,8 +83,17 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			return cyphertext.replace(NAMESPACE, "");
 		}
-		return cyphertext;	}
+		return cyphertext;	
+	}
 
+	public String getPassphrase() {
+		return passphrase;
+	}
+
+	public void setPassphrase(final String passphrase) {
+		this.passphrase = passphrase;
+	}
+	
 	public boolean isDebug() {
 		return debug;
 	}

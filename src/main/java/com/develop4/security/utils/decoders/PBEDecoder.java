@@ -42,6 +42,8 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	public static final String OBTENTION_ITERATIONS_PROP = PBEDecoder.class.getName() + ".obtentionIterations";
 	public static final String SALT_GENERATOR_CLASS_NAME_PROP = PBEDecoder.class.getName() + ".saltGeneratorClassName";
 	public static final String STRING_OUTPUT_TYPE_PROP = PBEDecoder.class.getName() + ".stringOutputType";
+	public static final String DEBUG_PROP = PBEDecoder.class.getName() + ".debug";
+
 
 
     private String passphrase;
@@ -74,11 +76,17 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 		if(properties != null) {
 			this.properties = properties;
 		}
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
+		if (isDebug()) {
+			log.info("Debug mode has been activated:");
+		}
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
-		if (this.getPassphrase() == null){
+		if (this.properties.getProperty(PASSPHRASE_PROP) != null){
 			this.setPassphrase(this.properties.getProperty(PASSPHRASE_PROP, DEFAULT_PASSPHRASE));
 		}
+
+		
 		this.setProviderName(this.properties.getProperty(PROVIDER_NAME_PROP, DEFAULT_PROVIDER_NAME));
 		this.setAlgorithimName(this.properties.getProperty(ALGORITHM_NAME_PROP, DEFAULT_ALGORITHM_NAME));
 		this.setObtentionIterations(this.properties.getProperty(OBTENTION_ITERATIONS_PROP, DEFAULT_OBTENTION_ITERATIONS));

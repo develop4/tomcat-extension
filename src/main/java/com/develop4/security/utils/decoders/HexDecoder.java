@@ -18,10 +18,18 @@ import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
 public class HexDecoder implements Decoder, StringEncryptor {
+	
+	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
 
 	public static final String INFO 		= "Hexadecimal Decoder Test v1.00";
     public static final String NAMESPACE 	= "hex://";
     public static final String DESCRIPTION 	= "HEX";
+    
+	public static final String DEBUG_PROP = HexDecoder.class.getName() + ".debug";
+
+    
+    private Properties properties;
+    private boolean debug = false;
     
 	public HexDecoder() {
 	}
@@ -39,7 +47,18 @@ public class HexDecoder implements Decoder, StringEncryptor {
 	}
 	
 	public void init(String passphrase, Properties props)  {
-		// -- TODO Auto-generated method stub
+		if(props != null) {
+			this.properties = props;
+		}
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
+		if (isDebug()) {
+			log.info("Debug mode has been activated:");
+		}
+		if (isDebug()) {
+			for (String myKey : this.properties.stringPropertyNames()) {
+				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
+			}
+		}
 	}
 	
 	public String encrypt(String cleartext) {
@@ -56,6 +75,14 @@ public class HexDecoder implements Decoder, StringEncryptor {
 			return new String(Hex.decode(stripped.getBytes()));
 		}
 		return cyphertext;	
+	}
+	
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(final boolean debug) {
+		this.debug = debug;
 	}
 
 	
