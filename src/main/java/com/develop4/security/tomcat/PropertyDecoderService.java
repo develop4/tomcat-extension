@@ -36,6 +36,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
 import com.develop4.security.utils.decoders.Decoder;
+import com.develop4.security.utils.decoders.NullDecoder;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
@@ -47,24 +48,26 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	protected static final String CONFIGURATION_PROP = PropertyDecoderService.class.getName() + ".configuration";
 	protected static final String PROPERTIES_PROP = PropertyDecoderService.class.getName() + ".properties";
 	protected static final String DECODER_PROP = PropertyDecoderService.class.getName() + ".decoder";
+	protected static final String DEBUG_PROP = PropertyDecoderService.class.getName() + ".debug";
+
 
 	/* Default Values */
-	private static final String BASE64 = "base64://";
-	private static final String HEX = "hex://";
-	private static final Pattern patternUri = Pattern.compile("(^\\S+://)");
+	protected static final String BASE64 = "base64://";
+	protected static final String HEX = "hex://";
+	protected static final Pattern patternUri = Pattern.compile("(^\\S+://)");
 
 	protected static final long DEFAULT_TIMEOUT_VALUE = 30000l;
 	protected static final String DEFAULT_KEY = "446576656c6f7034546563686e6f6c6f67696573";
 
-	private Properties properties = new Properties();
-	private Properties configuration = new Properties();
-	private Map<String, Decoder> decoders = new HashMap<String, Decoder>();
+	protected Properties properties = new Properties();
+	protected Properties configuration = new Properties();
+	protected Map<String, Decoder> decoders = new HashMap<String, Decoder>();
 
-	private String defaultKey = DEFAULT_KEY;
-	private long consoleTimeout = 30000l;
+	protected String defaultKey = DEFAULT_KEY;
+	protected long consoleTimeout = 30000l;
 	
 	private boolean debug = false;
-	
+		
 	private String introspectProperty(String value) {
 		if (value == null) {
 			return value;
@@ -82,9 +85,6 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		log.info("======================================================================");
 		log.info("SecurePropertyDigester Initializing");
 
-		boolean bob = log.isDebugEnabled();
-		boolean bobb = log.isTraceEnabled();
-
 		/* get the configuration file to be used for setting up the decoder */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile == null) {
@@ -101,6 +101,17 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				throw new IllegalArgumentException("Unable to load fonfiguration file:" + configurationFile);
 			}
 
+		}
+		
+		String debugProperty = System.getProperty(DEBUG_PROP);
+		if (debugProperty == null) {
+			debugProperty = this.configuration.getProperty(DEBUG_PROP,"false");
+			if (debugProperty != null) {
+				setDebug(Boolean.parseBoolean(debugProperty));
+			}
+		}
+		if (isDebug()) {
+			log.info("Debug mode has been activated:");
 		}
 
 		/* Get the console timeout value to be used as the default */
@@ -184,6 +195,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
 						log.info("Activate decoder: \"" + tmpDecoder.toString());
+						// -- TODO : only pass parameters that as specific for the decoder
 						Properties tmpProperties = new Properties();
 						for (String myKey : this.properties.stringPropertyNames()) {
 							// -- Transfer property settings that begin with the decoder classname to ensure 

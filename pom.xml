@@ -24,7 +24,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jasypt.version>1.9.2</jasypt.version>
-		<junit.version>3.8.1</junit.version>
+		<junit.version>4.11</junit.version>
 		<bouncycastle.version>1.50</bouncycastle.version>
 		<apache.tomcat.version>7.0.54</apache.tomcat.version>
 		<apache.commons.validator.version>1.4.0</apache.commons.validator.version>
