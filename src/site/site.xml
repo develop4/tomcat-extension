@@ -5,23 +5,28 @@
     <src>http://develop4.github.io/images/hexlogo.jpg</src>
     <href>http://develop4.github.io/</href>
   </bannerLeft>
-  <bannerRight>
-    <src>http://develop4.github.io/images/hexlogo.jpg</src>
-  </bannerRight>
+  
+  <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.2.1</version>
+    </skin>
+    <custom>
+        <fluidoSkin>
+            <sideBarEnabled>true</sideBarEnabled>
+            <googlePlusOne />
+        </fluidoSkin>
+    </custom>
+
   <body>
     <links>
-      <item name="Java Simplified Encryption" href="http://www.jasypt.org/" />
-      <item name="Legion of the Bouncy Castle" href="http://www.bouncycastle.org/"/>
-      <item name="Apache Tomcat" href="http://tomcat.apache.org/"/>
-
+      <item name="Develop4 Technologies" href="http://develop4.github.io/" />
     </links>
 
     <menu name="Tomcat Extensions">
       <item name="Introduction" href="/Projects/tomcat-extension/index.html"/>
-      <item name="Download" href="/Projects/tomcat-extension/download.html"/>
       <item name="Release Notes" href="/Projects/tomcat-extension/release-notes.html" />
       <item name="General Information" href="/Projects/tomcat-extension/about.html"/>
-      <item name="Road Map" href="/Projects/tomcat-extension/roadmap.html" />
     </menu>
 
     <menu ref="reports"/>
