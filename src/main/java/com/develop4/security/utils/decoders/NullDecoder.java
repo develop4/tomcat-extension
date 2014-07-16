@@ -47,7 +47,7 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		if(properties != null) {
 			this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
 		}
-		if (this.isDebug()) {
+		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 	}

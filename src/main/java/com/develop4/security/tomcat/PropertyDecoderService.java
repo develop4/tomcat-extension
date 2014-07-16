@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +62,21 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 	private String defaultKey = DEFAULT_KEY;
 	private long consoleTimeout = 30000l;
+	
+	private boolean debug = false;
+	
+	private String introspectProperty(String value) {
+		if (value == null) {
+			return value;
+		} else {
+			return IntrospectionUtils.replaceProperties(value, null, 
+					new IntrospectionUtils.PropertySource[] {
+						new SystemPropertySource(), 
+						new LocalPropertySource(this.configuration) 
+						}
+					);
+		}
+	}
 
 	public PropertyDecoderService() throws Exception {
 		log.info("======================================================================");
@@ -71,9 +87,11 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 		/* get the configuration file to be used for setting up the decoder */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
+		if (configurationFile == null) {
+			configurationFile = this.configuration.getProperty(CONFIGURATION_PROP);
+		}
 		if (configurationFile != null) {
-			configurationFile = IntrospectionUtils.replaceProperties(configurationFile, null,
-					new IntrospectionUtils.PropertySource[] { new SystemPropertySource() });
+			configurationFile = introspectProperty(configurationFile);
 
 			File pFile = isFile(configurationFile);
 			if (pFile != null) {
@@ -92,8 +110,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 		if (csTimeout != null) {
 			csTimeout = csTimeout.trim();
-			String tmpTimeout = IntrospectionUtils.replaceProperties(csTimeout, null, new IntrospectionUtils.PropertySource[] {
-					new SystemPropertySource(), new LocalPropertySource(this.configuration) });
+			String tmpTimeout = introspectProperty(csTimeout);
 			if (tmpTimeout != null) {
 				this.consoleTimeout = Long.getLong(tmpTimeout, DEFAULT_TIMEOUT_VALUE).longValue();
 			}
@@ -115,8 +132,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 					this.defaultKey = tmpPassphrase;
 				}
 			} else {
-				String tmpPassphrase = IntrospectionUtils.replaceProperties(passphrase, null, new IntrospectionUtils.PropertySource[] {
-						new SystemPropertySource(), new LocalPropertySource(this.configuration) });
+				String tmpPassphrase = introspectProperty(passphrase);
 				if (tmpPassphrase != null) {
 					File pFile = isFile(tmpPassphrase);
 					if (pFile != null) {
@@ -135,7 +151,9 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				}
 			}
 		}
-		log.info("Passphrase initialized: " + this.defaultKey);
+		if (log.isDebugEnabled()) {
+			log.info("Passphrase initialized: " + this.defaultKey);
+		}
 
 		/* get the property file to be used for all application properties */
 		String propertyFile = System.getProperty(PROPERTIES_PROP);
@@ -143,8 +161,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			propertyFile = this.configuration.getProperty(PROPERTIES_PROP);
 		}
 		if (propertyFile != null) {
-			propertyFile = IntrospectionUtils.replaceProperties(propertyFile, null, new IntrospectionUtils.PropertySource[] {
-					new SystemPropertySource(), new LocalPropertySource(this.configuration) });
+			propertyFile = introspectProperty(propertyFile);
 			File pFile = isFile(propertyFile);
 			if (pFile != null) {
 				log.info("Activate file application properties reader from: \"" + pFile.getCanonicalPath() + "\"");
@@ -167,7 +184,15 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
 						log.info("Activate decoder: \"" + tmpDecoder.toString());
-						tmpDecoder.init(this.defaultKey, this.configuration);
+						Properties tmpProperties = new Properties();
+						for (String myKey : this.properties.stringPropertyNames()) {
+							// -- Transfer property settings that begin with the decoder classname to ensure 
+							// -- properties settings do not leak between decoders.
+							if (myKey.startsWith(className)) {
+								tmpProperties.put(myKey, introspectProperty(this.properties.getProperty(myKey)));
+							}
+						}
+						tmpDecoder.init(this.defaultKey, tmpProperties);
 						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
 					}
 				}
@@ -239,12 +264,12 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				String namespaceKey = matcher.group(1);
 				Decoder decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
-					if (log.isDebugEnabled()) {
-						log.debug("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
+					if (isDebug()) {
+						log.info("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
 					}
 					value = decoder.decrypt(value);
-					if (log.isDebugEnabled()) {
-						log.debug("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					if (isDebug()) {
+						log.info("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
 					}
 				}
 			}
@@ -385,5 +410,13 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			}
 		}
 		return returnProperties;
+	}
+
+	public boolean isDebug() {
+		return this.debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 }

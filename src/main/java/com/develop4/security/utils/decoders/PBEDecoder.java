@@ -18,6 +18,8 @@ import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.intf.service.JasyptStatelessService;
 
 public class PBEDecoder implements Decoder, StringEncryptor {
+	
+	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
 
 	public static final String INFO 		= "PBE Decoder Test v1.00";
     public static final String NAMESPACE 	= "pbe://";
@@ -49,7 +51,9 @@ public class PBEDecoder implements Decoder, StringEncryptor {
     private String saltGeneratorClassName;
     private String obtentionIterations;
     private String stringOutputType;
+    private Properties properties;
 
+    private boolean debug = false;
         
 	public PBEDecoder() {
 	}
@@ -67,21 +71,27 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 	
 	public void init(final String passphrase, final Properties properties) {
-		Properties props = new Properties();
 		if(properties != null) {
-			props = properties;
+			this.properties = properties;
 		}
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
 		if (this.getPassphrase() == null){
-			this.setPassphrase(props.getProperty(PASSPHRASE_PROP, DEFAULT_PASSPHRASE));
+			this.setPassphrase(this.properties.getProperty(PASSPHRASE_PROP, DEFAULT_PASSPHRASE));
 		}
-		this.setProviderName(props.getProperty(PROVIDER_NAME_PROP, DEFAULT_PROVIDER_NAME));
-		this.setAlgorithimName(props.getProperty(ALGORITHM_NAME_PROP, DEFAULT_ALGORITHM_NAME));
-		this.setObtentionIterations(props.getProperty(OBTENTION_ITERATIONS_PROP, DEFAULT_OBTENTION_ITERATIONS));
-		this.setProviderClassName(props.getProperty(PROVIDER_CLASS_NAME_PROP, DEFAULT_PROVIDER_CLASS_NAME));
-		this.setStringOutputType(props.getProperty(STRING_OUTPUT_TYPE_PROP, DEFAULT_STRING_OUTPUT_TYPE));
-		this.setSaltGeneratorClassName(props.getProperty(SALT_GENERATOR_CLASS_NAME_PROP, DEFAULT_SALT_GENERATOR_CLASS_NAME));
+		this.setProviderName(this.properties.getProperty(PROVIDER_NAME_PROP, DEFAULT_PROVIDER_NAME));
+		this.setAlgorithimName(this.properties.getProperty(ALGORITHM_NAME_PROP, DEFAULT_ALGORITHM_NAME));
+		this.setObtentionIterations(this.properties.getProperty(OBTENTION_ITERATIONS_PROP, DEFAULT_OBTENTION_ITERATIONS));
+		this.setProviderClassName(this.properties.getProperty(PROVIDER_CLASS_NAME_PROP, DEFAULT_PROVIDER_CLASS_NAME));
+		this.setStringOutputType(this.properties.getProperty(STRING_OUTPUT_TYPE_PROP, DEFAULT_STRING_OUTPUT_TYPE));
+		this.setSaltGeneratorClassName(this.properties.getProperty(SALT_GENERATOR_CLASS_NAME_PROP, DEFAULT_SALT_GENERATOR_CLASS_NAME));
+		
+		if (isDebug()) {
+			for (String myKey : this.properties.stringPropertyNames()) {
+				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
+			}
+		}
+		
 	}
 	
 	public String encrypt(String cleartext) {
@@ -203,6 +213,14 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 
 	public void setStringOutputType(final String stringOutputType) {
 		this.stringOutputType = stringOutputType;
+	}
+	
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(final boolean debug) {
+		this.debug = debug;
 	}
 
 	@Override
