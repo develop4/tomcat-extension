@@ -17,6 +17,8 @@ namespace prefix is returned from the "getNamespace()" method on the Module.
 The Decoders default behavior should allow them to work without additional configuration. If the Decoder does require additional configuration
 then parameters can be passed from the decoder.properties file.
 
+At tomcat server startup the decryption modules are initialized. Then as tomcat reads the server configuration files the custom 
+digester will decrypt the properties and perform variable substitution of the matched values.
 
 **Sample: catalina.properties**
 ```
