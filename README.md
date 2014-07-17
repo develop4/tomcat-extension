@@ -70,6 +70,18 @@ tomcat.conf.groupdirectory.password=pbe://1E5452D5088A87251182917E79056B45216B67
 />
 ```
 
+**Provided Decoders**
+
+The following Decoders are provided as examples in the 'com.develop4.security.utils.decoders package'.
+
+| Decoder | Prefix | Functionality
+| ------- | ------ | -------------
+| NullDecoder |  null:// | Pass through, just returns the value without change.  For testing.
+| HexDecoder | hex:// | Hexadecimal decoder converts to/from Hex values
+| Base64Decoder | base64:// | Base64 decoder converts to/from Base64 values
+| PBEDecoder | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
+
+
 Acknowledgments:
 
 Thanks to the people at http://www.jasypt.org/ for their wrappers wound the encryption module to make life easier.
