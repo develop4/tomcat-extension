@@ -26,15 +26,15 @@ public class PropertyDecoderServiceTest
     public void basicTest()
     {
 		try {
-			URL configUrl = getClass().getResource("/decoder.properties");
+			URL configUrl = getClass().getResource("/restricted/settings/decoder.properties");
 			Path configPath = Paths.get(configUrl.toURI());
 			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath.toString());
 			
-			URL appUrl = getClass().getResource("/application.properties");
+			URL appUrl = getClass().getResource("/restricted/properties/application.properties");
 			Path appPath = Paths.get(appUrl.toURI());
 			System.setProperty(PropertyDecoderService.PROPERTIES_PROP, appPath.toString());
 
-			URL secUrl = getClass().getResource("/secure.file");
+			URL secUrl = getClass().getResource("/restricted/keystore/secure.file");
 			Path secPath = Paths.get(secUrl.toURI());
 			System.setProperty(PropertyDecoderService.PASSPHRASE_PROP, secPath.toString());
 			
