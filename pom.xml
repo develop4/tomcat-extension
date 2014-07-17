@@ -106,4 +106,13 @@
 		</dependency>
 	</dependencies>
 
+	<scm>
+		<url>https://github.com/develop4/tomcat-extension</url>
+		<connection>scm:git:git://github.com/develop4/tomcat-extension.git</connection>
+		<developerConnection>scm:git:git://github.com/develop4/tomcat-extension.git</developerConnection>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/develop4/tomcat-extension</url>
+		<system>Github Issues</system>
+	</issueManagement>
 </project>
