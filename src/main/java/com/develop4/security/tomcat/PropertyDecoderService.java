@@ -1,4 +1,9 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
+/* 
+ * =============================================================================
+ * 
+ *  Copyright (c) 2014, The Develop4 Technologies Ltd (http://www.develop4.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -9,6 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * =============================================================================
  */
 package com.develop4.security.tomcat;
 
@@ -35,7 +42,7 @@ import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
-import com.develop4.security.utils.decoders.Decoder;
+import com.develop4.security.utils.decoders.DecoderService;
 import com.develop4.security.utils.decoders.NullDecoder;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
@@ -61,7 +68,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 	protected Properties properties = new Properties();
 	protected Properties configuration = new Properties();
-	protected Map<String, Decoder> decoders = new HashMap<String, Decoder>();
+	protected Map<String, DecoderService> decoders = new HashMap<String, DecoderService>();
 
 	protected String defaultKey = DEFAULT_KEY;
 	protected long consoleTimeout = 30000l;
@@ -193,7 +200,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			String className = this.configuration.getProperty(DECODER_PROP + "." + i);
 			try {
 				if (className != null) {
-					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
+					DecoderService tmpDecoder = (DecoderService) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
 						log.info("Activate decoder: \"" + tmpDecoder.toString());
 						// -- TODO : only pass parameters that as specific for the decoder
@@ -276,7 +283,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			Matcher matcher = patternUri.matcher(value);
 			if (matcher.find()) {
 				String namespaceKey = matcher.group(1);
-				Decoder decoder = this.decoders.get(namespaceKey);
+				DecoderService decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
 					if (isDebug()) {
 						log.info("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());

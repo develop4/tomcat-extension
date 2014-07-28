@@ -1,4 +1,9 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
+/* 
+ * =============================================================================
+ * 
+ *  Copyright (c) 2014, The Develop4 Technologies Ltd (http://www.develop4.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -9,6 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * =============================================================================
  */
 package com.develop4.security.utils.decoders;
 
@@ -17,17 +24,15 @@ import java.util.Properties;
 import org.bouncycastle.util.encoders.Base64;
 import org.jasypt.encryption.StringEncryptor;
 
-public class Base64Decoder implements Decoder, StringEncryptor {
+public class Base64Decoder implements DecoderService, StringEncryptor {
 	
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
+	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(Base64Decoder.class);
 
 	public static final String INFO 		= "Base64 Decoder Test v1.00";
     public static final String DESCRIPTION 	= "B64";
     public static final String NAMESPACE 	= "base64://";
-    
-	public static final String DEBUG_PROP = Base64Decoder.class.getName() + ".debug";
+    public static final String CLASSNAME 	= Base64Decoder.class.getName();
 
-    
     private Properties properties;
     private boolean debug = false;
     
@@ -46,11 +51,15 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 		return INFO;
 	}
 	
+	private String getLocalPropertyName(final String propertySuffix) {
+		return CLASSNAME + "." + propertySuffix;
+	}
+	
 	public void init(String passphrase, Properties props) {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_DEBUG), "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}

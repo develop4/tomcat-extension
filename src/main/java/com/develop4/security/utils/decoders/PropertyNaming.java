@@ -17,28 +17,17 @@
  * 
  * =============================================================================
  */
-package com.develop4.security.tomcat;
+package com.develop4.security.utils.decoders;
 
-import java.util.Properties;
+final class PropertyNaming {
+	
+	public static final String PROP_PASSPHRASE 					= "passphrase";
+	public static final String PROP_PROVIDER_NAME 				= "providerName";
+	public static final String PROP_PROVIDER_CLASS_NAME 		= "providerClassName";
+	public static final String PROP_ALGORITHM_NAME 				= "algorithmName";
+	public static final String PROP_OBTENTION_ITERATIONS 		= "obtentionIterations";
+	public static final String PROP_SALT_GENERATOR_CLASS_NAME 	= "saltGeneratorClassName";
+	public static final String PROP_STRING_OUTPUT_TYPE 			= "stringOutputType";
+	public static final String PROP_DEBUG 						= "debug";
 
-import org.apache.tomcat.util.IntrospectionUtils;
-
-/**
- * 
- * @author williamtimpany
- *
- */
-public class LocalPropertySource 
-    implements IntrospectionUtils.PropertySource
-	   {
-		private Properties props;
-		
-		LocalPropertySource(Properties props) {
-			this.props = props;
-		}
-		
-	    public String getProperty(String key)
-	    {
-	      return this.props.getProperty(key);
-	   }
-	  }
+}

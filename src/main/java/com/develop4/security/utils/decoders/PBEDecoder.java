@@ -1,4 +1,9 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
+/* 
+ * =============================================================================
+ * 
+ *  Copyright (c) 2014, The Develop4 Technologies Ltd (http://www.develop4.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -9,6 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * =============================================================================
  */
 package com.develop4.security.utils.decoders;
 
@@ -17,35 +24,23 @@ import java.util.Properties;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.intf.service.JasyptStatelessService;
 
-public class PBEDecoder implements Decoder, StringEncryptor {
+public class PBEDecoder implements DecoderService, StringEncryptor {
 	
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
 
 	public static final String INFO 		= "PBE Decoder Test v1.00";
     public static final String NAMESPACE 	= "pbe://";
     public static final String DESCRIPTION 	= "PBE";
+    public static final String CLASSNAME 	= PBEDecoder.class.getName();
     
-    private static final String DEFAULT_PASSPHRASE = "446576656C6F7034546563686E6F6C6F67696573";
-    private static final String DEFAULT_PROVIDER_NAME = "BC";
-    private static final String DEFAULT_ALGORITHM_NAME = "PBEWITHSHA256AND256BITAES-CBC-BC";
-    private static final String DEFAULT_OBTENTION_ITERATIONS = "1000";
-    private static final String DEFAULT_PROVIDER_CLASS_NAME = "org.bouncycastle.jce.provider.BouncyCastleProvider";
-    private static final String DEFAULT_SALT_GENERATOR_CLASS_NAME = null;
-    private static final String DEFAULT_STRING_OUTPUT_TYPE = "hexadecimal";
-
-
+    private static final String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
+    private static final String DEFAULT_PROVIDER_NAME 				= "BC";
+    private static final String DEFAULT_ALGORITHM_NAME 				= "PBEWITHSHA256AND256BITAES-CBC-BC";
+    private static final String DEFAULT_OBTENTION_ITERATIONS 		= "1000"; // -- update to 100000
+    private static final String DEFAULT_PROVIDER_CLASS_NAME 		= "org.bouncycastle.jce.provider.BouncyCastleProvider";
+    private static final String DEFAULT_SALT_GENERATOR_CLASS_NAME 	= null;
+    private static final String DEFAULT_STRING_OUTPUT_TYPE 			= "hexadecimal";
     
-	public static final String PASSPHRASE_PROP = PBEDecoder.class.getName() + ".passphrase";
-	public static final String PROVIDER_NAME_PROP = PBEDecoder.class.getName() + ".providerName";
-	public static final String PROVIDER_CLASS_NAME_PROP = PBEDecoder.class.getName() + ".providerClassName";
-	public static final String ALGORITHM_NAME_PROP = PBEDecoder.class.getName() + ".algorithmName";
-	public static final String OBTENTION_ITERATIONS_PROP = PBEDecoder.class.getName() + ".obtentionIterations";
-	public static final String SALT_GENERATOR_CLASS_NAME_PROP = PBEDecoder.class.getName() + ".saltGeneratorClassName";
-	public static final String STRING_OUTPUT_TYPE_PROP = PBEDecoder.class.getName() + ".stringOutputType";
-	public static final String DEBUG_PROP = PBEDecoder.class.getName() + ".debug";
-
-
-
     private String passphrase;
     private String providerClassName;
     private String providerName;
@@ -72,27 +67,30 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 		return "PBE Decoder for Testing";
 	}
 	
+	private String getLocalPropertyName(final String propertySuffix) {
+		return CLASSNAME + "." + propertySuffix;
+	}
+	
 	public void init(final String passphrase, final Properties properties) {
 		if(properties != null) {
 			this.properties = properties;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_DEBUG), "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(PASSPHRASE_PROP) != null){
-			this.setPassphrase(this.properties.getProperty(PASSPHRASE_PROP, DEFAULT_PASSPHRASE));
+		if (this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE)) != null){
+			this.setPassphrase(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE), DEFAULT_PASSPHRASE));
 		}
-
 		
-		this.setProviderName(this.properties.getProperty(PROVIDER_NAME_PROP, DEFAULT_PROVIDER_NAME));
-		this.setAlgorithimName(this.properties.getProperty(ALGORITHM_NAME_PROP, DEFAULT_ALGORITHM_NAME));
-		this.setObtentionIterations(this.properties.getProperty(OBTENTION_ITERATIONS_PROP, DEFAULT_OBTENTION_ITERATIONS));
-		this.setProviderClassName(this.properties.getProperty(PROVIDER_CLASS_NAME_PROP, DEFAULT_PROVIDER_CLASS_NAME));
-		this.setStringOutputType(this.properties.getProperty(STRING_OUTPUT_TYPE_PROP, DEFAULT_STRING_OUTPUT_TYPE));
-		this.setSaltGeneratorClassName(this.properties.getProperty(SALT_GENERATOR_CLASS_NAME_PROP, DEFAULT_SALT_GENERATOR_CLASS_NAME));
+		this.setProviderName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PROVIDER_NAME), DEFAULT_PROVIDER_NAME));
+		this.setAlgorithimName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_ALGORITHM_NAME), DEFAULT_ALGORITHM_NAME));
+		this.setObtentionIterations(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_OBTENTION_ITERATIONS), DEFAULT_OBTENTION_ITERATIONS));
+		this.setProviderClassName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PROVIDER_CLASS_NAME), DEFAULT_PROVIDER_CLASS_NAME));
+		this.setStringOutputType(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_STRING_OUTPUT_TYPE), DEFAULT_STRING_OUTPUT_TYPE));
+		this.setSaltGeneratorClassName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME), DEFAULT_SALT_GENERATOR_CLASS_NAME));
 		
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {
