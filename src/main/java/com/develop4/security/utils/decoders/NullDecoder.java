@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import org.jasypt.encryption.StringEncryptor;
 
-public class NullDecoder implements DecoderService, StringEncryptor {
+public class NullDecoder implements Decoder, StringEncryptor {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(NullDecoder.class);
 

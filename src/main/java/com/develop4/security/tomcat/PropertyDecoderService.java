@@ -27,12 +27,15 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.crypto.Cipher;
 
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.juli.logging.Log;
@@ -42,8 +45,7 @@ import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
-import com.develop4.security.utils.decoders.DecoderService;
-import com.develop4.security.utils.decoders.NullDecoder;
+import com.develop4.security.utils.decoders.Decoder;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
@@ -68,7 +70,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 	protected Properties properties = new Properties();
 	protected Properties configuration = new Properties();
-	protected Map<String, DecoderService> decoders = new HashMap<String, DecoderService>();
+	protected Map<String, Decoder> decoders = new HashMap<String, Decoder>();
 
 	protected String defaultKey = DEFAULT_KEY;
 	protected long consoleTimeout = 30000l;
@@ -92,6 +94,16 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	public PropertyDecoderService() throws Exception {
 		log.info("======================================================================");
 		log.info("SecurePropertyDigester Initializing");
+		
+		// -- Add BouncyCastle provider if it is missing
+		if (Security.getProvider("BC") == null) {
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        }
+		
+		// -- Check if the Unlimited Strength if installed
+		if (Cipher.getMaxAllowedKeyLength("AES") == 128) {
+			log.fatal("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
+		}
 
 		/* get the configuration file to be used for setting up the decoder */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
@@ -200,7 +212,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			String className = this.configuration.getProperty(DECODER_PROP + "." + i);
 			try {
 				if (className != null) {
-					DecoderService tmpDecoder = (DecoderService) Class.forName(className).newInstance();
+					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
 						log.info("Activate decoder: \"" + tmpDecoder.toString());
 						// -- TODO : only pass parameters that as specific for the decoder
@@ -283,7 +295,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			Matcher matcher = patternUri.matcher(value);
 			if (matcher.find()) {
 				String namespaceKey = matcher.group(1);
-				DecoderService decoder = this.decoders.get(namespaceKey);
+				Decoder decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
 					if (isDebug()) {
 						log.info("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());

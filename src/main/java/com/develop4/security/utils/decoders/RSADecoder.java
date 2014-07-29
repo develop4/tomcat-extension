@@ -24,7 +24,7 @@ import java.util.Properties;
 import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
-public class RSADecoder implements DecoderService, StringEncryptor {
+public class RSADecoder implements Decoder, StringEncryptor {
 	
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(RSADecoder.class);
 

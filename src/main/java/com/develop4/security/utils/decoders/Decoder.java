@@ -26,7 +26,7 @@ import java.util.Properties;
  * @author william timpany
  *
  */
-public abstract interface DecoderService {
+public abstract interface Decoder {
 	
 	public abstract String getInfo();
 

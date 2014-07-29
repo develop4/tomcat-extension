@@ -24,7 +24,7 @@ import java.util.Properties;
 import org.bouncycastle.util.encoders.Base64;
 import org.jasypt.encryption.StringEncryptor;
 
-public class Base64Decoder implements DecoderService, StringEncryptor {
+public class Base64Decoder implements Decoder, StringEncryptor {
 	
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(Base64Decoder.class);
 
