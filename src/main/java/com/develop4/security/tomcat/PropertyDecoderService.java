@@ -20,6 +20,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.security.Provider;
+import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -32,6 +34,7 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
@@ -84,8 +87,13 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 	public PropertyDecoderService() throws Exception {
 		log.info("======================================================================");
-		log.info("SecurePropertyDigester Initializing");
-
+		log.info("Service : Initializing");
+		
+		if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+			Security.addProvider(new BouncyCastleProvider());
+			log.info("Service : Security provider BouncyCastleProvider loaded");
+		}
+		
 		/* get the configuration file to be used for setting up the decoder */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile == null) {
@@ -216,7 +224,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 		}
 
-		log.info("SecurePropertyDigester Initialized");
+		log.info("Service : Initialized");
 		log.info("======================================================================");
 	}
 
