@@ -21,6 +21,7 @@ At tomcat server startup the decryption modules are initialized. Then as tomcat 
 digester will decrypt the properties and perform variable substitution of the matched values.
 
 **Sample: catalina.properties**
+Modify the catalina properties file to plug-in the new custom digester and point to its configuration file.
 ```
 org.apache.tomcat.util.digester.PROPERTY_SOURCE=com.develop4.security.tomcat.PropertyDecoderService
 com.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.base}/restricted/settings/decoder.properties
