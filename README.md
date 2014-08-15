@@ -116,29 +116,6 @@ The following Decoders are provided as examples in the 'com.develop4.security.ut
 | PBEDecoder | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
 
 
-**Pre-Requisites**
-
-1.	Add the “BouncyCastle” JCE Provider to the “java.security” file to the JVM 
-
-add the extra line to the “java.security” highlighted below at line 56:
-
-File: C:\data\narowner\product\sun\jdk1.7.0_51_64bit\jre\lib\security\java.security
-
-security.provider.10=sun.security.mscapi.SunMSCAPI
-security.provider.11=org.bouncycastle.jce.provider.BouncyCastleProvider
-
-2.	Add the “Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files” to the JVM.
-
-             Either download the policy files from the Oracle site or use the “UnlimitedJCEPolicyJDK7.zip” file attached.
-             Unzip, and copy the files to the JVM directory : 
-C:\data\narowner\product\sun\jdk1.7.0_51_64bit\jre\lib\security
-
-http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
-
-
-
-
-
 Acknowledgments:
 
 Thanks to the people at http://www.jasypt.org/ for their wrappers wound the encryption module to make life easier.
