@@ -1,4 +1,9 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
+/* 
+ * =============================================================================
+ * 
+ *  Copyright (c) 2014, The Develop4 Technologies Ltd (http://www.develop4.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -9,6 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * =============================================================================
  */
 package com.develop4.security.tomcat;
 
@@ -20,7 +27,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.security.Provider;
 import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,17 +35,17 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.crypto.Cipher;
+
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
 import com.develop4.security.utils.decoders.Decoder;
-import com.develop4.security.utils.decoders.NullDecoder;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
@@ -87,13 +93,18 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 	public PropertyDecoderService() throws Exception {
 		log.info("======================================================================");
-		log.info("Service : Initializing");
+		log.info("SecurePropertyDigester Initializing");
 		
-		if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
-			Security.addProvider(new BouncyCastleProvider());
-			log.info("Service : Security provider BouncyCastleProvider loaded");
+		// -- Add BouncyCastle provider if it is missing
+		if (Security.getProvider("BC") == null) {
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        }
+		
+		// -- Check if the Unlimited Strength if installed
+		if (Cipher.getMaxAllowedKeyLength("AES") == 128) {
+			log.fatal("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
 		}
-		
+
 		/* get the configuration file to be used for setting up the decoder */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile == null) {
@@ -224,7 +235,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 		}
 
-		log.info("Service : Initialized");
+		log.info("SecurePropertyDigester Initialized");
 		log.info("======================================================================");
 	}
 
