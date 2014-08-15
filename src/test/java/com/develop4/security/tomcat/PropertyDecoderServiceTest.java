@@ -10,7 +10,7 @@ import org.apache.juli.logging.LogFactory;
 import org.junit.Test;
 
 /**
- * Unit test for simple configs
+ * Unit test for simple configuration
  */
 public class PropertyDecoderServiceTest 
 {

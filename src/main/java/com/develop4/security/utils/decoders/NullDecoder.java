@@ -1,4 +1,9 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
+/* 
+ * =============================================================================
+ * 
+ *  Copyright (c) 2014, The Develop4 Technologies Ltd (http://www.develop4.co.uk)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -9,6 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * =============================================================================
  */
 package com.develop4.security.utils.decoders;
 
@@ -23,12 +30,9 @@ public class NullDecoder implements Decoder, StringEncryptor {
 	public static final String INFO 		= "Null Decoder Test v1.00";
     public static final String DESCRIPTION 	= "NULL";
     public static final String NAMESPACE 	= "null://";
-    
-    private static final String DEFAULT_PASSPHRASE = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    public static final String CLASSNAME 	= NullDecoder.class.getName();
 
-    
-	public static final String DEBUG_PROP = NullDecoder.class.getName() + ".debug";
-	public static final String PASSPHRASE_PROP = NullDecoder.class.getName() + ".passphrase";
+    private static final String DEFAULT_PASSPHRASE = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
     private String passphrase;
 
@@ -50,19 +54,23 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		return INFO;
 	}
 	
+	private String getLocalPropertyName(final String propertySuffix) {
+		return CLASSNAME + "." + propertySuffix;
+	}
+	
 	public void init(final String passphrase, final Properties props)  {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(DEBUG_PROP, "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_DEBUG), "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 		
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(PASSPHRASE_PROP) != null){
-			this.setPassphrase(this.properties.getProperty(PASSPHRASE_PROP, DEFAULT_PASSPHRASE));
+		if (this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE)) != null){
+			this.setPassphrase(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE), DEFAULT_PASSPHRASE));
 		}
 				
 		if (isDebug()) {
