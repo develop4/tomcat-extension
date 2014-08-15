@@ -116,6 +116,26 @@ The following Decoders are provided as examples in the 'com.develop4.security.ut
 | PBEDecoder | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
 
 
+**Note**
+The following jars were added to the Tomcat Lib directory to support the Decoding/Connection Pool/Decryption.
+
+```
+Oracle [ http://www.oracle.com/technetwork/database/features/jdbc/index-091264.html ]
+   ucp-11.2.0.2.jar
+   ojdbc6_11.2.0.2.0.jar
+   oraclepki-11.2.0.2.jar
+   osdt_cert-11.2.0.2.jar
+   osdt_core-11.2.0.2.jar
+Bouncycastle [ http://www.bouncycastle.org ]
+   bcprov-jdk15on-150.jar
+Jasypt [ http://www.jasypt.org/ ]
+   jasypt-1.9.2.jar
+Unicode Project [ http://icu-project.org/ ]
+   icu4j-3.4.4.jar
+This Project
+   tomcat-extension-0.1.0.jar
+```
+
 Acknowledgments:
 
 Thanks to the people at http://www.jasypt.org/ for their wrappers wound the encryption module to make life easier.
