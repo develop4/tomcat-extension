@@ -29,10 +29,11 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
 
 	public static final String INFO 		= "PBE Decoder Test v1.00";
-    public static final String NAMESPACE 	= "pbe://";
-    public static final String DESCRIPTION 	= "PBE";
     public static final String CLASSNAME 	= PBEDecoder.class.getName();
+    public String NAMESPACE 				= "pbe://";
+    public String DESCRIPTION 				= "PBE Decoder for Testing";
     
+    private static final String DEFAULT_NAMESPACE 					= "pbe://";
     private static final String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
     private static final String DEFAULT_PROVIDER_NAME 				= "BC";
     private static final String DEFAULT_ALGORITHM_NAME 				= "PBEWITHSHA256AND256BITAES-CBC-BC";
@@ -64,7 +65,15 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 	
 	public String getDescription() {
-		return "PBE Decoder for Testing";
+		return DESCRIPTION;
+	}
+	
+	public void setNamespace(String namespace) {
+		this.NAMESPACE = namespace;
+	}
+	
+	public void setDescription(String description) {
+		this.DESCRIPTION = description;
 	}
 	
 	private String getLocalPropertyName(final String propertySuffix) {
@@ -85,6 +94,7 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 			this.setPassphrase(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE), DEFAULT_PASSPHRASE));
 		}
 		
+		this.setNamespace(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_NAMESPACE), DEFAULT_NAMESPACE));
 		this.setProviderName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PROVIDER_NAME), DEFAULT_PROVIDER_NAME));
 		this.setAlgorithimName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_ALGORITHM_NAME), DEFAULT_ALGORITHM_NAME));
 		this.setObtentionIterations(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_OBTENTION_ITERATIONS), DEFAULT_OBTENTION_ITERATIONS));
@@ -92,6 +102,9 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 		this.setStringOutputType(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_STRING_OUTPUT_TYPE), DEFAULT_STRING_OUTPUT_TYPE));
 		this.setSaltGeneratorClassName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME), DEFAULT_SALT_GENERATOR_CLASS_NAME));
 		
+		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
+			log.info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
+		}
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {
 				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");

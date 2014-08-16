@@ -29,10 +29,13 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(Base64Decoder.class);
 
 	public static final String INFO 		= "Base64 Decoder Test v1.00";
-    public static final String DESCRIPTION 	= "B64";
-    public static final String NAMESPACE 	= "base64://";
     public static final String CLASSNAME 	= Base64Decoder.class.getName();
+    public String DESCRIPTION 				= "Base64 Decoder for Testing";
+    public String NAMESPACE 				= "base64://";
+   
+    private static final String DEFAULT_NAMESPACE 		= "base64://";
 
+    
     private Properties properties;
     private boolean debug = false;
     
@@ -44,7 +47,15 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 	}
 	
 	public String getDescription() {
-		return "Base64 Decoder for Testing";
+		return DESCRIPTION;
+	}
+	
+	public void setNamespace(String namespace) {
+		this.NAMESPACE = namespace;
+	}
+	
+	public void setDescription(String description) {
+		this.DESCRIPTION = description;
 	}
 	
 	public String getInfo() {
@@ -63,6 +74,9 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
+		
+		this.setNamespace(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_NAMESPACE), DEFAULT_NAMESPACE));
+
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {
 				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");

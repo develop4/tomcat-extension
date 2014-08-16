@@ -29,7 +29,7 @@ public class PropertyDecoderServiceTest
 			URL configUrl = getClass().getResource("/restricted/settings/decoder.properties");
 			Path configPath = Paths.get(configUrl.toURI());
 			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath.toString());
-			
+						
 			URL appUrl = getClass().getResource("/restricted/properties/application.properties");
 			Path appPath = Paths.get(appUrl.toURI());
 			System.setProperty(PropertyDecoderService.PROPERTIES_PROP, appPath.toString());
@@ -37,6 +37,8 @@ public class PropertyDecoderServiceTest
 			URL secUrl = getClass().getResource("/restricted/keystore/secure.file");
 			Path secPath = Paths.get(secUrl.toURI());
 			System.setProperty(PropertyDecoderService.PASSPHRASE_PROP, secPath.toString());
+			
+			System.setProperty("catalina.base", secPath.getParent().toString());
 			
 			System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE","com.develop4.security.tomcat.PropertyDecoderService");
 						

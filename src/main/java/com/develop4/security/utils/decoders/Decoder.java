@@ -39,4 +39,5 @@ public abstract interface Decoder {
 	public abstract String encrypt(String plaintext);
 
 	public abstract String decrypt(String cyphertext);
+	
 }

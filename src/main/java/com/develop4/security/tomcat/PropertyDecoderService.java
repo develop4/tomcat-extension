@@ -19,25 +19,17 @@
  */
 package com.develop4.security.tomcat;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
 
-import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.IntrospectionUtils;
@@ -46,24 +38,26 @@ import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
 import com.develop4.security.utils.decoders.Decoder;
+import com.develop4.security.utils.decoders.DecoderUtils;
+import com.develop4.security.utils.decoders.PropertyNaming;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
 	private static Log log = LogFactory.getLog(PropertyDecoderService.class);
 
 	/* Configuration Constants */
-	protected static final String CONSOLE_TIMEOUT_PROP = PropertyDecoderService.class.getName() + ".consoleTimeout";
-	protected static final String PASSPHRASE_PROP = PropertyDecoderService.class.getName() + ".passphrase";
-	protected static final String CONFIGURATION_PROP = PropertyDecoderService.class.getName() + ".configuration";
-	protected static final String PROPERTIES_PROP = PropertyDecoderService.class.getName() + ".properties";
-	protected static final String DECODER_PROP = PropertyDecoderService.class.getName() + ".decoder";
-	protected static final String DEBUG_PROP = PropertyDecoderService.class.getName() + ".debug";
+	protected static final String CONSOLE_TIMEOUT_PROP 	= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
+	protected static final String PASSPHRASE_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
+	protected static final String CONFIGURATION_PROP 	= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION;
+	protected static final String PROPERTIES_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
+	protected static final String DECODER_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DECODER;
+	protected static final String DEBUG_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
 
 
 	/* Default Values */
-	protected static final String BASE64 = "base64://";
-	protected static final String HEX = "hex://";
-	protected static final Pattern patternUri = Pattern.compile("(^\\S+://)");
+	protected static final Pattern patternUri 		= Pattern.compile("(^\\S+://)");
+	protected static final Pattern patternUriWithSuffix = Pattern.compile("(^\\S+:\\S+//)");
+
 
 	protected static final long DEFAULT_TIMEOUT_VALUE = 30000l;
 	protected static final String DEFAULT_KEY = "446576656c6f7034546563686e6f6c6f67696573";
@@ -113,10 +107,10 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		if (configurationFile != null) {
 			configurationFile = introspectProperty(configurationFile);
 
-			File pFile = isFile(configurationFile);
+			File pFile = DecoderUtils.isFile(configurationFile);
 			if (pFile != null) {
 				log.info("Activate configuration file reader for file: \"" + pFile.getCanonicalPath() + "\"");
-				this.configuration = readFileProperties(pFile);
+				this.configuration = DecoderUtils.readFileProperties(pFile);
 			} else {
 				throw new IllegalArgumentException("Unable to load fonfiguration file:" + configurationFile);
 			}
@@ -156,7 +150,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			passphrase = passphrase.trim();
 			if ("console".equals(passphrase)) {
 				log.info("Activate console passphrase reader");
-				String tmpPassphrase = readConsole(this.consoleTimeout);
+				String tmpPassphrase = DecoderUtils.readConsole(this.consoleTimeout);
 				if (tmpPassphrase == null) {
 					throw new NullPointerException("Invalid passphrase provided by console input.");
 				} else {
@@ -165,15 +159,15 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			} else {
 				String tmpPassphrase = introspectProperty(passphrase);
 				if (tmpPassphrase != null) {
-					File pFile = isFile(tmpPassphrase);
+					File pFile = DecoderUtils.isFile(tmpPassphrase);
 					if (pFile != null) {
 						log.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
-						this.defaultKey = readFileValue(pFile);
+						this.defaultKey = DecoderUtils.readFileValue(pFile);
 					} else {
-						URL pUrl = isUrl(tmpPassphrase);
+						URL pUrl = DecoderUtils.isUrl(tmpPassphrase);
 						if (pUrl != null) {
 							log.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
-							this.defaultKey = readUrlValue(pUrl);
+							this.defaultKey = DecoderUtils.readUrlValue(pUrl);
 						} else {
 							log.info("Activate passphrase from memory");
 						}
@@ -193,15 +187,15 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 		if (propertyFile != null) {
 			propertyFile = introspectProperty(propertyFile);
-			File pFile = isFile(propertyFile);
+			File pFile = DecoderUtils.isFile(propertyFile);
 			if (pFile != null) {
 				log.info("Activate file application properties reader from: \"" + pFile.getCanonicalPath() + "\"");
-				this.properties = readFileProperties(pFile);
+				this.properties = DecoderUtils.readFileProperties(pFile);
 			} else {
-				URL pUrl = isUrl(propertyFile);
+				URL pUrl = DecoderUtils.isUrl(propertyFile);
 				if (pUrl != null) {
 					log.info("Activate url application properties reader from: \"" + pUrl.toString() + "\"");
-					this.properties = readUrlProperties(pUrl);
+					this.properties = DecoderUtils.readUrlProperties(pUrl);
 				}
 			}
 		}
@@ -209,7 +203,8 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		// -- load the possible decoder mappings here, in reverse order.
 		// -- this will ensure that the correct precedence is preserved.
 		for (int i = 20; i > 0; i--) {
-			String className = this.configuration.getProperty(DECODER_PROP + "." + i);
+			String decoderMapping = DECODER_PROP + "." + i;
+			String className = this.configuration.getProperty(decoderMapping);
 			try {
 				if (className != null) {
 					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
@@ -218,14 +213,16 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 						// -- TODO : only pass parameters that as specific for the decoder
 						Properties tmpProperties = new Properties();
 						for (String myKey : this.configuration.stringPropertyNames()) {
-							// -- Transfer property settings that begin with the decoder classname to ensure 
+							// -- Transfer property settings that begin with the decoder mapping to ensure 
 							// -- properties settings do not leak between decoders.
-							if (myKey.startsWith(className)) {
-								tmpProperties.put(myKey, introspectProperty(this.configuration.getProperty(myKey)));
+							if (myKey.startsWith(decoderMapping)) {
+								String myNewKey = myKey.replace(decoderMapping, className);
+								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
 							}
 						}
 						tmpDecoder.init(this.defaultKey, tmpProperties);
 						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
+						log.info("Install decoder: \"" + tmpDecoder.toString());
 					}
 				}
 			} catch (Exception ex) {
@@ -245,15 +242,15 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			return null;
 		}
 		try {
-			if (cyphertext.startsWith(BASE64)) {
-				String stripped = cyphertext.replace(BASE64, "");
+			if (cyphertext.startsWith(PropertyNaming.PROP_BASE64)) {
+				String stripped = cyphertext.replace(PropertyNaming.PROP_BASE64, "");
 				String cleartext = new String(Base64.decode(stripped.getBytes()));
 				if (log.isDebugEnabled()) {
 					log.debug("Decoded using Base64: " + cleartext);
 				}
 				return cleartext;
-			} else if (cyphertext.startsWith(HEX)) {
-				String stripped = cyphertext.replace(HEX, "");
+			} else if (cyphertext.startsWith(PropertyNaming.PROP_HEX)) {
+				String stripped = cyphertext.replace(PropertyNaming.PROP_HEX, "");
 				String cleartext = new String(Hex.decode(stripped.getBytes()));
 				if (log.isDebugEnabled()) {
 					log.debug("Decoded using Hex: " + cleartext);
@@ -306,6 +303,20 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 					}
 				}
 			}
+			matcher = patternUriWithSuffix.matcher(value);
+			if (matcher.find()) {
+				String namespaceKey = matcher.group(1);
+				Decoder decoder = this.decoders.get(namespaceKey);
+				if (decoder != null) {
+					if (isDebug()) {
+						log.info("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
+					}
+					value = decoder.decrypt(value);
+					if (isDebug()) {
+						log.info("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					}
+				}
+			}
 
 			return value;
 		} catch (Exception x) {
@@ -314,136 +325,6 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 	}
 
-	public String readConsole(long timeout) throws InterruptedException, IOException {
-		BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Please enter the bootstrap passphrase: ");
-		long start = System.currentTimeMillis();
-		while (System.currentTimeMillis() - start < timeout) {
-			if (!consoleReader.ready()) {
-				Thread.sleep(200L);
-			} else {
-				String key = consoleReader.readLine();
-				return key;
-			}
-		}
-		return null;
-	}
-
-	public File isFile(String fileName) {
-		File file = new File(fileName);
-		if ((file.exists()) && (file.isFile()) && (file.isAbsolute() && file.canRead())) {
-			return file;
-		} else {
-			try {
-				URI tmpUri = new URI(fileName);
-				file = new File(tmpUri);
-				if ((file.exists()) && (file.isFile()) && (file.isAbsolute() && file.canRead())) {
-					return file;
-				}
-			} catch (Exception ex) {
-				;
-			}
-		}
-		return null;
-	}
-
-	public URL isUrl(String url) {
-		String[] schemes = { "http", "https" };
-		UrlValidator urlValidator = new UrlValidator(schemes);
-		if (urlValidator.isValid(url)) {
-			try {
-				URL u = new URL(url);
-				return u;
-			} catch (MalformedURLException ex) {
-				// log.warn("url is invalid: \"" + url + "\"");
-			}
-		} else {
-			// log.warn("url is invalid: \"" + url + "\"");
-		}
-		return null;
-	}
-
-	public String readFileValue(File file) throws IOException {
-		BufferedReader reader = null;
-		String line = null;
-		try {
-			FileReader fr = new FileReader(file);
-			reader = new BufferedReader(fr);
-			line = reader.readLine();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException ioe) {
-					log.warn("Failed to close Reader for File: \"" + file + "\"", ioe);
-				}
-			}
-		}
-		return line;
-	}
-
-	public Properties readFileProperties(File file) throws IOException {
-		Properties returnProperties = new Properties();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(file));
-			returnProperties.load(reader);
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException ioe) {
-					log.warn("Failed to close Reader for File: \"" + file + "\"", ioe);
-				}
-			}
-		}
-		return returnProperties;
-	}
-
-	public String readUrlValue(URL url) throws IOException {
-		String returnValue = null;
-		if (url != null) {
-			BufferedReader reader = null;
-			String line = null;
-			StringBuffer sb = new StringBuffer();
-			try {
-				reader = new BufferedReader(new InputStreamReader(url.openStream()));
-				while ((line = reader.readLine()) != null) {
-					sb.append(line);
-				}
-				returnValue = sb.toString();
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException ioe) {
-						log.warn("Failed to close String Reader for URL: \"" + url + "\"", ioe);
-					}
-				}
-			}
-		}
-		return returnValue;
-	}
-
-	public Properties readUrlProperties(URL url) throws IOException {
-		Properties returnProperties = new Properties();
-		if (url != null) {
-			BufferedReader reader = null;
-			try {
-				reader = new BufferedReader(new InputStreamReader(url.openStream()));
-				returnProperties.load(reader);
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException ioe) {
-						log.warn("Failed to close Property Reader for URL: \"" + url + "\"", ioe);
-					}
-				}
-			}
-		}
-		return returnProperties;
-	}
 
 	public boolean isDebug() {
 		return this.debug;

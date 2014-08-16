@@ -29,9 +29,11 @@ public class HexDecoder implements Decoder, StringEncryptor {
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(HexDecoder.class);
 
 	public static final String INFO 		= "Hexadecimal Decoder Test v1.00";
-    public static final String NAMESPACE 	= "hex://";
-    public static final String DESCRIPTION 	= "HEX";
     public static final String CLASSNAME 	= HexDecoder.class.getName();
+    public String NAMESPACE 				= "hex://";
+    public String DESCRIPTION 				= "HEX";
+
+    private static final String DEFAULT_NAMESPACE 		= "hex://";
 
     
     private Properties properties;
@@ -46,6 +48,14 @@ public class HexDecoder implements Decoder, StringEncryptor {
 	
 	public String getDescription() {
 		return DESCRIPTION;
+	}
+	
+	public void setNamespace(String namespace) {
+		this.NAMESPACE = namespace;
+	}
+	
+	public void setDescription(String description) {
+		this.DESCRIPTION = description;
 	}
 	
 	public String getInfo() {
@@ -64,6 +74,9 @@ public class HexDecoder implements Decoder, StringEncryptor {
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
+		
+		this.setNamespace(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_NAMESPACE), DEFAULT_NAMESPACE));
+
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {
 				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
