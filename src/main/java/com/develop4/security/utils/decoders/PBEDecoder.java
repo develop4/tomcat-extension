@@ -76,31 +76,27 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 		this.DESCRIPTION = description;
 	}
 	
-	private String getLocalPropertyName(final String propertySuffix) {
-		return CLASSNAME + "." + propertySuffix;
-	}
-	
 	public void init(final String passphrase, final Properties properties) {
 		if(properties != null) {
 			this.properties = properties;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_DEBUG), "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG, "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE)) != null){
-			this.setPassphrase(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE), DEFAULT_PASSPHRASE));
+		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE) != null){
+			this.setPassphrase(this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE, DEFAULT_PASSPHRASE));
 		}
 		
-		this.setNamespace(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_NAMESPACE), DEFAULT_NAMESPACE));
-		this.setProviderName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PROVIDER_NAME), DEFAULT_PROVIDER_NAME));
-		this.setAlgorithimName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_ALGORITHM_NAME), DEFAULT_ALGORITHM_NAME));
-		this.setObtentionIterations(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_OBTENTION_ITERATIONS), DEFAULT_OBTENTION_ITERATIONS));
-		this.setProviderClassName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PROVIDER_CLASS_NAME), DEFAULT_PROVIDER_CLASS_NAME));
-		this.setStringOutputType(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_STRING_OUTPUT_TYPE), DEFAULT_STRING_OUTPUT_TYPE));
-		this.setSaltGeneratorClassName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME), DEFAULT_SALT_GENERATOR_CLASS_NAME));
+		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE, DEFAULT_NAMESPACE));
+		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME, DEFAULT_PROVIDER_NAME));
+		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME, DEFAULT_ALGORITHM_NAME));
+		this.setObtentionIterations(this.properties.getProperty(PropertyNaming.PROP_OBTENTION_ITERATIONS, DEFAULT_OBTENTION_ITERATIONS));
+		this.setProviderClassName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_CLASS_NAME, DEFAULT_PROVIDER_CLASS_NAME));
+		this.setStringOutputType(this.properties.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE, DEFAULT_STRING_OUTPUT_TYPE));
+		this.setSaltGeneratorClassName(this.properties.getProperty(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME, DEFAULT_SALT_GENERATOR_CLASS_NAME));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			log.info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());

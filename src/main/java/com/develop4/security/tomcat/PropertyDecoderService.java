@@ -216,7 +216,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 							// -- Transfer property settings that begin with the decoder mapping to ensure 
 							// -- properties settings do not leak between decoders.
 							if (myKey.startsWith(decoderMapping)) {
-								String myNewKey = myKey.replace(decoderMapping, className);
+								String myNewKey = myKey.replace(decoderMapping+".", "");
 								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
 							}
 						}

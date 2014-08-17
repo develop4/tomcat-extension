@@ -58,21 +58,17 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		return INFO;
 	}
 	
-	private String getLocalPropertyName(final String propertySuffix) {
-		return CLASSNAME + "." + propertySuffix;
-	}
-	
 	public void init(final String passphrase, final Properties props)  {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_DEBUG), "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG, "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 		
 
-		this.setNamespace(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_NAMESPACE), DEFAULT_NAMESPACE));
+		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE, DEFAULT_NAMESPACE));
 				
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {

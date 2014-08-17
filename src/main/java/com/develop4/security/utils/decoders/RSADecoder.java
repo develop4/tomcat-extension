@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
@@ -74,7 +75,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
     private static final String DEFAULT_NAMESPACE 					= "rsa://";
     private static final String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
     private static final String DEFAULT_PROVIDER_NAME 				= "BC";
-    private static final String DEFAULT_ALGORITHM_NAME 				= "RSA";
+    private static final String DEFAULT_ALGORITHM_NAME 				= "RSA/None/PKCS1Padding";
     private static final String DEFAULT_STRING_OUTPUT_TYPE 			= "hexadecimal";
     
     private static final String DEFAULT_PRIVATE_KEY_FILE 			= "private.pem";
@@ -113,31 +114,27 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		return INFO;
 	}
 	
-	private String getLocalPropertyName(final String propertySuffix) {
-		return CLASSNAME + "." + propertySuffix;
-	}
-	
 	public void init(String passphrase, Properties props)  {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_DEBUG), "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG), "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 		
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE)) != null){
-			this.setPassphrase(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PASSPHRASE), DEFAULT_PASSPHRASE));
+		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE) != null){
+			this.setPassphrase(this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE, DEFAULT_PASSPHRASE));
 		}
 
-		this.setNamespace(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_NAMESPACE), DEFAULT_NAMESPACE));
-		this.setProviderName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PROVIDER_NAME), DEFAULT_PROVIDER_NAME));
-		this.setAlgorithimName(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_ALGORITHM_NAME), DEFAULT_ALGORITHM_NAME));
-		this.setPrivateKeyFile(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PRIVATE_KEYFILE), DEFAULT_PRIVATE_KEY_FILE));
-		this.setPublicKeyFile(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_PUBLIC_KEYFILE), DEFAULT_PUBLIC_KEY_FILE));
-		this.setStringOutputType(this.properties.getProperty(getLocalPropertyName(PropertyNaming.PROP_STRING_OUTPUT_TYPE), DEFAULT_STRING_OUTPUT_TYPE));
+		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE, DEFAULT_NAMESPACE));
+		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME, DEFAULT_PROVIDER_NAME));
+		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME, DEFAULT_ALGORITHM_NAME));
+		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE, DEFAULT_PRIVATE_KEY_FILE));
+		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE, DEFAULT_PUBLIC_KEY_FILE));
+		this.setStringOutputType(this.properties.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE, DEFAULT_STRING_OUTPUT_TYPE));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			log.info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
@@ -156,7 +153,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		}
 		try {
 			KeyPair privateKey = getKeyPairFromOpenSslPemFile(this.getPublicKeyFile(), this.getPassphrase());
-			Cipher cipher = Cipher.getInstance("RSA","BC");
+			Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),"BC");
 		    cipher.init(Cipher.ENCRYPT_MODE, privateKey.getPublic());
 		    byte[] cypherBytes = cipher.doFinal(clearText.getBytes());	    
 			cypherText = this.getNamespace() + Hex.toHexString(cypherBytes);
@@ -171,8 +168,8 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		try {
 			if (cyphertext != null && cyphertext.startsWith(this.getNamespace())) {
 				String stripped = cyphertext.replace(this.getNamespace(), "");				
-				KeyPair privateKey = getKeyPairFromOpenSslPemFile(this.getPrivateKeyFile(),this.getPassphrase());
-				Cipher cipher = Cipher.getInstance("RSA","BC");
+				KeyPair privateKey = getKeyPairFromOpenSslPemFile(this.getPrivateKeyFile(), this.getPassphrase());
+				Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),"BC");
 			    cipher.init(Cipher.DECRYPT_MODE, privateKey.getPrivate());
 			    byte[] plainBytes =  cipher.doFinal(Hex.decode(stripped));			    
 				plainText = new String(plainBytes);
@@ -181,20 +178,6 @@ public class RSADecoder implements Decoder, StringEncryptor {
 			ex.printStackTrace(); 
 		}
 		return plainText;	
-	}
-	
-	public static byte[] encrypt(PublicKey key, byte[] message) throws Exception {
-	    Cipher cipher = Cipher.getInstance("RSA","BC");
-	    cipher.init(Cipher.ENCRYPT_MODE, key);
-	    byte[] encrypted = cipher.doFinal(message);
-	    return encrypted;
-	}
-	
-	public static byte[] decrypt(PrivateKey key, byte[] text)  throws Exception {
-	    Cipher cipher = Cipher.getInstance("RSA","BC");
-	    cipher.init(Cipher.DECRYPT_MODE, key);
-	    byte[] message =  cipher.doFinal(text);
-	    return message;
 	}
 	
 	private KeyPair getKeyPairFromOpenSslPemFile(String  fileName, String passphrase) throws IOException {
@@ -228,9 +211,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
         	pemParser.close();
         }
         return keypair;
-	}
-	
-	
+	}	
 	
 	public boolean isDebug() {
 		return debug;

@@ -35,10 +35,16 @@ prefixed with the decoder class name.  e.g. 'com.develop4.security.utils.decoder
 com.develop4.security.tomcat.PropertyDecoderService.passphrase=${catalina.base}/restricted/keystore/secure.file
 com.develop4.security.tomcat.PropertyDecoderService.properties=${catalina.base}/restricted/properties/application.properties
 com.develop4.security.tomcat.PropertyDecoderService.decoder.1=com.develop4.security.utils.decoders.NullDecoder
-com.develop4.security.utils.decoders.NullDecoder.debug=true
+com.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true
 com.develop4.security.tomcat.PropertyDecoderService.decoder.2=com.develop4.security.utils.decoders.Base64Decoder
 com.develop4.security.tomcat.PropertyDecoderService.decoder.3=com.develop4.security.utils.decoders.HexDecoder
 com.develop4.security.tomcat.PropertyDecoderService.decoder.4=com.develop4.security.utils.decoders.PBEDecoder
+com.develop4.security.tomcat.PropertyDecoderService.decoder.5=com.develop4.security.utils.decoders.RSADecoder
+com.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyOne.pem
+com.develop4.security.tomcat.PropertyDecoderService.decoder.6=com.develop4.security.utils.decoders.RSADecoder
+# Create new decoder with seperate namespace to handle another private key
+com.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyTwo.pem
+com.develop4.security.tomcat.PropertyDecoderService.decoder.6.namespace=rsa:key2//
 ```
 
 **Sample: secure.file (Encrypted Master Key)**
@@ -58,6 +64,8 @@ my.test.property.one=null://123456789asdf
 my.test.property.two=base64://RGV2ZWxvcDRQcm9wZXJ0aWVz
 my.test.property.three=hex://446576656c6f7034546563686e6f6c6f67696573
 my.test.property.four=pbe://380D5EB7A79BDD4B73B27F7BD22E0F232D4104D8C6C90033F07D680AD7876E62CF905F0D189628CEDF24CADEA388BDCF
+rsa.encrypted.test1=rsa://46f39ee604944a253ed298728c422ca1931f1eb0d433a450e941735f6b335b...c911
+rsa.encrypted.test2=rsa:key2//46f39ee604944a253ed298728c422ca1931f1eb0d433a450e941735f6b...4d82
 tomcat.conf.groupdirectory.user=pbe://B18B73A3C81408DD637BBF4CDC884F1BB1E24845F31EC3237A165BB8568EB0F5
 tomcat.conf.groupdirectory.password=pbe://1E5452D5088A87251182917E79056B45216B67277BFFD25DA438D3BE153C29C8
 tomcat.conf.server.jdbc.Secure.trustStorePassword=pbe://B6F6365F73028930C4DE748447725E58470E48FA3B6CE33105CECAE0F3C6EB29
@@ -114,6 +122,7 @@ The following Decoders are provided as examples in the 'com.develop4.security.ut
 | HexDecoder | hex:// | Hexadecimal decoder converts to/from Hex values
 | Base64Decoder | base64:// | Base64 decoder converts to/from Base64 values
 | PBEDecoder | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
+| RSADecoder | rsa:// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. 
 
 
 **Note**
@@ -121,17 +130,18 @@ The following jars were added to the Tomcat Lib directory to support the Decodin
 
 ```
 Oracle [ http://www.oracle.com/technetwork/database/features/jdbc/index-091264.html ]
-   ucp-11.2.0.2.jar
-   ojdbc6_11.2.0.2.0.jar
-   oraclepki-11.2.0.2.jar
-   osdt_cert-11.2.0.2.jar
-   osdt_core-11.2.0.2.jar
+   ucp-11.2.0.2.jar       * Universal Connection Pool from Oracle
+   ojdbc6_11.2.0.2.0.jar  * jdbc connection to Oracle
+   oraclepki-11.2.0.2.jar * required for TCPS connection to Oracle
+   osdt_cert-11.2.0.2.jar * required for TCPS connection to Oracle
+   osdt_core-11.2.0.2.jar * required for TCPS connection to Oracle
 Bouncycastle [ http://www.bouncycastle.org ]
-   bcprov-jdk15on-150.jar
+   bcprov-jdk15on-150.jar * extended encryption utils
+   bcpkix-jdk15on-150.jar * PKI functionality to access stored keys/certificates.
 Jasypt [ http://www.jasypt.org/ ]
-   jasypt-1.9.2.jar
+   jasypt-1.9.2.jar       * simplifed access to encryption utils
 Unicode Project [ http://icu-project.org/ ]
-   icu4j-3.4.4.jar
+   icu4j-3.4.4.jar        * International Components for Unicode
 This Project
    tomcat-extension-0.1.0.jar
 ```
