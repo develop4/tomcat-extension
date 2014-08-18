@@ -45,6 +45,7 @@ import javax.crypto.Cipher;
 
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
 import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
@@ -63,7 +64,7 @@ import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 
 public class RSADecoder implements Decoder, StringEncryptor {
-	
+
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(RSADecoder.class);
 
 	public static final String INFO 		= "RSA Decoder Test v1.00";
@@ -75,7 +76,9 @@ public class RSADecoder implements Decoder, StringEncryptor {
     private static final String DEFAULT_NAMESPACE 					= "rsa://";
     private static final String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
     private static final String DEFAULT_PROVIDER_NAME 				= "BC";
+    //private static final String DEFAULT_ALGORITHM_NAME 				= "RSA";
     private static final String DEFAULT_ALGORITHM_NAME 				= "RSA/None/PKCS1Padding";
+
     private static final String DEFAULT_STRING_OUTPUT_TYPE 			= "hexadecimal";
     
     private static final String DEFAULT_PRIVATE_KEY_FILE 			= "private.pem";
@@ -118,23 +121,23 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG), "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 		
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE) != null){
-			this.setPassphrase(this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE, DEFAULT_PASSPHRASE));
+		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null){
+			this.setPassphrase(this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
 		}
 
-		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE, DEFAULT_NAMESPACE));
-		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME, DEFAULT_PROVIDER_NAME));
-		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME, DEFAULT_ALGORITHM_NAME));
-		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE, DEFAULT_PRIVATE_KEY_FILE));
-		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE, DEFAULT_PUBLIC_KEY_FILE));
-		this.setStringOutputType(this.properties.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE, DEFAULT_STRING_OUTPUT_TYPE));
+		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
+		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
+		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
+		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
+		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));
+		this.setStringOutputType(this.properties.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(), DEFAULT_STRING_OUTPUT_TYPE));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			log.info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
@@ -189,7 +192,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
 	        JcaPEMKeyConverter   converter = new JcaPEMKeyConverter().setProvider("BC");
 	        PEMDecryptorProvider pemProv = new JcePEMDecryptorProviderBuilder().setProvider("BC").build(passphrase.toCharArray());
 	        InputDecryptorProvider pkcs8Prov = new JceOpenSSLPKCS8DecryptorProviderBuilder().build(passphrase.toCharArray());
-	        res = this.getClass().getResourceAsStream(fileName);
+	        //res = this.getClass().getResourceAsStream(fileName);
 	        File file = DecoderUtils.isFile(fileName);
 	        FileReader fr = new FileReader(file);			
             fRd = new BufferedReader(fr);
@@ -202,10 +205,14 @@ public class RSADecoder implements Decoder, StringEncryptor {
 	            keypair = new KeyPair(null, converter.getPrivateKey(((PKCS8EncryptedPrivateKeyInfo)obj).decryptPrivateKeyInfo(pkcs8Prov)));
 	        } else if (obj instanceof SubjectPublicKeyInfo) {
 	        	keypair = new KeyPair((PublicKey)converter.getPublicKey((SubjectPublicKeyInfo)obj),null);
+	        } else if (obj instanceof X509CertificateHolder) {
+	        	SubjectPublicKeyInfo sub = (SubjectPublicKeyInfo)((X509CertificateHolder)obj).getSubjectPublicKeyInfo();
+	        	keypair = new KeyPair((PublicKey)converter.getPublicKey((SubjectPublicKeyInfo)sub),null);
 	        } else {
 	        	keypair = converter.getKeyPair((PEMKeyPair)obj);
 	        }
         } catch (Exception ex) {
+        	log.error("Failed to read Keyfile:" + fileName);
         	ex.printStackTrace();
         } finally {
         	pemParser.close();

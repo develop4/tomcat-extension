@@ -3,7 +3,7 @@
  * 
  *  Copyright (c) 2014, The Develop4 Technologies Ltd (http://www.develop4.co.uk)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")),
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -23,28 +23,36 @@ package com.develop4.security.utils.decoders;
  * @author williamtimpany
  *
  */
-public final class PropertyNaming {
+public enum PropertyNaming {
 
-	public static final String PROP_NAMESPACE = "namespace";
-	public static final String PROP_PASSPHRASE = "passphrase";
-	public static final String PROP_PROVIDER_NAME = "providerName";
-	public static final String PROP_PROVIDER_CLASS_NAME = "providerClassName";
-	public static final String PROP_ALGORITHM_NAME = "algorithmName";
-	public static final String PROP_OBTENTION_ITERATIONS = "obtentionIterations";
-	public static final String PROP_SALT_GENERATOR_CLASS_NAME = "saltGeneratorClassName";
-	public static final String PROP_STRING_OUTPUT_TYPE = "stringOutputType";
-	public static final String PROP_KEYSTORE_TYPE = "keyStoreType";
-	public static final String PROP_KEYSTORE_PATH = "keyStorePath";
-	public static final String PROP_PRIVATE_KEYFILE = "privateKeyFile";
-	public static final String PROP_PUBLIC_KEYFILE = "publicKeyFile";
-	public static final String PROP_DEBUG = "debug";
+	PROP_NAMESPACE("namespace"),
+	PROP_PASSPHRASE("passphrase"),
+	PROP_PROVIDER_NAME("providerName"),
+	PROP_PROVIDER_CLASS_NAME("providerClassName"),
+	PROP_ALGORITHM_NAME("algorithmName"),
+	PROP_OBTENTION_ITERATIONS("obtentionIterations"),
+	PROP_SALT_GENERATOR_CLASS_NAME("saltGeneratorClassName"),
+	PROP_STRING_OUTPUT_TYPE("stringOutputType"),
+	PROP_KEYSTORE_TYPE("keyStoreType"),
+	PROP_KEYSTORE_PATH("keyStorePath"),
+	PROP_PRIVATE_KEYFILE("privateKeyFile"),
+	PROP_PUBLIC_KEYFILE("publicKeyFile"),
+	PROP_DEBUG("debug"),
+	PROP_CONSOLE_TIMEOUT("consoleTimeout"),
+	PROP_CONFIGURATION("configuration"),
+	PROP_PROPERTIES("properties"),
+	PROP_DECODER("decoder"),
+	PROP_INPUT("input"),
+	PROP_BASE64("base64://"),
+	PROP_HEX("hex://");
+	
+	private String value;
 
-	public static final String PROP_CONSOLE_TIMEOUT = "consoleTimeout";
-	public static final String PROP_CONFIGURATION = "configuration";
-	public static final String PROP_PROPERTIES = "properties";
-	public static final String PROP_DECODER = "decoder";
+    private PropertyNaming(String value) {
+            this.value = value;
+    }
 
-	public static final String PROP_BASE64 = "base64://";
-	public static final String PROP_HEX = "hex://";
-
+    public String toString(){
+       return value;
+    }
 }

@@ -23,6 +23,8 @@ import java.util.Properties;
 
 import org.jasypt.encryption.StringEncryptor;
 
+import com.develop4.security.tomcat.PropertyDecoderService;
+
 public class NullDecoder implements Decoder, StringEncryptor {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(NullDecoder.class);
@@ -62,13 +64,13 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG, "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
 		if (isDebug()) {
 			log.info("Debug mode has been activated:");
 		}
 		
 
-		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE, DEFAULT_NAMESPACE));
+		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
 				
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {

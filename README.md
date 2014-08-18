@@ -58,8 +58,6 @@ hex://33306636336330322d626539342d343065392d623034302d646661623033333661643930
 This file contains all the encrypted passwords/values that will be decrypted and replace the placeholder values in the tomcat configuration files at runtime.
 The file is a simple name/value pair property file.
 ```
-This file contains all the encrypted passwords that will be decrypted and replace the placeholder values in the tomcat configuration files at runtime.
-The file is a simple name/value pair property file.
 my.test.property.one=null://123456789asdf
 my.test.property.two=base64://RGV2ZWxvcDRQcm9wZXJ0aWVz
 my.test.property.three=hex://446576656c6f7034546563686e6f6c6f67696573

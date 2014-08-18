@@ -37,21 +37,23 @@ import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
+import com.develop4.security.utils.decoders.Base64Decoder;
 import com.develop4.security.utils.decoders.Decoder;
 import com.develop4.security.utils.decoders.DecoderUtils;
+import com.develop4.security.utils.decoders.LogUtils;
 import com.develop4.security.utils.decoders.PropertyNaming;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
-	private static Log log = LogFactory.getLog(PropertyDecoderService.class);
+	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyDecoderService.class);
 
 	/* Configuration Constants */
-	protected static final String CONSOLE_TIMEOUT_PROP 	= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
-	protected static final String PASSPHRASE_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
-	protected static final String CONFIGURATION_PROP 	= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION;
-	protected static final String PROPERTIES_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
-	protected static final String DECODER_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DECODER;
-	protected static final String DEBUG_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
+	public static final String CONSOLE_TIMEOUT_PROP = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
+	public static final String PASSPHRASE_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
+	public static final String CONFIGURATION_PROP 	= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION;
+	public static final String PROPERTIES_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
+	public static final String DECODER_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DECODER;
+	public static final String DEBUG_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
 
 
 	/* Default Values */
@@ -63,6 +65,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	protected static final String DEFAULT_KEY = "446576656c6f7034546563686e6f6c6f67696573";
 
 	protected Properties properties = new Properties();
+	protected Properties propertiesCommand = new Properties();
 	protected Properties configuration = new Properties();
 	protected Map<String, Decoder> decoders = new HashMap<String, Decoder>();
 
@@ -86,6 +89,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	}
 
 	public PropertyDecoderService() throws Exception {
+
 		log.info("======================================================================");
 		log.info("SecurePropertyDigester Initializing");
 		
@@ -242,15 +246,15 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			return null;
 		}
 		try {
-			if (cyphertext.startsWith(PropertyNaming.PROP_BASE64)) {
-				String stripped = cyphertext.replace(PropertyNaming.PROP_BASE64, "");
+			if (cyphertext.startsWith(PropertyNaming.PROP_BASE64.toString())) {
+				String stripped = cyphertext.replace(PropertyNaming.PROP_BASE64.toString(), "");
 				String cleartext = new String(Base64.decode(stripped.getBytes()));
 				if (log.isDebugEnabled()) {
 					log.debug("Decoded using Base64: " + cleartext);
 				}
 				return cleartext;
-			} else if (cyphertext.startsWith(PropertyNaming.PROP_HEX)) {
-				String stripped = cyphertext.replace(PropertyNaming.PROP_HEX, "");
+			} else if (cyphertext.startsWith(PropertyNaming.PROP_HEX.toString())) {
+				String stripped = cyphertext.replace(PropertyNaming.PROP_HEX.toString(), "");
 				String cleartext = new String(Hex.decode(stripped.getBytes()));
 				if (log.isDebugEnabled()) {
 					log.debug("Decoded using Hex: " + cleartext);
@@ -322,6 +326,35 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		} catch (Exception x) {
 			log.fatal("Oops decoding has failed:" + key, x);
 			throw new IllegalArgumentException("Oops decoding has failed:" + key, x);
+		}
+	}
+	
+	public String encodePropertyValue(String namespaceKey, String value) {
+		if (value == null) {
+			return value;
+		}
+		try {
+			if (log.isInfoEnabled()) {
+				log.info("Handle Namespace: \"" + namespaceKey + "\"  Value: \"" + value + "\"");
+			}
+			
+			Decoder decoder = this.decoders.get(namespaceKey);
+			if (decoder != null) {
+				if (isDebug()) {
+					log.info("Namespace for encoder found: " + namespaceKey + "  encoder: " + decoder.toString());
+				}
+				value = decoder.encrypt(value);
+				if (isDebug()) {
+					log.info("Encoded Value: \"" + value + "\"");
+				}
+			} else {
+				log.error("No Encoder found for namespace: \"" + namespaceKey + "\"");
+			}
+
+			return value;
+		} catch (Exception x) {
+			log.fatal("Oops encoding has failed:" + namespaceKey, x);
+			throw new IllegalArgumentException("Oops encoding has failed:" + namespaceKey, x);
 		}
 	}
 
