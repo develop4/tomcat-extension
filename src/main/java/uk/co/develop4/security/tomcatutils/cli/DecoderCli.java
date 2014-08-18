@@ -1,8 +1,5 @@
 package uk.co.develop4.security.tomcatutils.cli;
 
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -10,13 +7,11 @@ import java.util.Set;
 import org.jasypt.commons.CommonUtils;
 
 import uk.co.develop4.security.tomcat.PropertyDecoderService;
-import uk.co.develop4.security.utils.decoders.DecoderUtils;
-import uk.co.develop4.security.utils.decoders.LogUtils;
 import uk.co.develop4.security.utils.decoders.PropertyNaming;
 
 public final class DecoderCli {
 	
-	private static LogUtils log = LogUtils.getLog(DecoderCli.class);
+	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(DecoderCli.class);
 
 	private DecoderCli() {
     }

@@ -4,7 +4,7 @@
 
 	<groupId>uk.co.develop4</groupId>
 	<artifactId>tomcat-extension</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -21,6 +21,13 @@
 			<url>https://github.com/wtimpany</url>
 		</developer>
 	</developers>
+	<contributors>
+        <contributor>
+			<name>Calum Timpany</name>
+			<url>https://github.com/ctimpany</url>
+		</contributor>
+	</contributors>
+	
 
 	<licenses>
 		<license>
@@ -32,6 +39,7 @@
 	</licenses>
 
 	<properties>
+		<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jasypt.version>1.9.2</jasypt.version>
 		<junit.version>4.11</junit.version>
@@ -63,6 +71,15 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>

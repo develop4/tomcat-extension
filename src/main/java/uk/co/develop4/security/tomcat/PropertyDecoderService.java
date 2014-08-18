@@ -30,17 +30,13 @@ import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
 
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
-import uk.co.develop4.security.utils.decoders.Base64Decoder;
 import uk.co.develop4.security.utils.decoders.Decoder;
 import uk.co.develop4.security.utils.decoders.DecoderUtils;
-import uk.co.develop4.security.utils.decoders.LogUtils;
 import uk.co.develop4.security.utils.decoders.PropertyNaming;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
