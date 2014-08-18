@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package com.develop4.security.utils.decoders;
+package uk.co.develop4.security.utils.decoders;
 
 import java.util.Properties;
 
@@ -63,6 +63,16 @@ import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 
+/**
+ * 
+ * TODO: rename the parameters to encrypt/decrypt key
+ * TODO: pass the keys as strings to the init to allow embeding in web page
+ * TODO: cache keys in local variables to prevent re-read operations
+ * TODO: build individual unit tests, hand craft the strings in the tests and do not rely on file system.
+ * 
+ * @author william timpany
+ *
+ */
 public class RSADecoder implements Decoder, StringEncryptor {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(RSADecoder.class);

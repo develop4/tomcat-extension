@@ -17,27 +17,20 @@
  * 
  * =============================================================================
  */
-package com.develop4.security.utils.decoders;
+package uk.co.develop4.security.tomcat;
 
-import java.util.Properties;
+import org.apache.tomcat.util.IntrospectionUtils;
 
 /**
  * 
- * @author william timpany
+ * @author williamtimpany
  *
  */
-public abstract interface Decoder {
-	
-	public abstract String getInfo();
-
-	public abstract String getNamespace();
-	
-	public abstract String getDescription();
-	
-	public abstract void init(String passphrase, Properties props);
-	
-	public abstract String encrypt(String plaintext);
-
-	public abstract String decrypt(String cyphertext);
-	
-}
+public class SystemPropertySource 
+    implements IntrospectionUtils.PropertySource
+	   {
+	    public String getProperty(String key)
+	    {
+	      return System.getProperty(key);
+	   }
+	  }

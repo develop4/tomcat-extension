@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package com.develop4.security.tomcat;
+package uk.co.develop4.security.tomcat;
 
 import java.io.File;
 import java.net.URL;
@@ -37,11 +37,11 @@ import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
-import com.develop4.security.utils.decoders.Base64Decoder;
-import com.develop4.security.utils.decoders.Decoder;
-import com.develop4.security.utils.decoders.DecoderUtils;
-import com.develop4.security.utils.decoders.LogUtils;
-import com.develop4.security.utils.decoders.PropertyNaming;
+import uk.co.develop4.security.utils.decoders.Base64Decoder;
+import uk.co.develop4.security.utils.decoders.Decoder;
+import uk.co.develop4.security.utils.decoders.DecoderUtils;
+import uk.co.develop4.security.utils.decoders.LogUtils;
+import uk.co.develop4.security.utils.decoders.PropertyNaming;
 
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 

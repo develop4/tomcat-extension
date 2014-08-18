@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package com.develop4.security.tomcat;
+package uk.co.develop4.security.tomcat;
 
 import java.util.Properties;
 

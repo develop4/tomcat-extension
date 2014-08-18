@@ -1,4 +1,4 @@
-package com.develop4.security.tomcatutils.cli;
+package uk.co.develop4.security.tomcatutils.cli;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -9,10 +9,10 @@ import java.util.Set;
 
 import org.jasypt.commons.CommonUtils;
 
-import com.develop4.security.tomcat.PropertyDecoderService;
-import com.develop4.security.utils.decoders.DecoderUtils;
-import com.develop4.security.utils.decoders.LogUtils;
-import com.develop4.security.utils.decoders.PropertyNaming;
+import uk.co.develop4.security.tomcat.PropertyDecoderService;
+import uk.co.develop4.security.utils.decoders.DecoderUtils;
+import uk.co.develop4.security.utils.decoders.LogUtils;
+import uk.co.develop4.security.utils.decoders.PropertyNaming;
 
 public final class DecoderCli {
 	

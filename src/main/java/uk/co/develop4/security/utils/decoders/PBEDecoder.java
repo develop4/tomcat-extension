@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package com.develop4.security.utils.decoders;
+package uk.co.develop4.security.utils.decoders;
 
 import java.util.Properties;
 

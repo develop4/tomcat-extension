@@ -38,4 +38,4 @@ export CATALINA_BASE
 echo ============================
 echo CATALINA_BASE:   $CATALINA_BASE
 
-$JAVA_EXECUTABLE -Dcatalina.base=$CATALINA_BASE -classpath ${TARGET_DIR}/tomcat-extension-0.2.0.jar${SEPERATOR}$EXEC_CLASSPATH com.develop4.security.tomcatutils.cli.DecoderCli $*
+$JAVA_EXECUTABLE -Dcatalina.base=$CATALINA_BASE -classpath ${TARGET_DIR}/tomcat-extension-0.2.0.jar${SEPERATOR}$EXEC_CLASSPATH uk.co.develop4.security.tomcatutils.cli.DecoderCli $*

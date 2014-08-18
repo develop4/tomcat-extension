@@ -1,4 +1,4 @@
-package com.develop4.security.tomcat;
+package uk.co.develop4.security.tomcat;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -8,6 +8,8 @@ import java.util.Properties;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.junit.Test;
+
+import uk.co.develop4.security.tomcat.PropertyDecoderService;
 
 /**
  * Unit test for simple configuration
@@ -40,7 +42,7 @@ public class PropertyDecoderServiceTest
 			
 			System.setProperty("catalina.base", secPath.getParent().toString());
 			
-			System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE","com.develop4.security.tomcat.PropertyDecoderService");
+			System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE","uk.co.develop4.security.tomcat.PropertyDecoderService");
 						
 			PropertyDecoderService service = new PropertyDecoderService();
 

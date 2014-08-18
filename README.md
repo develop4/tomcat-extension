@@ -23,28 +23,28 @@ digester will decrypt the properties and perform variable substitution of the ma
 **Sample: catalina.properties**
 Modify the catalina properties file to plug-in the new custom digester and point to its configuration file.
 ```
-org.apache.tomcat.util.digester.PROPERTY_SOURCE=com.develop4.security.tomcat.PropertyDecoderService
-com.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.base}/restricted/settings/decoder.properties
+org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyDecoderService
+uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.base}/restricted/settings/decoder.properties
 ```
 
 **Sample: decoder.properties**
 This file contains the list of decoders in order or precedence that will be used for decrypting the values which have a prefix that matches
 the decoder namespace.   Specific values can be passed as properties to each decoder to override the default values, create another property 
-prefixed with the decoder class name.  e.g. 'com.develop4.security.utils.decoders.NullDecoder.debug=true'
+prefixed with the decoder class name.  e.g. 'uk.co.develop4.security.utils.decoders.NullDecoder.debug=true'
 ```
-com.develop4.security.tomcat.PropertyDecoderService.passphrase=${catalina.base}/restricted/keystore/secure.file
-com.develop4.security.tomcat.PropertyDecoderService.properties=${catalina.base}/restricted/properties/application.properties
-com.develop4.security.tomcat.PropertyDecoderService.decoder.1=com.develop4.security.utils.decoders.NullDecoder
-com.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true
-com.develop4.security.tomcat.PropertyDecoderService.decoder.2=com.develop4.security.utils.decoders.Base64Decoder
-com.develop4.security.tomcat.PropertyDecoderService.decoder.3=com.develop4.security.utils.decoders.HexDecoder
-com.develop4.security.tomcat.PropertyDecoderService.decoder.4=com.develop4.security.utils.decoders.PBEDecoder
-com.develop4.security.tomcat.PropertyDecoderService.decoder.5=com.develop4.security.utils.decoders.RSADecoder
-com.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyOne.pem
-com.develop4.security.tomcat.PropertyDecoderService.decoder.6=com.develop4.security.utils.decoders.RSADecoder
+uk.co.develop4.security.tomcat.PropertyDecoderService.passphrase=${catalina.base}/restricted/keystore/secure.file
+uk.co.develop4.security.tomcat.PropertyDecoderService.properties=${catalina.base}/restricted/properties/application.properties
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1=uk.co.develop4.security.utils.decoders.NullDecoder
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.2=uk.co.develop4.security.utils.decoders.Base64Decoder
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.3=uk.co.develop4.security.utils.decoders.HexDecoder
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.4=uk.co.develop4.security.utils.decoders.PBEDecoder
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.5=uk.co.develop4.security.utils.decoders.RSADecoder
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyOne.pem
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6=uk.co.develop4.security.utils.decoders.RSADecoder
 # Create new decoder with seperate namespace to handle another private key
-com.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyTwo.pem
-com.develop4.security.tomcat.PropertyDecoderService.decoder.6.namespace=rsa:key2//
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyTwo.pem
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.namespace=rsa:key2//
 ```
 
 **Sample: secure.file (Encrypted Master Key)**
@@ -112,7 +112,7 @@ javax.net.ssl.keyStorePassword=${tomcat.conf.server.jdbc.Secure.keyStorePassword
 
 **Provided Decoders**
 
-The following Decoders are provided as examples in the 'com.develop4.security.utils.decoders package'.
+The following Decoders are provided as examples in the 'uk.co.develop4.security.utils.decoders package'.
 
 | Decoder | Prefix | Functionality
 | ------- | ------ | -------------

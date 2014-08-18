@@ -17,50 +17,52 @@
  * 
  * =============================================================================
  */
-package com.develop4.security.utils.decoders;
+package uk.co.develop4.security.utils.decoders;
 
 import java.util.Properties;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
-import com.develop4.security.tomcat.PropertyDecoderService;
-
-public class NullDecoder implements Decoder, StringEncryptor {
-
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(NullDecoder.class);
-
-	public static final String INFO 		= "Null Decoder Test v1.00";
-	public static final String CLASSNAME 	= NullDecoder.class.getName();
-	public String DESCRIPTION 				= "NULL";
-    public String NAMESPACE 				= "null://";
-
-    private static final String DEFAULT_NAMESPACE 		= "null://";
-
-    private String passphrase;
-
-	private Properties properties;
-	private boolean debug = false;
-    
-	public NullDecoder() {
-	}
+public class HexDecoder implements Decoder, StringEncryptor {
 	
+	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(HexDecoder.class);
+
+	public static final String INFO 		= "Hexadecimal Decoder Test v1.00";
+    public static final String CLASSNAME 	= HexDecoder.class.getName();
+    public String NAMESPACE 				= "hex://";
+    public String DESCRIPTION 				= "HEX";
+
+    private static final String DEFAULT_NAMESPACE 		= "hex://";
+
+    
+    private Properties properties;
+    private boolean debug = false;
+    
+	public HexDecoder() {
+	}
+
 	public String getNamespace() {
 		return NAMESPACE;
-	}
-	
-	public void setNamespace(String namespace) {
-		this.NAMESPACE = namespace;
 	}
 	
 	public String getDescription() {
 		return DESCRIPTION;
 	}
 	
+	public void setNamespace(String namespace) {
+		this.NAMESPACE = namespace;
+	}
+	
+	public void setDescription(String description) {
+		this.DESCRIPTION = description;
+	}
+	
 	public String getInfo() {
 		return INFO;
 	}
 	
-	public void init(final String passphrase, final Properties props)  {
+	public void init(String passphrase, Properties props)  {
 		if(props != null) {
 			this.properties = props;
 		}
@@ -69,9 +71,8 @@ public class NullDecoder implements Decoder, StringEncryptor {
 			log.info("Debug mode has been activated:");
 		}
 		
-
 		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
-				
+
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {
 				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
@@ -79,26 +80,20 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		}
 	}
 	
-	public String encrypt(String cleartext)  {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}
-		return NAMESPACE+cleartext;
+		return NAMESPACE + new String(Hex.encode(cleartext.getBytes()));
 	}
 
-	public String decrypt(String cyphertext)  {
+	public String decrypt(String cyphertext) {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
-			return cyphertext.replace(NAMESPACE, "");
+			String stripped = cyphertext.replace(NAMESPACE, "");
+			
+			return new String(Hex.decode(stripped.getBytes()));
 		}
 		return cyphertext;	
-	}
-
-	public String getPassphrase() {
-		return passphrase;
-	}
-
-	public void setPassphrase(final String passphrase) {
-		this.passphrase = passphrase;
 	}
 	
 	public boolean isDebug() {
@@ -109,10 +104,11 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		this.debug = debug;
 	}
 
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("NullDecoder [Namespace:");
+		builder.append("HexDecoder [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());
@@ -121,5 +117,6 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		builder.append("]");
 		return builder.toString();
 	}
+
 
 }

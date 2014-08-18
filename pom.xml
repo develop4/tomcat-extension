@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.develop4</groupId>
+	<groupId>uk.co.develop4</groupId>
 	<artifactId>tomcat-extension</artifactId>
 	<version>0.2.0</version>
 	<packaging>jar</packaging>
@@ -69,7 +69,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.develop4.security.tomcatutils.cli.DecoderCli</mainClass>
+							<mainClass>uk.co.develop4.security.tomcatutils.cli.DecoderCli</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
