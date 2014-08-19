@@ -1,0 +1,1 @@
+./encoder.sh input=XXXSecretRSAPasswordTwoXXX namespace=rsa:// configuration='file://${catalina.base}/scripts/decoder.properties' passphrase=DevelopTechnologies
