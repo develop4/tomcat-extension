@@ -188,6 +188,9 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		}
 
 		/* get the property file to be used for all application properties */
+		// -- TODO - replace the single property reader with different types just like decoders
+		// -- TODO - allow property reader to read multiple input files.
+		// -- TODO - different file types supported by prefix: file://, https://,  http://, sql://, sql:oracle://
 		String propertyFile = System.getProperty(PROPERTIES_PROP);
 		if (propertyFile == null) {
 			propertyFile = this.configuration.getProperty(PROPERTIES_PROP);
