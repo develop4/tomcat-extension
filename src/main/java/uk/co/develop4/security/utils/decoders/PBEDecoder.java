@@ -24,6 +24,11 @@ import java.util.Properties;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.intf.service.JasyptStatelessService;
 
+/**
+ * 
+ * @author william timpany
+ *
+ */
 public class PBEDecoder implements Decoder, StringEncryptor {
 	
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);

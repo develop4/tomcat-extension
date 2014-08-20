@@ -39,6 +39,13 @@ import uk.co.develop4.security.utils.decoders.Decoder;
 import uk.co.develop4.security.utils.decoders.DecoderUtils;
 import uk.co.develop4.security.utils.decoders.PropertyNaming;
 
+/**
+ * 
+ * TODO : Add configurable Property Readers : Property File,  Memory Property File Reader for testing
+ * 
+ * @author william timpany
+ *
+ */
 public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyDecoderService.class);

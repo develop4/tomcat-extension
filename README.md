@@ -30,7 +30,7 @@ uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.b
 **Sample: decoder.properties**
 This file contains the list of decoders in order or precedence that will be used for decrypting the values which have a prefix that matches
 the decoder namespace.   Specific values can be passed as properties to each decoder to override the default values, create another property 
-prefixed with the decoder class name.  e.g. 'uk.co.develop4.security.utils.decoders.NullDecoder.debug=true'
+prefixed with the decoder class name.  e.g. 'uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true'
 ```
 uk.co.develop4.security.tomcat.PropertyDecoderService.passphrase=${catalina.base}/restricted/keystore/secure.file
 uk.co.develop4.security.tomcat.PropertyDecoderService.properties=${catalina.base}/restricted/properties/application.properties

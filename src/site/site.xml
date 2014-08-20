@@ -1,45 +1,60 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project xmlns="http://maven.apache.org/DECORATION/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 http://maven.apache.org/xsd/decoration-1.1.0.xsd">
- 
-  <bannerLeft>
-    <name>Develop4 Tomcat Extensions</name>
-  </bannerLeft>
-  
-   <skin>
-       <groupId>org.apache.maven.skins</groupId>
-       <artifactId>maven-fluido-skin</artifactId>
-       <version>1.3.1</version>
-   </skin>
-   
-   <custom>
-    <fluidoSkin>
-      <googlePlusOne />
-      <facebookLike />
-      <gitHub>
-        <projectId>develop4/tomcat-extension</projectId>
-        <ribbonOrientation>right</ribbonOrientation>
-        <ribbonColor>gray</ribbonColor>
-      </gitHub>
-    </fluidoSkin>
-   </custom>
+<project xmlns="http://maven.apache.org/DECORATION/1.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 http://maven.apache.org/xsd/decoration-1.1.0.xsd">
 
-  <body>
-  
-  <menu ref="parent"/>
-  
-    <links>
-      <item name="Develop4 Technologies" href="http://develop4.github.io/" />
-    </links>
+	<publishDate position="right" />
+	<version position="left" />
 
-    <menu name="Tomcat Extensions">
-      <item name="Introduction" href="/Projects/tomcat-extension/index.html"/>
-      <item name="Release Notes" href="/Projects/tomcat-extension/release-notes.html" />
-      <item name="General Information" href="/Projects/tomcat-extension/about.html"/>
-    </menu>
+	<bannerLeft>
+		<name>Develop4 Tomcat Extensions</name>
+	</bannerLeft>
 
-    <menu ref="reports"/>
+	<bannerRight>
+		<src>./images/hexlogo.jpg</src>
+		<width>64</width>
+		<height>64</height>
+	</bannerRight>
 
-  </body>
-  
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.3.1</version>
+	</skin>
+
+	<custom>
+		<fluidoSkin>
+			<googlePlusOne />
+			<facebookLike />
+			<gitHub>
+				<projectId>develop4/tomcat-extension</projectId>
+				<ribbonOrientation>right</ribbonOrientation>
+				<ribbonColor>gray</ribbonColor>
+			</gitHub>
+		</fluidoSkin>
+	</custom>
+
+	<body>
+
+		<head>
+			<style type="text/css">
+				h2 { font-family: 'Century Gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+			</style>
+		</head>
+		<links>
+			<item name="Develop4 Technologies" href="http://develop4.github.io/" />
+		</links>
+
+		<menu ref="parent" />
+
+		<menu name="Tomcat Extensions">
+			<item name="Introduction" href="/Projects/tomcat-extension/index.html" />
+			<item name="Release Notes" href="/Projects/tomcat-extension/release-notes.html" />
+			<item name="General Information" href="/Projects/tomcat-extension/about.html" />
+		</menu>
+
+		<menu ref="reports" />
+
+	</body>
+
 </project>

@@ -83,6 +83,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -138,6 +139,10 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+	            <artifactId>maven-project-info-reports-plugin</artifactId>
+	            <version>2.7</version>
+	        </plugin>
 		</plugins>
 		<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
 			<configuration> <outputDirectory>/data/narowner/product/apache/apache-tomcat-7.0.54/lib</outputDirectory> 
