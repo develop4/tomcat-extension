@@ -41,12 +41,13 @@
 	<properties>
 		<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jasypt.version>1.9.2</jasypt.version>
-		<junit.version>4.11</junit.version>
-		<bouncycastle.version>1.50</bouncycastle.version>
-		<apache.tomcat.version>7.0.54</apache.tomcat.version>
-		<apache.commons.validator.version>1.4.0</apache.commons.validator.version>
-		<apache.codec.version>1.9</apache.codec.version>
+		<version.jasypt>1.9.2</version.jasypt>
+		<version.junit>4.11</version.junit>
+		<version.bouncycastle>1.50</version.bouncycastle>
+		<version.apache.tomcat>7.0.54</version.apache.tomcat>
+		<version.apache.commons.validator>1.4.0</version.apache.commons.validator>
+		<version.apache.codec>1.9</version.apache.codec>
+		<version.gpg.plugin>1.5</version.gpg.plugin>
 		<github.global.server>github</github.global.server>
 	</properties>
 
@@ -128,7 +129,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.5</version>
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
@@ -156,48 +156,48 @@
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
-			<version>${apache.commons.validator.version}</version>
+			<version>${version.apache.commons.validator}</version>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-catalina</artifactId>
-			<version>${apache.tomcat.version}</version>
+			<version>${version.apache.tomcat}</version>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-coyote</artifactId>
-			<version>${apache.tomcat.version}</version>
+			<version>${version.apache.tomcat}</version>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jasypt</groupId>
 			<artifactId>jasypt</artifactId>
-			<version>${jasypt.version}</version>
+			<version>${version.jasypt}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-			<version>${bouncycastle.version}</version>
+			<version>${version.bouncycastle}</version>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>${bouncycastle.version}</version>
+			<version>${version.bouncycastle}</version>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
+			<version>${version.junit}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

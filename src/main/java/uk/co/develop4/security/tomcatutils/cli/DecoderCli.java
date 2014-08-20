@@ -22,11 +22,10 @@ public final class DecoderCli {
     }
 
     public void run(final String[] args) {
-    	ClassLoader cl = ClassLoader.getSystemClassLoader();
 
     	try {
     		// -- Convert input parameters into Properties file
-    		final Set argNames = new HashSet();
+    		final Set<String> argNames = new HashSet<String>();
     		for(PropertyNaming val : PropertyNaming.values()) {
     			argNames.add(val.toString());
     		}
@@ -73,6 +72,7 @@ public final class DecoderCli {
     		String value = (String)System.getProperty(PropertyNaming.PROP_INPUT.toString());
     		String coded = pds.encodePropertyValue(namespaceKey, value);
     		
+    		log.info("Encrypted Value: " + coded);
     	} catch (Exception ex) {
     		ex.printStackTrace();
     	}
