@@ -77,6 +77,7 @@ public final class DecoderCli {
 			String value = (String) System.getProperty(PropertyNaming.PROP_INPUT.toString());
 			String action = (String) System.getProperty(PropertyNaming.PROP_ACTION.toString());
 			String passPhrase = (String) System.getProperty(PropertyNaming.PROP_PASSPHRASE.toString());
+			String decoderFile = (String) System.getProperty(sysPropConfig);
 
 			String coded;
 			if ("encode".equalsIgnoreCase(action)) {
@@ -96,6 +97,8 @@ public final class DecoderCli {
 				System.out.println("  encrypt.sh  action=decode passphrase=<mypassphrase> namespace=<namespace> input=<cyphertext> [configuration=<decoder properties>]");
 				System.out.println("");
 				System.out.println("-- Additional Parameters Based on Decoder Specified --");
+				System.out.println("   configuration: \"" + decoderFile + "\"");
+				System.out.println("");
 				System.out.println("Supported Decoders: encode");
 				System.out.println("");
 				for (Decoder decoder : pds.getDecoders().values()) {
