@@ -19,27 +19,55 @@
  */
 package uk.co.develop4.security.utils.decoders;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.tomcat.PropertyDecoderService;
+import uk.co.develop4.security.utils.PropertyNaming;
 
 public class NullDecoder implements Decoder, StringEncryptor {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(NullDecoder.class);
 
-	public static final String INFO 		= "Null Decoder Test v1.00";
-	public static final String CLASSNAME 	= NullDecoder.class.getName();
-	public String DESCRIPTION 				= "NULL";
-    public String NAMESPACE 				= "null://";
+	private static final String INFO 		= "Null Decoder Test v1.00";
+	private static final String CLASSNAME 	= NullDecoder.class.getName();
+	private String DESCRIPTION 				= "NULL";
+	private String NAMESPACE 				= "null://";
 
-    private static final String DEFAULT_NAMESPACE 		= "null://";
+    private String DEFAULT_NAMESPACE 		= "null://";
 
     private String passphrase;
 
 	private Properties properties;
 	private boolean debug = false;
+    
+	public Map<String,Set<String>> getRequiredParameters() {
+    	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
+    	Set<String> encodeParams = new HashSet<String>();
+    	Set<String> decodeParams = new HashSet<String>();
+    	requiredParams.put("encode", encodeParams);
+    	requiredParams.put("decode", decodeParams);
+    	return requiredParams;
+    }
+    
+    public Map<String,Set<String>> getOptionalParameters() {
+    	Map<String,Set<String>> optionalParams = new HashMap<String,Set<String>>();
+    	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
+    			PropertyNaming.PROP_DEBUG.toString()
+    			)) ;
+    	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
+    			PropertyNaming.PROP_DEBUG.toString()
+    			)) ;
+    	optionalParams.put("encode", encodeParams);
+    	optionalParams.put("decode", decodeParams);
+    	return optionalParams;
+    }
     
 	public NullDecoder() {
 	}

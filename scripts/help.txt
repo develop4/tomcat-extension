@@ -1,1 +1,14 @@
-./encoder.sh input=XXXSecretRSAPasswordTwoXXX namespace=rsa:// configuration='file://${catalina.base}/scripts/decoder.properties' passphrase=DevelopTechnologies
+./encoder.sh \
+	action=encode \
+	namespace=pbe:// \
+	passphrase=Develop4Technologies \
+	input=XXXSecretPBEPasswordTwoXXX 
+
+	
+./encoder.sh \
+	action=decode \
+	namespace=pbe:// \
+	passphrase=Develop4Technologies \
+	input=pbe://1BDB7903DDFCF5FF087E2E65D5BC56121C3A5E5EB9D98FBDDCAB0FE71972C5034E019B545C942C4E3DE4627986BC6038 
+	
+	

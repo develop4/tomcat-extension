@@ -19,7 +19,9 @@
  */
 package uk.co.develop4.security.utils.decoders;
 
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * 
@@ -39,5 +41,9 @@ public abstract interface Decoder {
 	public abstract String encrypt(String plaintext);
 
 	public abstract String decrypt(String cyphertext);
+	
+	public abstract Map<String,Set<String>> getRequiredParameters();
+	
+	public abstract Map<String,Set<String>> getOptionalParameters();
 	
 }

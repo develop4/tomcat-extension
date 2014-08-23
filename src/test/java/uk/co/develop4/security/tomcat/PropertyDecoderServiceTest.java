@@ -32,15 +32,15 @@ public class PropertyDecoderServiceTest
 			Path configPath = Paths.get(configUrl.toURI());
 			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath.toString());
 						
-			URL appUrl = getClass().getResource("/restricted/properties/application.properties");
-			Path appPath = Paths.get(appUrl.toURI());
-			System.setProperty(PropertyDecoderService.PROPERTIES_PROP, appPath.toString());
+			//URL appUrl = getClass().getResource("/restricted/properties/application.properties");
+			//Path appPath = Paths.get(appUrl.toURI());
+			//System.setProperty(PropertyDecoderService.PROPERTIES_PROP, appPath.toString());
 
-			URL secUrl = getClass().getResource("/restricted/keystore/secure.file");
-			Path secPath = Paths.get(secUrl.toURI());
-			System.setProperty(PropertyDecoderService.PASSPHRASE_PROP, secPath.toString());
+			//URL secUrl = getClass().getResource("/restricted/keystore/secure.file");
+			//Path secPath = Paths.get(secUrl.toURI());
+			//System.setProperty(PropertyDecoderService.PASSPHRASE_PROP, secPath.toString());
 			
-			System.setProperty("catalina.base", secPath.getParent().toString());
+			System.setProperty("catalina.base", configPath.getParent().getParent().getParent().toString());
 			
 			System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE","uk.co.develop4.security.tomcat.PropertyDecoderService");
 						

@@ -20,6 +20,7 @@
 package uk.co.develop4.security.utils.readers;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Properties;
 
 import uk.co.develop4.security.utils.PropertyNaming;
@@ -28,9 +29,9 @@ import uk.co.develop4.security.utils.decoders.DecoderUtils;
 /**
  * 
  * @author william timpany
- * 
+ *
  */
-public class PropertyFileReader implements Reader {
+public class PropertyURLReader implements Reader {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyFileReader.class);
 
@@ -38,29 +39,25 @@ public class PropertyFileReader implements Reader {
 
 	private String[] fileNames;
 	
-	public PropertyFileReader () {
+	public PropertyURLReader() {
 	}
 	
 	@Override
 	public void init(String passphrase, Properties props) {
-		
 		String pathSeperator = props.getProperty(PropertyNaming.PROP_PATH_SEPERATOR.toString(),DEFAULT_PATH_SEPERATOR);
 		String propertyFile = props.getProperty(PropertyNaming.PROP_PATH.toString());
 		if (propertyFile != null) {
 			this.fileNames = propertyFile.split(pathSeperator);
 		}
 	}
-
-
-	@Override
+	
 	public Properties read() {
-		//log.info("Load properties from reader: \"" + tmpReader.toString());
 		Properties loader = new Properties();
 		for(String fileName : fileNames) {
 			try {
-				File pFile = DecoderUtils.isFile(fileName);
-				if (pFile != null) {
-					loader.putAll(DecoderUtils.readFileProperties(pFile));
+				URL pUrl = DecoderUtils.isUrl(fileName);
+				if (pUrl != null) {
+					loader.putAll(DecoderUtils.readUrlProperties(pUrl));
 					log.info("Read application properties from: \"" + fileName + "\"");
 				} else {
 					log.info("Failed: Read application properties reader from: \"" + fileName + "\"");
@@ -70,11 +67,9 @@ public class PropertyFileReader implements Reader {
 				log.warn(ex.getMessage());
 			}
 		}
-		return loader;
-	}
+		return loader;	}
 
-	@Override
-	public void write(Properties prop, String path) {	
+	public void write(Properties props, String path) {
 		throw new UnsupportedOperationException();
 	}
 

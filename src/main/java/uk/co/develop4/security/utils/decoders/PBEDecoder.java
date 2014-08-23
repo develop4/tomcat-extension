@@ -19,10 +19,17 @@
  */
 package uk.co.develop4.security.utils.decoders;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.intf.service.JasyptStatelessService;
+
+import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
@@ -33,23 +40,23 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
 
-	public static final String INFO 		= "PBE Decoder Test v1.00";
-    public static final String CLASSNAME 	= PBEDecoder.class.getName();
-    public String NAMESPACE 				= "pbe://";
-    public String DESCRIPTION 				= "PBE Decoder for Testing";
+	private static final String INFO 		= "PBE Decoder Test v1.00";
+	private static final String CLASSNAME 	= PBEDecoder.class.getName();
+	private String NAMESPACE 				= "pbe://";
+	private String DESCRIPTION 				= "PBE Decoder for Testing";
     
-    private static final String DEFAULT_NAMESPACE 					= "pbe://";
-    private static final String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
-    private static final String DEFAULT_PROVIDER_NAME 				= "BC";
-    private static final String DEFAULT_ALGORITHM_NAME 				= "PBEWITHSHA256AND256BITAES-CBC-BC";
-    private static final String DEFAULT_OBTENTION_ITERATIONS 		= "1000"; // -- update to 100000
-    private static final String DEFAULT_PROVIDER_CLASS_NAME 		= "org.bouncycastle.jce.provider.BouncyCastleProvider";
-    private static final String DEFAULT_SALT_GENERATOR_CLASS_NAME 	= null;
-    private static final String DEFAULT_STRING_OUTPUT_TYPE 			= "hexadecimal";
+    private String DEFAULT_NAMESPACE 					= "pbe://";
+    private String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
+    private String DEFAULT_PROVIDER_NAME 				= "BC";
+    private String DEFAULT_ALGORITHM_NAME 				= "PBEWITHSHA256AND256BITAES-CBC-BC";
+    private String DEFAULT_PROVIDER_CLASS_NAME 			= "org.bouncycastle.jce.provider.BouncyCastleProvider";
+    private String DEFAULT_OBTENTION_ITERATIONS 		= "50000";
+    private String DEFAULT_SALT_GENERATOR_CLASS_NAME 	= null;
+    private String DEFAULT_STRING_OUTPUT_TYPE 			= "hexadecimal";
     
     private String passphrase;
-    private String providerClassName;
     private String providerName;
+    private String providerClassName;
     private String algorithimName;
     private String saltGeneratorClassName;
     private String obtentionIterations;
@@ -58,19 +65,49 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 
     private boolean debug = false;
         
+    public Map<String,Set<String>> getRequiredParameters() {
+    	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
+    	Set<String> encodeParams = new HashSet<String>() ;
+    	Set<String> decodeParams = new HashSet<String>()  ;
+    	requiredParams.put("encode", encodeParams);
+    	requiredParams.put("decode", decodeParams);
+    	return requiredParams;
+    }
+    
+    public Map<String,Set<String>> getOptionalParameters() {
+    	Map<String,Set<String>> optionalParams = new HashMap<String,Set<String>>();
+    	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
+    			PropertyNaming.PROP_PROVIDER_NAME.toString(),
+    			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
+    			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
+    			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
+    			PropertyNaming.PROP_DEBUG.toString()
+    			)) ;
+    	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
+    			PropertyNaming.PROP_PROVIDER_NAME.toString(),
+    			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
+    			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
+    			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
+    			PropertyNaming.PROP_DEBUG.toString()
+    			)) ;
+    	optionalParams.put("encode", encodeParams);
+    	optionalParams.put("decode", decodeParams);
+    	return optionalParams;
+    }
+    
 	public PBEDecoder() {
 	}
 	
 	public String getInfo() {
-		return INFO;
+		return this.INFO;
 	}
 	
 	public String getNamespace() {
-		return NAMESPACE;
+		return this.NAMESPACE;
 	}
 	
 	public String getDescription() {
-		return DESCRIPTION;
+		return this.DESCRIPTION;
 	}
 	
 	public void setNamespace(String namespace) {
@@ -97,9 +134,9 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 		
 		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
 		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
+		this.setProviderClassName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_CLASS_NAME.toString(), DEFAULT_PROVIDER_CLASS_NAME));
 		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
 		this.setObtentionIterations(this.properties.getProperty(PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(), DEFAULT_OBTENTION_ITERATIONS));
-		this.setProviderClassName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_CLASS_NAME.toString(), DEFAULT_PROVIDER_CLASS_NAME));
 		this.setStringOutputType(this.properties.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(), DEFAULT_STRING_OUTPUT_TYPE));
 		this.setSaltGeneratorClassName(this.properties.getProperty(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME.toString(), DEFAULT_SALT_GENERATOR_CLASS_NAME));
 		
@@ -180,7 +217,7 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	
 
 	public String getPassphrase() {
-		return passphrase;
+		return this.passphrase;
 	}
 
 	public void setPassphrase(final String passphrase) {
@@ -188,7 +225,7 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 
 	public String getProviderName() {
-		return providerName;
+		return this.providerName;
 	}
 
 	public void setProviderName(final String providerName) {
@@ -196,7 +233,7 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 
 	public String getAlgorithimName() {
-		return algorithimName;
+		return this.algorithimName;
 	}
 
 	public void setAlgorithimName(final String algorithimName) {
@@ -204,7 +241,7 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 
 	public String getSaltGeneratorClassName() {
-		return saltGeneratorClassName;
+		return this.saltGeneratorClassName;
 	}
 
 	public void setSaltGeneratorClassName(final String saltGeneratorClassName) {
@@ -212,23 +249,15 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 
 	public String getObtentionIterations() {
-		return obtentionIterations;
+		return this.obtentionIterations;
 	}
 
 	public void setObtentionIterations(final String obtentionIterations) {
 		this.obtentionIterations = obtentionIterations;
 	}
 
-	public String getProviderClassName() {
-		return providerClassName;
-	}
-
-	public void setProviderClassName(String providerClassName) {
-		this.providerClassName = providerClassName;
-	}
-
 	public String getStringOutputType() {
-		return stringOutputType;
+		return this.stringOutputType;
 	}
 
 	public void setStringOutputType(final String stringOutputType) {
@@ -236,11 +265,19 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 	
 	public boolean isDebug() {
-		return debug;
+		return this.debug;
 	}
 
 	public void setDebug(final boolean debug) {
 		this.debug = debug;
+	}
+	
+	public String getProviderClassName() {
+		return this.providerClassName;
+	}
+
+	public void setProviderClassName(String providerClassName) {
+		this.providerClassName = providerClassName;
 	}
 
 	@Override

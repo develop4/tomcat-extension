@@ -17,16 +17,17 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.utils;
 /**
  * 
- * @author williamtimpany
+ * @author william timpany
  *
  */
 public enum PropertyNaming {
 
 	PROP_NAMESPACE("namespace"),
 	PROP_PASSPHRASE("passphrase"),
+	PROP_PASSPHRASE_FILE("passphraseFile"),
 	PROP_PROVIDER_NAME("providerName"),
 	PROP_PROVIDER_CLASS_NAME("providerClassName"),
 	PROP_ALGORITHM_NAME("algorithmName"),
@@ -41,8 +42,12 @@ public enum PropertyNaming {
 	PROP_CONSOLE_TIMEOUT("consoleTimeout"),
 	PROP_CONFIGURATION("configuration"),
 	PROP_PROPERTIES("properties"),
+	PROP_PATH("path"),
+	PROP_PATH_SEPERATOR("pathSeperator"),
 	PROP_DECODER("decoder"),
+	PROP_CATALINA_BASE("catalina.base"),
 	PROP_INPUT("input"),
+	PROP_ACTION("action"),
 	PROP_BASE64("base64://"),
 	PROP_HEX("hex://");
 	

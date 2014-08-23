@@ -30,26 +30,22 @@ public class PropertyMemoryReader implements Reader {
 
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyMemoryReader.class);
 
-	private Properties properties;
-	private String passphrase;
+	private Properties properties;	
 
 	public PropertyMemoryReader() {
 	}
 
-	@Override
-	public void init(String passphrase) {
-		this.passphrase = passphrase;
-		
+	public void init(String passphrase, Properties props) {
 		this.properties = new Properties();
-		this.properties.put("PropertyMemoryReader", "TEST");
+		this.properties.put("property.memory.reader.test1", "TEST_ONE");
+		this.properties.put("property.memory.reader.test2", "TEST_TWO");
+
 	}
 
-	@Override
-	public Properties read(String path) {
+	public Properties read() {
 		return properties;
 	}
 
-	@Override
 	public void write(Properties props, String path) {
 		this.properties = props;
 	}

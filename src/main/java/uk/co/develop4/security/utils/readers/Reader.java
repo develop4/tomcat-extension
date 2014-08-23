@@ -23,14 +23,19 @@ import java.util.Properties;
 
 /**
  * 
+ * Reader Interface : this is to allow multiple application properties readers to be plugged in.  This will allow
+ * the application properties to be stored in multiple locations,formats.
+ * 
+ * e.g. PropertyFileReader : reads local Property files
+ * 
  * @author william timpany
  *
  */
 public abstract interface Reader {
 	
-	public abstract void init(String passphrase);
+	public abstract void init(String passphrase, Properties props);
 
-	public abstract Properties read(String path);
+	public abstract Properties read();
 
 	public abstract void write(Properties prop, String path);
 

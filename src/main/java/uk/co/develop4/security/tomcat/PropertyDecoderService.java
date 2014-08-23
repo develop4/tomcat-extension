@@ -35,13 +35,21 @@ import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
+import uk.co.develop4.security.utils.PropertyNaming;
 import uk.co.develop4.security.utils.decoders.Decoder;
 import uk.co.develop4.security.utils.decoders.DecoderUtils;
-import uk.co.develop4.security.utils.decoders.PropertyNaming;
+import uk.co.develop4.security.utils.readers.Reader;
 
 /**
+ * PropertyDecoderService
  * 
- * TODO : Add configurable Property Readers : Property File,  Memory Property File Reader for testing
+ * This is the main class that needs plugged into the Tomcat Servers <i>catalina.properties</i> file.  See
+ * the entry below for the configuration additions required to activate the property introspector.
+ * 
+ * <pre>
+ *   org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyDecoderService
+ *   uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=file://${catalina.base}/restricted/settings/decoder.properties
+ * </pre>
  * 
  * @author william timpany
  *
@@ -53,6 +61,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	/* Configuration Constants */
 	public static final String CONSOLE_TIMEOUT_PROP = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
 	public static final String PASSPHRASE_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
+	public static final String PASSPHRASE_FILE_PROP = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE_FILE;
 	public static final String CONFIGURATION_PROP 	= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION;
 	public static final String PROPERTIES_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
 	public static final String DECODER_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DECODER;
@@ -65,18 +74,21 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 
 	protected static final long DEFAULT_TIMEOUT_VALUE = 30000l;
-	protected static final String DEFAULT_KEY = "446576656c6f7034546563686e6f6c6f67696573";
+	protected static final String DEFAULT_KEY = "hex://446576656c6f7034546563686e6f6c6f67696573";
 
 	protected Properties properties = new Properties();
 	protected Properties propertiesCommand = new Properties();
 	protected Properties configuration = new Properties();
 	protected Map<String, Decoder> decoders = new HashMap<String, Decoder>();
 
-	protected String defaultKey = DEFAULT_KEY;
+	protected String defaultKey = null;
 	protected long consoleTimeout = 30000l;
 	
 	private boolean debug = false;
-		
+	
+	public Map<String, Decoder> getDecoders() {
+		return this.decoders;
+	}
 	private String introspectProperty(String value) {
 		if (value == null) {
 			return value;
@@ -119,7 +131,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				log.info("Activate configuration file reader for file: \"" + pFile.getCanonicalPath() + "\"");
 				this.configuration = DecoderUtils.readFileProperties(pFile);
 			} else {
-				throw new IllegalArgumentException("Unable to load fonfiguration file:" + configurationFile);
+				throw new IllegalArgumentException("Unable to load configuration file:" + configurationFile);
 			}
 
 		}
@@ -148,71 +160,102 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			}
 		}
 
+		/* set the default key */
+		this.defaultKey = decode(this.defaultKey);
+		
 		/* Get the master key to be used as the default value */
 		String passphrase = System.getProperty(PASSPHRASE_PROP);
 		if (passphrase == null) {
 			passphrase = this.configuration.getProperty(PASSPHRASE_PROP);
 		}
 		if (passphrase != null) {
-			passphrase = passphrase.trim();
-			if ("console".equals(passphrase)) {
-				log.info("Activate console passphrase reader");
-				String tmpPassphrase = DecoderUtils.readConsole(this.consoleTimeout);
-				if (tmpPassphrase == null) {
-					throw new NullPointerException("Invalid passphrase provided by console input.");
-				} else {
-					this.defaultKey = tmpPassphrase;
-				}
-			} else {
-				String tmpPassphrase = introspectProperty(passphrase);
-				if (tmpPassphrase != null) {
-					File pFile = DecoderUtils.isFile(tmpPassphrase);
-					if (pFile != null) {
-						log.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
-						this.defaultKey = DecoderUtils.readFileValue(pFile);
-					} else {
-						URL pUrl = DecoderUtils.isUrl(tmpPassphrase);
-						if (pUrl != null) {
-							log.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
-							this.defaultKey = DecoderUtils.readUrlValue(pUrl);
-						} else {
-							log.info("Activate passphrase from memory");
-						}
-					}
-					this.defaultKey = decode(this.defaultKey);
-				}
-			}
+			this.defaultKey = decode(passphrase.trim());
 		}
+		
+		/* Get the file where the master key is stored */
+		String passphraseFile = System.getProperty(PASSPHRASE_FILE_PROP);
+		if (passphraseFile == null) {
+			passphraseFile = this.configuration.getProperty(PASSPHRASE_FILE_PROP);
+		}
+		if (passphraseFile != null) {
+			passphraseFile = introspectProperty(passphraseFile.trim());
+		}
+		
+		if (passphrase == null && passphraseFile != null) {
+			String localPassPhrase = null;
+			// -- Read passphrase from console 
+			if (passphraseFile.startsWith("console")) {
+				log.info("Activate console passphrase reader");
+				localPassPhrase = DecoderUtils.readConsole(this.consoleTimeout);
+				if (localPassPhrase == null) {
+					throw new NullPointerException("Invalid passphrase provided by console input.");
+				} 
+			} 
+			// -- Read the password from the secure file 
+			if (passphraseFile.startsWith("file")) {
+				File pFile = DecoderUtils.isFile(passphraseFile);
+				if (pFile != null) {
+					log.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
+					localPassPhrase = DecoderUtils.readFileValue(pFile);
+					if (localPassPhrase == null) {
+						throw new NullPointerException("Invalid passphrase provided by file input.");
+					}
+				}
+			} 
+			// -- Read the password from a secure url
+			if (passphraseFile.startsWith("http")) {
+				URL pUrl = DecoderUtils.isUrl(passphraseFile);
+				if (pUrl != null) {
+					log.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
+					localPassPhrase = DecoderUtils.readUrlValue(pUrl);
+					if (localPassPhrase == null) {
+						throw new NullPointerException("Invalid passphrase provided by file input.");
+					}
+				}
+			} 
+			if (localPassPhrase != null) {
+				this.defaultKey = decode(localPassPhrase.trim());
+			} 
+		} 
+		
+		
 		if (log.isDebugEnabled()) {
 			log.info("Passphrase initialized: " + this.defaultKey);
 		}
-
-		/* get the property file to be used for all application properties */
-		// -- TODO - replace the single property reader with different types just like decoders
-		// -- TODO - allow property reader to read multiple input files.
-		// -- TODO - different file types supported by prefix: file://, https://,  http://, sql://, sql:oracle://
-		String propertyFile = System.getProperty(PROPERTIES_PROP);
-		if (propertyFile == null) {
-			propertyFile = this.configuration.getProperty(PROPERTIES_PROP);
-		}
-		if (propertyFile != null) {
-			propertyFile = introspectProperty(propertyFile);
-			File pFile = DecoderUtils.isFile(propertyFile);
-			if (pFile != null) {
-				log.info("Activate file application properties reader from: \"" + pFile.getCanonicalPath() + "\"");
-				this.properties = DecoderUtils.readFileProperties(pFile);
-			} else {
-				URL pUrl = DecoderUtils.isUrl(propertyFile);
-				if (pUrl != null) {
-					log.info("Activate url application properties reader from: \"" + pUrl.toString() + "\"");
-					this.properties = DecoderUtils.readUrlProperties(pUrl);
+		
+		// -- load properties from providers specified
+		for (int i = 50; i > 0; i--) {
+			String propertiesMapping = PROPERTIES_PROP + "." + i;
+			String className = this.configuration.getProperty(propertiesMapping);
+			try {
+				if (className != null) {
+					Reader tmpReader = (Reader) Class.forName(className).newInstance();
+					if (tmpReader != null) {
+						log.info("Activate reader: \"" + tmpReader.toString());
+						// -- TODO : only pass parameters that as specific for the reader
+						Properties tmpProperties = new Properties();
+						for (String myKey : this.configuration.stringPropertyNames()) {
+							// -- Transfer property settings that begin with the reader mapping to ensure 
+							// -- properties settings do not leak between readers.
+							if (myKey.startsWith(propertiesMapping)) {
+								String myNewKey = myKey.replace(propertiesMapping+".", "");
+								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
+							}
+						}
+						tmpReader.init(this.defaultKey, tmpProperties);
+						this.properties.putAll(tmpReader.read());
+					}
 				}
+			} catch (Exception ex) {
+				log.error("Failed to instanciate reader class: " + className);
+				ex.printStackTrace();
 			}
+
 		}
 
 		// -- load the possible decoder mappings here, in reverse order.
 		// -- this will ensure that the correct precedence is preserved.
-		for (int i = 20; i > 0; i--) {
+		for (int i = 50; i > 0; i--) {
 			String decoderMapping = DECODER_PROP + "." + i;
 			String className = this.configuration.getProperty(decoderMapping);
 			try {
@@ -241,7 +284,15 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			}
 
 		}
-
+		
+		/*
+		System.out.println("-- Decoders -----------------------------------------------------");
+		for(String key : this.decoders.keySet()) {
+			System.out.println("decoder: key: " + key + " - " + this.decoders.get(key));
+		}
+		System.out.println("-----------------------------------------------------------------");
+		 */
+		
 		log.info("SecurePropertyDigester Initialized");
 		log.info("======================================================================");
 	}

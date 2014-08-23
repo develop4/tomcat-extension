@@ -19,25 +19,54 @@
  */
 package uk.co.develop4.security.utils.decoders;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
+
+import uk.co.develop4.security.utils.PropertyNaming;
 
 public class HexDecoder implements Decoder, StringEncryptor {
 	
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(HexDecoder.class);
 
-	public static final String INFO 		= "Hexadecimal Decoder Test v1.00";
-    public static final String CLASSNAME 	= HexDecoder.class.getName();
-    public String NAMESPACE 				= "hex://";
-    public String DESCRIPTION 				= "HEX";
+	private static final String INFO 		= "Hexadecimal Decoder Test v1.00";
+	private static final String CLASSNAME 	= HexDecoder.class.getName();
+	private String NAMESPACE 				= "hex://";
+	private String DESCRIPTION 				= "HEX";
 
-    private static final String DEFAULT_NAMESPACE 		= "hex://";
+    private String DEFAULT_NAMESPACE 		= "hex://";
 
     
     private Properties properties;
     private boolean debug = false;
+    
+    public Map<String,Set<String>> getRequiredParameters() {
+    	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
+    	Set<String> encodeParams = new HashSet<String>();
+    	Set<String> decodeParams = new HashSet<String>();
+    	requiredParams.put("encode", encodeParams);
+    	requiredParams.put("decode", decodeParams);
+    	return requiredParams;
+    }
+    
+    public Map<String,Set<String>> getOptionalParameters() {
+    	Map<String,Set<String>> optionalParams = new HashMap<String,Set<String>>();
+    	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
+    			PropertyNaming.PROP_DEBUG.toString()
+    			)) ;
+    	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
+    			PropertyNaming.PROP_DEBUG.toString()
+    			)) ;
+    	optionalParams.put("encode", encodeParams);
+    	optionalParams.put("decode", decodeParams);
+    	return optionalParams;
+    }
     
 	public HexDecoder() {
 	}
