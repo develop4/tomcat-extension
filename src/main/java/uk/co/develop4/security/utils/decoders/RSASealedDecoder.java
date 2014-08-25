@@ -20,11 +20,13 @@
 package uk.co.develop4.security.utils.decoders;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
@@ -32,13 +34,18 @@ import org.jasypt.encryption.StringEncryptor;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Reader;
+import java.io.Serializable;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
@@ -47,6 +54,7 @@ import java.security.Security;
 import java.security.interfaces.RSAPrivateCrtKey;
 
 import javax.crypto.Cipher;
+import javax.crypto.SealedObject;
 
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
@@ -69,28 +77,34 @@ import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 
 import uk.co.develop4.security.utils.PropertyNaming;
+import uk.co.develop4.security.utils.PropertySealed;
 
 /**
  * 
- * TODO: rename the parameters to encrypt/decrypt key
- * TODO: pass the keys as strings to the init to allow embeding in web page
- * TODO: cache keys in local variables to prevent re-read operations
+ * RSA Sealed Decoder - wraps the PropertySealed object to add a "name" and "date" parameter.   This allows the
+ * encoded value to contain extra data.  e.g. when the password was encoded.
+ * 
+ * PropertySealed 
+ *	public String label;
+ *	public String value;
+ *	public Date date;
+ * 
  * TODO: build individual unit tests, hand craft the strings in the tests and do not rely on file system.
  * 
  * @author william timpany
  *
  */
-public class RSADecoder implements Decoder, StringEncryptor {
+public class RSASealedDecoder implements Decoder, StringEncryptor {
 
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(RSADecoder.class);
+	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(RSASealedDecoder.class);
 
 	private static final String INFO 		= "RSA Decoder Test v1.00";
 	private static final String CLASSNAME 	= RSADecoder.class.getName();
-	private String NAMESPACE 				= "rsa://";
+	private String NAMESPACE 				= "rsa:sealed//";
 	private String DESCRIPTION 				= "RSA";
     
     
-    private String DEFAULT_NAMESPACE 				= "rsa://";
+    private String DEFAULT_NAMESPACE 				= "rsa:sealed//";
     private String DEFAULT_PASSPHRASE 				= "446576656C6F7034546563686E6F6C6F67696573";
     private String DEFAULT_PROVIDER_NAME 			= "BC";
     private String DEFAULT_ALGORITHM_NAME 			= "RSA/None/PKCS1Padding";
@@ -106,6 +120,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
     
     private PrivateKey privateKey;
     private PublicKey publicKey;
+
     
     private Properties properties;
     private boolean debug = false;
@@ -141,7 +156,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
     	return optionalParams;
     }
     
-	public RSADecoder() {
+	public RSASealedDecoder() {
 	}
 
 	public String getNamespace() {
@@ -164,7 +179,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		return INFO;
 	}
 	
-	public void init(String passphrase, Properties props)  {
+	public void init(String passphrase, Properties props){
 		if(props != null) {
 			this.properties = props;
 		}
@@ -183,7 +198,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
 		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
 		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
-		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));	
+		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));
 		
 		this.setPublicKey(DecoderUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
 		this.setPrivateKey(DecoderUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
@@ -204,13 +219,36 @@ public class RSADecoder implements Decoder, StringEncryptor {
 	
 	public String encrypt(String clearText, String label) {
 		String cypherText = clearText;
+		SealedObject sealed;
+		byte[] cypherBytes;
+		if (label == null) {
+			label = UUID.randomUUID().toString();
+		}
 		if (clearText == null) {
 			return null;
 		}
 		try {
-			Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
-		    cipher.init(Cipher.ENCRYPT_MODE, this.getPrivateKey());
-		    byte[] cypherBytes = cipher.doFinal(clearText.getBytes());	    
+			Cipher cipher = Cipher.getInstance(this.getAlgorithimName(), this.getProviderName());
+		    cipher.init(Cipher.ENCRYPT_MODE, this.getPublicKey());
+		    
+		    PropertySealed sealable = new PropertySealed();
+		    sealable.setLabel(label);
+		    sealable.setValue(clearText);
+		    sealable.setDate(new Date());
+		    if (isDebug()) {
+		    	log.info("Sealed Object: " + sealable);
+		    }
+		    
+		    sealed = new SealedObject(sealable, cipher); 
+		    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		    ObjectOutputStream oos = new ObjectOutputStream(bos);
+		    try {
+		    	oos.writeObject(sealed);
+		    	cypherBytes = bos.toByteArray();
+		    } finally {
+		    	oos.close();
+		    }
+		    		    
 			cypherText = this.getNamespace() + Hex.toHexString(cypherBytes);
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 
@@ -220,13 +258,27 @@ public class RSADecoder implements Decoder, StringEncryptor {
 
 	public String decrypt(String cyphertext){
 		String plainText = cyphertext;
+		SealedObject sealed;
 		try {
 			if (cyphertext != null && cyphertext.startsWith(this.getNamespace())) {
-				String stripped = cyphertext.replace(this.getNamespace(), "");				
+				String stripped = cyphertext.replace(this.getNamespace(), "");		
 				Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
-			    cipher.init(Cipher.DECRYPT_MODE, this.getPrivateKey());
-			    byte[] plainBytes =  cipher.doFinal(Hex.decode(stripped));			    
-				plainText = new String(plainBytes);
+			    cipher.init(Cipher.DECRYPT_MODE, this.getPrivateKey());		
+			    
+			    ByteArrayInputStream bis = new ByteArrayInputStream(Hex.decode(stripped));
+			    ObjectInputStream ois = new ObjectInputStream(bis);
+			    try {
+			    	sealed = (SealedObject) ois.readObject();
+			    } finally {
+			    	ois.close();
+			    }
+			    PropertySealed sealable = (PropertySealed)sealed.getObject(cipher); 
+			    
+			    if (isDebug()) {
+			    	log.info("Sealed Object: " + sealable);
+			    }
+			    
+				plainText = sealable.getValue();
 			}
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 
@@ -281,7 +333,7 @@ public class RSADecoder implements Decoder, StringEncryptor {
 	public void setPublicKeyFile(String publicKeyFile) {
 		this.publicKeyFile = publicKeyFile;
 	}
-
+	
 	public PrivateKey getPrivateKey() {
 		return privateKey;
 	}

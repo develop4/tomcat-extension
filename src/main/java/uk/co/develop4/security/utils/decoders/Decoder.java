@@ -39,6 +39,8 @@ public abstract interface Decoder {
 	public abstract void init(String passphrase, Properties props);
 	
 	public abstract String encrypt(String plaintext);
+	
+	public abstract String encrypt(String plaintext, String label);
 
 	public abstract String decrypt(String cyphertext);
 	

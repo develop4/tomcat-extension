@@ -387,6 +387,9 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	}
 	
 	public String encodePropertyValue(String namespaceKey, String value) {
+		return encodePropertyValue(namespaceKey, value, null);
+	}
+	public String encodePropertyValue(String namespaceKey, String value, String label) {
 		if (value == null) {
 			return value;
 		}
@@ -400,7 +403,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				if (isDebug()) {
 					log.info("Namespace for encoder found: " + namespaceKey + "  encoder: " + decoder.toString());
 				}
-				value = decoder.encrypt(value);
+				value = decoder.encrypt(value, label);
 				if (isDebug()) {
 					log.info("Encoded Value: \"" + value + "\"");
 				}

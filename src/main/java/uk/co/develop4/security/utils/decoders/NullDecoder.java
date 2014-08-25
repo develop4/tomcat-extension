@@ -107,7 +107,11 @@ public class NullDecoder implements Decoder, StringEncryptor {
 		}
 	}
 	
-	public String encrypt(String cleartext)  {
+	public String encrypt(String clearText) {
+		return encrypt(clearText, null);
+	}
+	
+	public String encrypt(String cleartext, String label) {
 		if (cleartext == null) {
 			return null;
 		}
