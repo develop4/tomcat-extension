@@ -28,8 +28,6 @@ import java.util.Properties;
  */
 public class PropertyMemoryReader implements Reader {
 
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyMemoryReader.class);
-
 	private Properties properties;	
 
 	public PropertyMemoryReader() {

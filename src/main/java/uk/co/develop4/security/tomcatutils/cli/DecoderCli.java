@@ -1,7 +1,6 @@
 package uk.co.develop4.security.tomcatutils.cli;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -12,8 +11,6 @@ import uk.co.develop4.security.utils.PropertyNaming;
 import uk.co.develop4.security.utils.decoders.Decoder;
 
 public final class DecoderCli {
-
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(DecoderCli.class);
 
 	private DecoderCli() {
 	}
@@ -76,7 +73,7 @@ public final class DecoderCli {
 			String namespaceKey = (String) System.getProperty(PropertyNaming.PROP_NAMESPACE.toString());
 			String value = (String) System.getProperty(PropertyNaming.PROP_INPUT.toString());
 			String action = (String) System.getProperty(PropertyNaming.PROP_ACTION.toString());
-			String passPhrase = (String) System.getProperty(PropertyNaming.PROP_PASSPHRASE.toString());
+			//String passPhrase = (String) System.getProperty(PropertyNaming.PROP_PASSPHRASE.toString());
 			String decoderFile = (String) System.getProperty(sysPropConfig);
 
 			String coded;

@@ -16,8 +16,6 @@ import uk.co.develop4.security.tomcat.PropertyDecoderService;
  */
 public class PropertyDecoderServiceTest 
 {
-	private static Log log = LogFactory.getLog(PropertyDecoderServiceTest.class);
-
 	
     /**
      * Create the test case

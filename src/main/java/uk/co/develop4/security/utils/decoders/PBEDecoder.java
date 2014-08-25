@@ -41,7 +41,6 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
 
 	private static final String INFO 		= "PBE Decoder Test v1.00";
-	private static final String CLASSNAME 	= PBEDecoder.class.getName();
 	private String NAMESPACE 				= "pbe://";
 	private String DESCRIPTION 				= "PBE Decoder for Testing";
     
@@ -99,7 +98,7 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 	}
 	
 	public String getInfo() {
-		return this.INFO;
+		return INFO;
 	}
 	
 	public String getNamespace() {

@@ -36,7 +36,6 @@ public class HexDecoder implements Decoder, StringEncryptor {
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(HexDecoder.class);
 
 	private static final String INFO 		= "Hexadecimal Decoder Test v1.00";
-	private static final String CLASSNAME 	= HexDecoder.class.getName();
 	private String NAMESPACE 				= "hex://";
 	private String DESCRIPTION 				= "HEX";
 

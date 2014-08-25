@@ -35,7 +35,6 @@ public class PropertyRSASealedDecoderServiceTest
 			String coded = pds.encodePropertyValue("rsa:sealed//", testValue, "LabelForSealedValue");
 			String decoded = pds.decodePropertyValue("rsa:sealed//", coded);
 			
-			System.out.println("Encoded String Length: " + coded.length());
 			assertEquals(testValue, decoded);
 			
 		} catch (Exception e) {

@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.jasypt.encryption.StringEncryptor;
 
-import uk.co.develop4.security.tomcat.PropertyDecoderService;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 public class NullDecoder implements Decoder, StringEncryptor {
@@ -36,7 +35,6 @@ public class NullDecoder implements Decoder, StringEncryptor {
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(NullDecoder.class);
 
 	private static final String INFO 		= "Null Decoder Test v1.00";
-	private static final String CLASSNAME 	= NullDecoder.class.getName();
 	private String DESCRIPTION 				= "NULL";
 	private String NAMESPACE 				= "null://";
 

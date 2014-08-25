@@ -19,7 +19,6 @@
  */
 package uk.co.develop4.security.utils.readers;
 
-import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 

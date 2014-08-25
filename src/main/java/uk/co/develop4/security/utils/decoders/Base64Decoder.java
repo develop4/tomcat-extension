@@ -36,7 +36,6 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(Base64Decoder.class);
 
 	private static final String INFO 		= "Base64 Decoder Test v1.00";
-	private static final String CLASSNAME 	= Base64Decoder.class.getName();
 	private String DESCRIPTION 				= "Base64 Decoder for Testing";
 	private String NAMESPACE 				= "base64://";
    
