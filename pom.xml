@@ -22,12 +22,12 @@
 		</developer>
 	</developers>
 	<contributors>
-        <contributor>
+		<contributor>
 			<name>Calum Timpany</name>
 			<url>https://github.com/ctimpany</url>
 		</contributor>
 	</contributors>
-	
+
 
 	<licenses>
 		<license>
@@ -140,13 +140,10 @@
 				</executions>
 			</plugin>
 			<plugin>
-	            <artifactId>maven-project-info-reports-plugin</artifactId>
-	            <version>2.7</version>
-	        </plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
 		</plugins>
-		<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
-			<configuration> <outputDirectory>/data/narowner/product/apache/apache-tomcat-7.0.54/lib</outputDirectory> 
-			</configuration> </plugin> -->
 	</build>
 
 
