@@ -1,32 +1,25 @@
 #!/bin/sh
 
-SCRIPT_NAME=encoder.sh
-BIN_DIR=`dirname $0`
-DIST_DIR=$BIN_DIR/..
-LIB_DIR=$DIST_DIR/lib
-TARGET_DIR=$DIST_DIR/target
-EXEC_CLASSPATH="."
-SEPERATOR=":"
-
-
-JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home
-TOMCAT_HOME=/data/narowner/product/apache/apache-tomcat-7.0.54
-TOMCAT_EXTENSION=${TARGET_DIR}/tomcat-extension-0.3.0-SNAPSHOT.jar
-PATH=${JAVA_HOME}/bin:${PATH}
-
-echo TOMCAT_EXTENSION: ${TOMCAT_EXTENSION}
-
 PWD=`pwd`
 CATALINA_BASE=`dirname $PWD`
 
-for a in `find $LIB_DIR -name '*.jar'`
-do
-  EXEC_CLASSPATH=${EXEC_CLASSPATH}${SEPERATOR}${a}
+PRG="$0"
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '.*/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
 done
+PRGDIR=`dirname "$PRG"`
 
-for a in `find $TOMCAT_HOME -name '*.jar'`
+. ${PRGDIR}/setenv.sh
+
+for a in `find $CATALINA_HOME -name '*.jar'`
 do
-  EXEC_CLASSPATH=${EXEC_CLASSPATH}${SEPERATOR}${a}
+  EXEC_CLASSPATH=${EXEC_CLASSPATH}:${a}
 done
 
 JAVA_EXECUTABLE=java
@@ -35,10 +28,11 @@ then
   JAVA_EXECUTABLE=$JAVA_HOME/bin/java
 fi
 
-export CATALINA_BASE
+DECODER_PROPERTIES=file:///${CATALINA_BASE}/restricted/settings/decoder.properties
 
-echo ============================
-echo CATALINA_BASE:   $CATALINA_BASE
-echo $JAVA_EXECUTABLE -Dcatalina.base=$CATALINA_BASE -classpath ${TOMCAT_EXTENSION}${SEPERATOR}$EXEC_CLASSPATH uk.co.develop4.security.tomcatutils.cli.DecoderCli $*
+echo ===========================================
+echo "CATALINA_BASE:      $CATALINA_BASE"
+echo "CATALINA_HOME:      $CATALINA_HOME"
+echo "DECODER_PROPERTIES: $DECODER_PROPERTIES"
 
-$JAVA_EXECUTABLE -Dcatalina.base=$CATALINA_BASE -classpath ${TOMCAT_EXTENSION}${SEPERATOR}$EXEC_CLASSPATH uk.co.develop4.security.tomcatutils.cli.DecoderCli $*
+$JAVA_EXECUTABLE -Dcatalina.base=$CATALINA_BASE -classpath $EXEC_CLASSPATH uk.co.develop4.security.tomcatutils.cli.DecoderCli configuration=${DECODER_PROPERTIES} $*

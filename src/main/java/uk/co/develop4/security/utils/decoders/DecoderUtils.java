@@ -71,6 +71,9 @@ public class DecoderUtils {
 	}
 
 	public static File isFile(String fileName) {
+		if (fileName.startsWith("file:///")) {
+			fileName = fileName.replaceAll("\\\\", "/");
+		}
 		File file = new File(fileName);
 		if ((file.exists()) && (file.isFile()) && (file.isAbsolute() && file.canRead())) {
 			return file;
