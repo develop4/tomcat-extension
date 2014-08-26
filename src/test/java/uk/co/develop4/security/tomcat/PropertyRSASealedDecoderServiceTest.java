@@ -25,10 +25,11 @@ public class PropertyRSASealedDecoderServiceTest
 		try {			
 			String testValue = "XXXxxxTESTxxxXXX";
 			
-			URL configUrl = getClass().getResource("/restricted/settings/decoder.properties");
-			Path configPath = Paths.get(configUrl.toURI());
-			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath.toString());
-			System.setProperty("catalina.base", configPath.getParent().getParent().getParent().toString());
+			String configPath = getClass().getResource("/restricted/settings/decoder.properties").getPath();
+			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath);
+			
+			String catalinaBase = getClass().getResource("/").getPath();
+			System.setProperty("catalina.base", catalinaBase);
 			
 			PropertyDecoderService pds = new PropertyDecoderService();
 			
