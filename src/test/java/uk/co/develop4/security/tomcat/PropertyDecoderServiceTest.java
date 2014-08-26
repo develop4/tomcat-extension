@@ -5,11 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
 import org.junit.Test;
-
-import uk.co.develop4.security.tomcat.PropertyDecoderService;
 
 /**
  * Unit test for simple configuration
