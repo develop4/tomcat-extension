@@ -1,7 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
 PWD=`pwd`
-CATALINA_BASE=`dirname $PWD`
 
 PRG="$0"
 while [ -h "$PRG" ] ; do
@@ -17,7 +16,7 @@ PRGDIR=`dirname "$PRG"`
 
 . ${PRGDIR}/setenv.sh
 
-for a in `find $CATALINA_HOME -name '*.jar'`
+for a in `find ${CATALINA_HOME}/lib -name '*.jar'`
 do
   EXEC_CLASSPATH=${EXEC_CLASSPATH}:${a}
 done
@@ -31,8 +30,9 @@ fi
 DECODER_PROPERTIES=file:///${CATALINA_BASE}/restricted/settings/decoder.properties
 
 echo ===========================================
-echo "CATALINA_BASE:      $CATALINA_BASE"
-echo "CATALINA_HOME:      $CATALINA_HOME"
-echo "DECODER_PROPERTIES: $DECODER_PROPERTIES"
+echo "CATALINA_BASE:      ${CATALINA_BASE}"
+echo "CATALINA_HOME:      ${CATALINA_HOME}"
+echo "DECODER_PROPERTIES: ${DECODER_PROPERTIES}"
+echo "PARAMS:             ""$@"
 
-$JAVA_EXECUTABLE -Dcatalina.base=$CATALINA_BASE -classpath $EXEC_CLASSPATH uk.co.develop4.security.tomcatutils.cli.DecoderCli configuration=${DECODER_PROPERTIES} $*
+$JAVA_EXECUTABLE -Dcatalina.base=${CATALINA_BASE} -classpath ${EXEC_CLASSPATH} uk.co.develop4.security.tomcatutils.cli.DecoderCli configuration=${DECODER_PROPERTIES} "$@"
