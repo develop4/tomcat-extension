@@ -66,6 +66,24 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+				   <groupId>org.sonatype.plugins</groupId>
+				   <artifactId>nexus-staging-maven-plugin</artifactId>
+				   <version>1.5.1</version>
+				   <executions>
+				      <execution>
+				         <id>default-deploy</id>
+				         <phase>deploy</phase>
+				         <goals>
+				            <goal>deploy</goal>
+				         </goals>
+				      </execution>
+				   </executions>
+				   <configuration>
+				      <serverId>cde1023-ApplicationGovernance-ThirdParty</serverId>
+				      <skipStaging>true</skipStaging>
+				   </configuration>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
 					<version>1.5</version>
@@ -94,6 +112,7 @@
 					</archive>
 				</configuration>
 			</plugin>
+			<!--  
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.8.1</version>
@@ -101,6 +120,7 @@
 					<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
 				</configuration>
 			</plugin>
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
