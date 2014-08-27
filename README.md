@@ -121,6 +121,7 @@ The following Decoders are provided as examples in the 'uk.co.develop4.security.
 | Base64Decoder | base64:// | Base64 decoder converts to/from Base64 values
 | PBEDecoder | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
 | RSADecoder | rsa:// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. 
+| RSASealedDecoder | rsa:sealed// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. A SealedObject is used to wrap an object that contains the (label,value,date).
 
 
 **Note**
