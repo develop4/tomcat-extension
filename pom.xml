@@ -55,16 +55,24 @@
 
 
 	<distributionManagement>
+		<!--
 		<repository>
 			<id>cde1023-ApplicationGovernance-ThirdParty</id>
 			<name>cde1023 ApplicationGovernance ThirdParty</name>
 			<url>http://cu011.cubit.dbcde.com/content/repositories/cde1023-ApplicationGovernance-ThirdParty</url>
 		</repository>
+		-->
+		<snapshotRepository>
+			<uniqueVersion>false</uniqueVersion>
+		    <id>ossrh</id>
+		    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
 	</distributionManagement>
 
 	<build>
 		<pluginManagement>
 			<plugins>
+				<!--
 				<plugin>
 				   <groupId>org.sonatype.plugins</groupId>
 				   <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -88,9 +96,21 @@
 					<artifactId>maven-gpg-plugin</artifactId>
 					<version>1.5</version>
 				</plugin>
+				-->
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+		      <groupId>org.sonatype.plugins</groupId>
+		      <artifactId>nexus-staging-maven-plugin</artifactId>
+		      <extensions>true</extensions>
+		      <configuration>
+		        <serverId>ossrh</serverId>
+		        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+		        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+		      </configuration>
+		    </plugin>
+		    <!--  
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -112,7 +132,6 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<!--  
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.8.1</version>
@@ -121,52 +140,61 @@
 				</configuration>
 			</plugin>
 			-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.7</version>
-			</plugin>
 		</plugins>
 	</build>
 
+	<profiles>
+	  <profile> 
+	    <id>release</id>
+	    <build>
+		    <plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.2.1</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>sign-artifacts</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+			</plugins>
+	    </build>
+	  </profile>
+	</profiles>
 
 
 	<dependencies>
@@ -226,12 +254,15 @@
 		<connection>scm:git:git://github.com/develop4/tomcat-extension.git</connection>
 		<developerConnection>scm:git:git://github.com/develop4/tomcat-extension.git</developerConnection>
 	</scm>
+	
 	<issueManagement>
 		<url>https://github.com/develop4/tomcat-extension/issues</url>
 		<system>Github Issues</system>
 	</issueManagement>
+	
 	<organization>
 		<name>Develop4 Technologies Ltd</name>
 		<url>http://www.develop4.co.uk</url>
 	</organization>
+	
 </project>
