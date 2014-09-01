@@ -37,7 +37,6 @@ public class PropertyMemoryReader implements Reader {
 		this.properties = new Properties();
 		this.properties.put("property.memory.reader.test1", "TEST_ONE");
 		this.properties.put("property.memory.reader.test2", "TEST_TWO");
-
 	}
 
 	public Properties read() {

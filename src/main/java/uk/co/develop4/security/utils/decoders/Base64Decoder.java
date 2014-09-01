@@ -31,10 +31,13 @@ import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.utils.PropertyNaming;
 
-public class Base64Decoder implements Decoder, StringEncryptor {
+/**
+ * 
+ * @author wtimpany
+ *
+ */
+public class Base64Decoder extends BaseDecoder implements Decoder, StringEncryptor {
 	
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(Base64Decoder.class);
-
 	private static final String INFO 		= "Base64 Decoder Test v1.00";
 	private String DESCRIPTION 				= "Base64 Decoder for Testing";
 	private String NAMESPACE 				= "base64://";
@@ -42,7 +45,6 @@ public class Base64Decoder implements Decoder, StringEncryptor {
     private String DEFAULT_NAMESPACE 		= "base64://";
 
     private Properties properties;
-    private boolean debug = false;
     
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
@@ -93,16 +95,14 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
-		if (isDebug()) {
-			log.info("Debug mode has been activated:");
-		}
 		
+		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
 		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
 
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {
-				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
+				debug("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
 			}
 		}
 	}
@@ -125,14 +125,6 @@ public class Base64Decoder implements Decoder, StringEncryptor {
 			return new String(Base64.decode(stripped.getBytes()));
 		}
 		return cyphertext;	
-	}
-	
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(final boolean debug) {
-		this.debug = debug;
 	}
 
 	@Override

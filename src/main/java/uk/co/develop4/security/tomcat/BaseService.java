@@ -19,23 +19,47 @@
  */
 package uk.co.develop4.security.tomcat;
 
-import java.util.Properties;
+public class BaseService {
 
-import org.apache.tomcat.util.IntrospectionUtils;
+	private static final String INFO = "INFO: ";
+	private static final String WARN = "WARN: ";
+	private static final String DEBUG = "DEBUG: ";
 
-/**
- * 
- * @author william timpany
- *
- */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
-
-	LocalPropertySource(Properties props) {
-		this.props = props;
+	private boolean debug = false;
+	private boolean logging = false;
+	
+	public boolean isDebug() {
+		return debug;
 	}
 
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
+	public void setDebug(final boolean debug) {
+		this.debug = debug;
 	}
+	
+	public boolean isLogging() {
+		return logging;
+	}
+
+	public void setLogging(final boolean logging) {
+		this.logging = logging;
+	}
+	
+	public void info(final String message) {
+		if (isLogging()) {
+			System.out.println(INFO + message);
+		}
+	}
+	
+	public void warn(final String message) {
+		if (isLogging()) {
+			System.out.println(WARN + message);
+		}
+	}
+	
+	public void debug(final String message) {
+		if (isDebug()) {
+			System.out.println(DEBUG + message);
+		}
+	}
+	
 }

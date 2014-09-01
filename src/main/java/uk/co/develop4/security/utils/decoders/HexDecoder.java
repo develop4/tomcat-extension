@@ -31,19 +31,15 @@ import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.utils.PropertyNaming;
 
-public class HexDecoder implements Decoder, StringEncryptor {
+public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor {
 	
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(HexDecoder.class);
-
 	private static final String INFO 		= "Hexadecimal Decoder Test v1.00";
 	private String NAMESPACE 				= "hex://";
 	private String DESCRIPTION 				= "HEX";
 
     private String DEFAULT_NAMESPACE 		= "hex://";
-
-    
+ 
     private Properties properties;
-    private boolean debug = false;
     
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
@@ -94,16 +90,14 @@ public class HexDecoder implements Decoder, StringEncryptor {
 		if(props != null) {
 			this.properties = props;
 		}
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
-		if (isDebug()) {
-			log.info("Debug mode has been activated:");
-		}
 		
+		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));	
 		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
 
 		if (isDebug()) {
 			for (String myKey : this.properties.stringPropertyNames()) {
-				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
+				debug("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
 			}
 		}
 	}
@@ -122,21 +116,11 @@ public class HexDecoder implements Decoder, StringEncryptor {
 	public String decrypt(String cyphertext) {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			String stripped = cyphertext.replace(NAMESPACE, "");
-			
 			return new String(Hex.decode(stripped.getBytes()));
 		}
 		return cyphertext;	
 	}
-	
-	public boolean isDebug() {
-		return debug;
-	}
 
-	public void setDebug(final boolean debug) {
-		this.debug = debug;
-	}
-
-	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -149,6 +133,5 @@ public class HexDecoder implements Decoder, StringEncryptor {
 		builder.append("]");
 		return builder.toString();
 	}
-
 
 }

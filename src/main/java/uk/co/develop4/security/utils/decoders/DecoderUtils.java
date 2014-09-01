@@ -98,10 +98,10 @@ public class DecoderUtils {
 				URL u = new URL(url);
 				return u;
 			} catch (MalformedURLException ex) {
-				// log.warn("url is invalid: \"" + url + "\"");
+				// -- System.out.println("url is invalid: \"" + url + "\"");
 			}
 		} else {
-			// log.warn("url is invalid: \"" + url + "\"");
+			// -- System.out.println("url is invalid: \"" + url + "\"");
 		}
 		return null;
 	}
@@ -118,7 +118,7 @@ public class DecoderUtils {
 				try {
 					reader.close();
 				} catch (IOException ioe) {
-					System.out.println("Failed to close Reader for File: \"" + file + "\"" + ioe);
+					// -- System.out.println("Failed to close Reader for File: \"" + file + "\"" + ioe);
 				}
 			}
 		}
@@ -136,7 +136,7 @@ public class DecoderUtils {
 				try {
 					reader.close();
 				} catch (IOException ioe) {
-					System.out.println("Failed to close Reader for File: \"" + file + "\"" + ioe);
+					// -- System.out.println("Failed to close Reader for File: \"" + file + "\"" + ioe);
 				}
 			}
 		}
@@ -160,7 +160,7 @@ public class DecoderUtils {
 					try {
 						reader.close();
 					} catch (IOException ioe) {
-						System.out.println("Failed to close String Reader for URL: \"" + url + "\"" + ioe);
+						// -- System.out.println("Failed to close String Reader for URL: \"" + url + "\"" + ioe);
 					}
 				}
 			}
@@ -180,7 +180,7 @@ public class DecoderUtils {
 					try {
 						reader.close();
 					} catch (IOException ioe) {
-						System.out.println("Failed to close Property Reader for URL: \"" + url + "\"" + ioe);
+						// -- System.out.println("Failed to close Property Reader for URL: \"" + url + "\"" + ioe);
 					}
 				}
 			}

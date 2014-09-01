@@ -32,8 +32,6 @@ import uk.co.develop4.security.utils.decoders.DecoderUtils;
  */
 public class PropertyFileReader implements Reader {
 
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyFileReader.class);
-
     private static final String DEFAULT_PATH_SEPERATOR = ";";
 
 	private String[] fileNames;
@@ -41,7 +39,6 @@ public class PropertyFileReader implements Reader {
 	public PropertyFileReader () {
 	}
 	
-	@Override
 	public void init(String passphrase, Properties props) {
 		
 		String pathSeperator = props.getProperty(PropertyNaming.PROP_PATH_SEPERATOR.toString(),DEFAULT_PATH_SEPERATOR);
@@ -51,8 +48,6 @@ public class PropertyFileReader implements Reader {
 		}
 	}
 
-
-	@Override
 	public Properties read() {
 		//log.info("Load properties from reader: \"" + tmpReader.toString());
 		Properties loader = new Properties();
@@ -61,19 +56,15 @@ public class PropertyFileReader implements Reader {
 				File pFile = DecoderUtils.isFile(fileName);
 				if (pFile != null) {
 					loader.putAll(DecoderUtils.readFileProperties(pFile));
-					log.info("Read application properties from: \"" + fileName + "\"");
-				} else {
-					log.info("Failed: Read application properties reader from: \"" + fileName + "\"");
-				}
+				} 
 			} catch (Exception ex) {
-				log.warn("Exception: Read application properties reader from: \"" + fileName + "\"");
-				log.warn(ex.getMessage());
+				System.out.println("Exception: Read application properties reader from: \"" + fileName + "\"");
+				System.out.println(ex.getMessage());
 			}
 		}
 		return loader;
 	}
 
-	@Override
 	public void write(Properties prop, String path) {	
 		throw new UnsupportedOperationException();
 	}
