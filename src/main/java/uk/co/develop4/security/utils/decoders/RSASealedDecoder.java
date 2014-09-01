@@ -145,6 +145,7 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
 		
 		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
 		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
+		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
 		
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
