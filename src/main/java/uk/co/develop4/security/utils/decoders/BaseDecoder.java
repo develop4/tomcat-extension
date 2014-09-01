@@ -21,13 +21,23 @@ package uk.co.develop4.security.utils.decoders;
 
 public class BaseDecoder {
 
-	private static final String INFO = "INFO: ";
-	private static final String WARN = "WARN: ";
-	private static final String DEBUG = "DEBUG: ";
-	
+	private static final String INFO  = "[INFO]  ";
+	private static final String WARN  = "[WARN]  ";
+	private static final String DEBUG = "[DEBUG] ";
+	private static final String SNOOP = "[SNOOP] ";
+
+	private boolean snoop = false;
 	private boolean debug = false;
 	private boolean logging = false;
 
+	public boolean isSnoop() {
+		return snoop;
+	}
+
+	public void setSnoop(final boolean snoop) {
+		this.snoop = snoop;
+	}
+	
 	public boolean isDebug() {
 		return debug;
 	}
@@ -59,6 +69,12 @@ public class BaseDecoder {
 	public void debug(final String message) {
 		if (isDebug()) {
 			System.out.println(DEBUG + message);
+		}
+	}
+	
+	public void snoop(final String message) {
+		if (isSnoop()) {
+			System.out.println(SNOOP + message);
 		}
 	}
 

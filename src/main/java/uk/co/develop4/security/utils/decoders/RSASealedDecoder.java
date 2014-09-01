@@ -21,6 +21,7 @@ package uk.co.develop4.security.utils.decoders;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.PrivateKey;
@@ -100,12 +101,14 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
@@ -161,11 +164,6 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
 		}
-		if (isDebug()) {
-			for (String myKey : this.properties.stringPropertyNames()) {
-				debug("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
-			}
-		}
 	}
 	
 	public String encrypt(String clearText) {
@@ -175,7 +173,6 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
 	public String encrypt(String clearText, String label) {
 		String cypherText = clearText;
 		SealedObject sealed;
-		byte[] cypherBytes;
 		if (label == null) {
 			label = UUID.randomUUID().toString();
 		}
@@ -190,41 +187,56 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
 		    sealable.setLabel(label);
 		    sealable.setValue(clearText);
 		    sealable.setDate(new Date());
-		    debug("Sealed Object: " + sealable);
-		    
 		    sealed = new SealedObject(sealable, cipher); 
-		    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		    ObjectOutputStream oos = new ObjectOutputStream(bos);
-		    try {
-		    	oos.writeObject(sealed);
-		    	cypherBytes = bos.toByteArray();
-		    } finally {
-		    	oos.close();
-		    }
-		    		    
-			cypherText = this.getNamespace() + Hex.toHexString(cypherBytes);
+		    
+			cypherText = this.getNamespace() + sealedToHex(sealed);
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 
 		}
 		return cypherText;
 	}
+	
+	public String sealedToHex(SealedObject sealedObject) throws Exception {
+		byte[] cypherBytes;
+		ByteArrayOutputStream bos = null;
+	    ObjectOutputStream oos = null;
+	    try {
+	    	bos = new ByteArrayOutputStream();
+		    oos = new ObjectOutputStream(bos);
+	    	oos.writeObject(sealedObject);
+	    	cypherBytes = bos.toByteArray();
+	    } finally {
+	    	if (oos != null) {
+	    		oos.close();
+	    	}
+	    }
+	    return Hex.toHexString(cypherBytes);
+	}
+	
+	public SealedObject hexToSealed(String textValue) throws Exception{
+		SealedObject sealed;
+		ByteArrayInputStream bis = null;
+	    ObjectInputStream ois = null;
+	    try {
+	    	bis = new ByteArrayInputStream(Hex.decode(textValue));
+		    ois = new ObjectInputStream(bis);
+	    	sealed = (SealedObject) ois.readObject();
+	    } finally {
+	    	if (ois != null) {
+	    		ois.close();
+	    	}
+	    }
+	    return sealed;
+	}
 
 	public String decrypt(String cyphertext){
 		String plainText = cyphertext;
-		SealedObject sealed;
 		try {
 			if (cyphertext != null && cyphertext.startsWith(this.getNamespace())) {
 				String stripped = cyphertext.replace(this.getNamespace(), "");		
 				Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
 			    cipher.init(Cipher.DECRYPT_MODE, this.getPrivateKey());		
-			    
-			    ByteArrayInputStream bis = new ByteArrayInputStream(Hex.decode(stripped));
-			    ObjectInputStream ois = new ObjectInputStream(bis);
-			    try {
-			    	sealed = (SealedObject) ois.readObject();
-			    } finally {
-			    	ois.close();
-			    }
+			    SealedObject sealed = hexToSealed(stripped);
 			    PropertySealed sealable = (PropertySealed)sealed.getObject(cipher); 
 				plainText = sealable.getValue();
 			}

@@ -65,6 +65,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 	public static final String DECODER_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DECODER;
 	public static final String DEBUG_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
 	public static final String LOGGING_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_LOGGING;
+	public static final String SNOOP_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_SNOOP;
 
 	/* Default Values */
 	protected static final Pattern patternUri 		= Pattern.compile("(^\\S+://)");
@@ -101,6 +102,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 
 	public PropertyDecoderService() throws Exception {
 		
+		String tempCanonicalPath = null;
 		// -- Add BouncyCastle provider if it is missing
 		if (Security.getProvider("BC") == null) {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
@@ -121,7 +123,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 
 			File pFile = DecoderUtils.isFile(configurationFile);
 			if (pFile != null) {
-				info("Activate configuration file reader for file: \"" + pFile.getCanonicalPath() + "\"");
+				tempCanonicalPath = pFile.getCanonicalPath();
 				this.configuration = DecoderUtils.readFileProperties(pFile);
 			} else {
 				throw new IllegalArgumentException("Unable to load configuration file:" + configurationFile);
@@ -131,6 +133,11 @@ public class PropertyDecoderService extends BaseService implements Introspection
 		
 		this.setLogging(Boolean.parseBoolean(this.configuration.getProperty(LOGGING_PROP, "false")));
 		this.setDebug(Boolean.parseBoolean(this.configuration.getProperty(DEBUG_PROP, "false")));
+		this.setSnoop(Boolean.parseBoolean(this.configuration.getProperty(SNOOP_PROP, "false")));
+
+		if (tempCanonicalPath != null) {
+			debug("Activate configuration file reader for file: \"" + tempCanonicalPath + "\"");
+		}
 
 		/* Get the console timeout value to be used as the default */
 		String csTimeout = System.getProperty(CONSOLE_TIMEOUT_PROP);
@@ -170,7 +177,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			String localPassPhrase = null;
 			// -- Read passphrase from console 
 			if (passphraseFile.startsWith("console")) {
-				info("Activate console passphrase reader");
+				debug("Activate console passphrase reader");
 				localPassPhrase = DecoderUtils.readConsole(this.consoleTimeout);
 				if (localPassPhrase == null) {
 					throw new NullPointerException("Invalid passphrase provided by console input.");
@@ -180,7 +187,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			if (passphraseFile.startsWith("file")) {
 				File pFile = DecoderUtils.isFile(passphraseFile);
 				if (pFile != null) {
-					info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
+					debug("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
 					localPassPhrase = DecoderUtils.readFileValue(pFile);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
@@ -191,7 +198,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			if (passphraseFile.startsWith("http")) {
 				URL pUrl = DecoderUtils.isUrl(passphraseFile);
 				if (pUrl != null) {
-					info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
+					debug("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
 					localPassPhrase = DecoderUtils.readUrlValue(pUrl);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
@@ -212,8 +219,6 @@ public class PropertyDecoderService extends BaseService implements Introspection
 				if (className != null) {
 					Reader tmpReader = (Reader) Class.forName(className).newInstance();
 					if (tmpReader != null) {
-						info("Activate reader: \"" + tmpReader.toString());
-						// -- TODO : only pass parameters that as specific for the reader
 						Properties tmpProperties = new Properties();
 						for (String myKey : this.configuration.stringPropertyNames()) {
 							// -- Transfer property settings that begin with the reader mapping to ensure 
@@ -225,6 +230,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 						}
 						tmpReader.init(this.defaultKey, tmpProperties);
 						this.properties.putAll(tmpReader.read());
+						debug("Install reader: \"" + tmpReader.toString());
 					}
 				}
 			} catch (Exception ex) {
@@ -243,8 +249,6 @@ public class PropertyDecoderService extends BaseService implements Introspection
 				if (className != null) {
 					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
-						info("Activate decoder: \"" + tmpDecoder.toString());
-						// -- TODO : only pass parameters that as specific for the decoder
 						Properties tmpProperties = new Properties();
 						for (String myKey : this.configuration.stringPropertyNames()) {
 							// -- Transfer property settings that begin with the decoder mapping to ensure 
@@ -256,7 +260,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 						}
 						tmpDecoder.init(this.defaultKey, tmpProperties);
 						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
-						info("Install decoder: \"" + tmpDecoder.toString());
+						debug("Install decoder: \"" + tmpDecoder.toString());
 					}
 				}
 			} catch (Exception ex) {
@@ -310,15 +314,19 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			return value;
 		}
 		try {
-			info("Handle Key: \"" + key + "\"  Value: \"" + value + "\"");
+			info("Handle Key:  \"" + key + "\"  Value: \"" + value + "\"");
 			Matcher matcher = patternUri.matcher(value);
 			if (matcher.find()) {
 				String namespaceKey = matcher.group(1);
 				Decoder decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
-					debug("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
 					value = decoder.decrypt(value);
-					debug("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					if (isSnoop()) {
+						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					} else {
+						String partial = value.substring(0, 3) + "........" + value.substring(value.length()-3, value.length());
+						info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
+					}
 				}
 			}
 			matcher = patternUriWithSuffix.matcher(value);
@@ -326,9 +334,13 @@ public class PropertyDecoderService extends BaseService implements Introspection
 				String namespaceKey = matcher.group(1);
 				Decoder decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
-					debug("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
 					value = decoder.decrypt(value);
-					debug("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					if (isSnoop()) {
+						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					} else {
+						String partial = value.substring(0, 3) + "********" + value.substring(value.length()-3, value.length());
+						info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
+					}
 				}
 			}
 			return value;
@@ -347,12 +359,16 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			return value;
 		}
 		try {
-			info("Handle Namespace: \"" + namespaceKey + "\"  Value: \"" + value + "\"");
 			Decoder decoder = this.decoders.get(namespaceKey);
 			if (decoder != null) {
-				debug("Namespace for encoder found: " + namespaceKey + "  encoder: " + decoder.toString());
 				value = decoder.encrypt(value, label);
-				debug("Encoded Value: \"" + value + "\"");
+				snoop("Encoded Value: \"" + value + "\"");
+				if (isSnoop()) {
+					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + value + "\"");
+				} else {
+					String partial = value.substring(0, 3) + "********" + value.substring(value.length()-3, value.length());
+					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + partial + "\"");
+				}
 			} else {
 				warn("No Encoder found for namespace: \"" + namespaceKey + "\"");
 			}

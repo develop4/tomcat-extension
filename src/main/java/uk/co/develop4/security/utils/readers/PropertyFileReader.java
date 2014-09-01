@@ -20,6 +20,7 @@
 package uk.co.develop4.security.utils.readers;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Properties;
 
 import uk.co.develop4.security.utils.PropertyNaming;
@@ -27,12 +28,12 @@ import uk.co.develop4.security.utils.decoders.DecoderUtils;
 
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  * 
  */
 public class PropertyFileReader implements Reader {
 
-    private static final String DEFAULT_PATH_SEPERATOR = ";";
+	private static final String DEFAULT_PATH_SEPERATOR = ";";
 
 	private String[] fileNames;
 	
@@ -67,6 +68,16 @@ public class PropertyFileReader implements Reader {
 
 	public void write(Properties prop, String path) {	
 		throw new UnsupportedOperationException();
+	}
+	
+
+    @Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PropertyFileReader [fileNames=");
+		builder.append(Arrays.toString(fileNames));
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

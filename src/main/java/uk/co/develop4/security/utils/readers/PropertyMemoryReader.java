@@ -47,4 +47,11 @@ public class PropertyMemoryReader implements Reader {
 		this.properties = props;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PropertyMemoryReader");
+		return builder.toString();
+	}
+
 }

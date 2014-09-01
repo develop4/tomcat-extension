@@ -58,10 +58,12 @@ public class Base64Decoder extends BaseDecoder implements Decoder, StringEncrypt
     public Map<String,Set<String>> getOptionalParameters() {
     	Map<String,Set<String>> optionalParams = new HashMap<String,Set<String>>();
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			));
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			));
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
@@ -94,17 +96,10 @@ public class Base64Decoder extends BaseDecoder implements Decoder, StringEncrypt
 	public void init(String passphrase, Properties props) {
 		if(props != null) {
 			this.properties = props;
-		}
-		
+		}	
 		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
 		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
 		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
-
-		if (isDebug()) {
-			for (String myKey : this.properties.stringPropertyNames()) {
-				debug("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
-			}
-		}
 	}
 	
 	public String encrypt(String clearText) {
@@ -121,7 +116,6 @@ public class Base64Decoder extends BaseDecoder implements Decoder, StringEncrypt
 	public String decrypt(String cyphertext) {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			String stripped = cyphertext.replace(NAMESPACE, "");
-			
 			return new String(Base64.decode(stripped.getBytes()));
 		}
 		return cyphertext;	

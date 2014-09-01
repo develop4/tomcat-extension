@@ -75,14 +75,16 @@ public class PBEDecoder extends BaseDecoder implements Decoder, StringEncryptor 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
     			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
     			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(),
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
     			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
     			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
@@ -136,13 +138,7 @@ public class PBEDecoder extends BaseDecoder implements Decoder, StringEncryptor 
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}
-		if (isDebug()) {
-			for (String myKey : this.properties.stringPropertyNames()) {
-				debug("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
-			}
-		}
-		
+		}		
 	}
 	
 	public String encrypt(String clearText) {

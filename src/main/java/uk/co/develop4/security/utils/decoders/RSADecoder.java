@@ -84,12 +84,14 @@ public class RSADecoder extends BaseDecoder implements Decoder, StringEncryptor 
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
@@ -143,11 +145,6 @@ public class RSADecoder extends BaseDecoder implements Decoder, StringEncryptor 
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			warn("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}
-		if (isDebug()) {
-			for (String myKey : this.properties.stringPropertyNames()) {
-				debug("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
-			}
 		}
 	}
 	

@@ -49,7 +49,7 @@ import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 /**
  * Common Utilities for use in the decoders
  * 
- * @author williamtimpany
+ * @author wtimpany
  *
  */
 public class DecoderUtils {
