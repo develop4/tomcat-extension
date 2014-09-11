@@ -27,6 +27,9 @@ public class PropertyDecoderServiceTest
 			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath.toString());
 						
 			String catalinaBase = getClass().getResource("/").getPath();
+			if (catalinaBase.endsWith("/")) {
+				catalinaBase = catalinaBase.substring(0, catalinaBase.length()-1);
+			}
 			System.setProperty("catalina.base", catalinaBase);
 			
 			System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE","uk.co.develop4.security.tomcat.PropertyDecoderService");

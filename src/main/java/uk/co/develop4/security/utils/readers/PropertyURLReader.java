@@ -30,7 +30,7 @@ import uk.co.develop4.security.utils.decoders.DecoderUtils;
  * @author william timpany
  *
  */
-public class PropertyURLReader implements Reader {
+public class PropertyURLReader extends BaseReader implements Reader {
 
     private static final String DEFAULT_PATH_SEPERATOR = ";";
 

@@ -70,9 +70,6 @@ public class DecoderUtils {
 	}
 
 	public static File isFile(String fileName) {
-		if (fileName.startsWith("file:///")) {
-			fileName = fileName.replaceAll("\\\\", "/");
-		}
 		File file = new File(fileName);
 		if ((file.exists()) && (file.isFile()) && (file.isAbsolute() && file.canRead())) {
 			return file;
@@ -82,6 +79,24 @@ public class DecoderUtils {
 				file = new File(tmpUri);
 				if ((file.exists()) && (file.isFile()) && (file.isAbsolute() && file.canRead())) {
 					return file;
+				}
+			} catch (Exception ex) {
+				;
+			}
+		}
+		return null;
+	}
+	
+	public static File isDirectory(String directoryName) {	
+		File directory = new File(directoryName);
+		if (directory.exists()  && directory.isDirectory() && directory.canRead()) {
+			return directory;
+		} else {
+			try {
+				URI tmpUri = new URI(directoryName);
+				directory = new File(tmpUri);
+				if (directory.exists()  && directory.isDirectory() && directory.canRead()) {
+					return directory;
 				}
 			} catch (Exception ex) {
 				;

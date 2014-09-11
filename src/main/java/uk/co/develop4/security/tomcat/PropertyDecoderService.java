@@ -48,7 +48,7 @@ import uk.co.develop4.security.utils.readers.Reader;
  * 
  * <pre>
  *   org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyDecoderService
- *   uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=file://${catalina.base}/restricted/settings/decoder.properties
+ *   uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.base}/restricted/settings/decoder.properties
  * </pre>
  * 
  * @author william timpany
@@ -175,27 +175,15 @@ public class PropertyDecoderService extends BaseService implements Introspection
 		
 		if (passphrase == null && passphraseFile != null) {
 			String localPassPhrase = null;
-			// -- Read passphrase from console 
 			if (passphraseFile.startsWith("console")) {
+				// -- Read passphrase from console 
 				debug("Activate console passphrase reader");
 				localPassPhrase = DecoderUtils.readConsole(this.consoleTimeout);
 				if (localPassPhrase == null) {
 					throw new NullPointerException("Invalid passphrase provided by console input.");
 				} 
-			} 
-			// -- Read the password from the secure file 
-			if (passphraseFile.startsWith("file")) {
-				File pFile = DecoderUtils.isFile(passphraseFile);
-				if (pFile != null) {
-					debug("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
-					localPassPhrase = DecoderUtils.readFileValue(pFile);
-					if (localPassPhrase == null) {
-						throw new NullPointerException("Invalid passphrase provided by file input.");
-					}
-				}
-			} 
-			// -- Read the password from a secure url
-			if (passphraseFile.startsWith("http")) {
+			} else if (passphraseFile.startsWith("http")) {
+				// -- Read the password from a secure url
 				URL pUrl = DecoderUtils.isUrl(passphraseFile);
 				if (pUrl != null) {
 					debug("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
@@ -204,12 +192,21 @@ public class PropertyDecoderService extends BaseService implements Introspection
 						throw new NullPointerException("Invalid passphrase provided by file input.");
 					}
 				}
-			} 
+			} else {
+				// -- Read the password from the secure file 
+				File pFile = DecoderUtils.isFile(passphraseFile);
+				if (pFile != null) {
+					debug("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
+					localPassPhrase = DecoderUtils.readFileValue(pFile);
+					if (localPassPhrase == null) {
+						throw new NullPointerException("Invalid passphrase provided by file input.");
+					}
+				}
+			}
 			if (localPassPhrase != null) {
 				this.defaultKey = decode(localPassPhrase.trim());
 			} 
 		} 
-		// -- debug("Passphrase initialized: " + this.defaultKey);
 		
 		// -- load properties from providers specified
 		for (int i = 50; i > 0; i--) {
@@ -295,6 +292,10 @@ public class PropertyDecoderService extends BaseService implements Introspection
 		return cyphertext;
 	}
 
+	/**
+	 * 
+	 * @sequence.diagram test=uk.co.develop4.security.tomcat.PropertyDecoderServiceTest#basicTest()
+	 */
 	public String getProperty(String key) {
 		if (key == null) {
 			return null;

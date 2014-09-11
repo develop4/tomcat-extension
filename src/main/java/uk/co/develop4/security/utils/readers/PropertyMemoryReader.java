@@ -26,7 +26,7 @@ import java.util.Properties;
  * @author william timpany
  *
  */
-public class PropertyMemoryReader implements Reader {
+public class PropertyMemoryReader extends BaseReader implements Reader {
 
 	private Properties properties;	
 

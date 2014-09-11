@@ -5,7 +5,10 @@
     <Environment name="EncryptionTest3" value="${my.test.property.three}" override="false" type="java.lang.String"/>
     <Environment name="EncryptionTest4" value="${my.test.property.four}" override="false" type="java.lang.String"/>
     <Environment name="EncryptionTest5" value="${my.test.property.five}" override="false" type="java.lang.String"/>
-    
+    <Environment name="EncryptionTestSetOne" value="${my.test.property.set.one}" override="false" type="java.lang.String"/>
+    <Environment name="EncryptionTestSetTwo" value="${my.test.property.set.two}" override="false" type="java.lang.String"/>
+    <Environment name="EncryptionTestSetThree" value="${my.test.property.set.three}" override="false" type="java.lang.String"/>
+    <Environment name="EncryptionTestSetFour" value="${my.test.property.set.four}" override="false" type="java.lang.String"/>
     
     <Environment name="oraclePassword" value="${database.oracle.password}" override="false" type="java.lang.String"/>
 	<Environment name="schedulerPassowrd" value="${database.schedule.password}" override="false" type="java.lang.String"/>
