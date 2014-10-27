@@ -30,22 +30,32 @@ uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.b
 ```
 
 **Sample: decoder.properties**
-This file contains the list of decoders in order or precedence that will be used for decrypting the values which have a prefix that matches
-the decoder namespace.   Specific values can be passed as properties to each decoder to override the default values, create another property 
-prefixed with the decoder class name.  e.g. 'uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true'
+This file contains the list of Property Readers and Property Decoders, numbered in order of precedence.  Multiple readers can be configured to read the encrypted data values from multiple locations or sources.  Multiple Decoders can be specified to be used for decrypting the property values, that have a namespace prefix that matches
+the decoder namespace prefix.   Specific values can be passed as properties to each decoder to override the default behaviour.
+
+e.g. 'uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true'
 ```
 uk.co.develop4.security.tomcat.PropertyDecoderService.passphrase=${catalina.base}/restricted/keystore/secure.file
 uk.co.develop4.security.tomcat.PropertyDecoderService.properties=${catalina.base}/restricted/properties/application.properties
+#
+# Application Properties Readers
+#
+uk.co.develop4.security.tomcat.PropertyDecoderService.properties.1=uk.co.develop4.security.utils.readers.PropertyFileReader
+uk.co.develop4.security.tomcat.PropertyDecoderService.properties.1.path=${catalina.base}/restricted/properties/application.properties;${catalina.base}/restricted/properties/application_rsa.properties
+uk.co.develop4.security.tomcat.PropertyDecoderService.properties.2=uk.co.develop4.security.utils.readers.PropertyMemoryReader
+uk.co.develop4.security.tomcat.PropertyDecoderService.properties.3=uk.co.develop4.security.utils.readers.PropertyDirectoryReader
+uk.co.develop4.security.tomcat.PropertyDecoderService.properties.3.path=${catalina.base}/restricted/properties/propertySetOne;${catalina.base}/restricted/properties/propertySetTwo
+# Decoders
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1=uk.co.develop4.security.utils.decoders.NullDecoder
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.2=uk.co.develop4.security.utils.decoders.Base64Decoder
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.3=uk.co.develop4.security.utils.decoders.HexDecoder
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.4=uk.co.develop4.security.utils.decoders.PBEDecoder
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.5=uk.co.develop4.security.utils.decoders.RSADecoder
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyOne.pem
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyOne.pem
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6=uk.co.develop4.security.utils.decoders.RSADecoder
 # Create new decoder with seperate namespace to handle another private key
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=file://${catalina.base}/restricted/keystore/privateKeyTwo.pem
+uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyTwo.pem
 uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.namespace=rsa:key2//
 ```
 
@@ -112,19 +122,35 @@ javax.net.ssl.keyStorePassword=${tomcat.conf.server.jdbc.Secure.keyStorePassword
 	/>
 ```
 
+**Provided Readers**
+
+The following readers are provided as examples in the 'uk.co.develop4.security.utils.readers package'.
+
+```
+| reader  | Functionality
+| ------- | -------------
+| PropertyMemoryReader | Creates properties directly from the class. For testing use only.
+| PropertyFileReader | Reads Application Properties from a list of property files 
+| PropertyDirectoryReader | Reads Application Propertes from a list of Directories.  Each property is in its own file.
+| PropertyURLReader | Reads Application Properties local or remote URL. 
+```
+
 **Provided Decoders**
 
-The following Decoders are provided as examples in the 'uk.co.develop4.security.utils.decoders package'.
+The following Decoders are provided as examples in the 'uk.co.develop4.security.utils.decoders package'.  The namespace prefix is defied as "schema:sub-schema://" with the sub-schema element being optional.
 
+e.g. In the case where multiple RSA Private keys are in use the sub-schema namespace part can be used to identify the key to be used "rsa:key1://", or "rsa:key2://".  
+
+```
 | Decoder | Prefix | Functionality
 | ------- | ------ | -------------
-| NullDecoder |  null:// | Pass through, just returns the value without change.  For testing.
+| NullDecoder |  null:// | Pass through, just returns the value without change.  For testing use only.
 | HexDecoder | hex:// | Hexadecimal decoder converts to/from Hex values
 | Base64Decoder | base64:// | Base64 decoder converts to/from Base64 values
 | PBEDecoder | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
 | RSADecoder | rsa:// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. 
 | RSASealedDecoder | rsa:sealed// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. A SealedObject is used to wrap an object that contains the (label,value,date).
-
+```
 
 **Note**
 The following jars were added to the Tomcat Lib directory to support the Decoding/Connection Pool/Decryption.
@@ -141,8 +167,6 @@ Bouncycastle [ http://www.bouncycastle.org ]
    bcpkix-jdk15on-150.jar * PKI functionality to access stored keys/certificates.
 Jasypt [ http://www.jasypt.org/ ]
    jasypt-1.9.2.jar       * simplifed access to encryption utils
-Unicode Project [ http://icu-project.org/ ]
-   icu4j-3.4.4.jar        * International Components for Unicode
 This Project
    tomcat-extension-0.1.0.jar
 ```

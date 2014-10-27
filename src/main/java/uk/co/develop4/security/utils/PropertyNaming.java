@@ -20,7 +20,7 @@
 package uk.co.develop4.security.utils;
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  *
  */
 public enum PropertyNaming {
@@ -39,6 +39,8 @@ public enum PropertyNaming {
 	PROP_PRIVATE_KEYFILE("privateKeyFile"),
 	PROP_PUBLIC_KEYFILE("publicKeyFile"),
 	PROP_DEBUG("debug"),
+	PROP_LOGGING("logging"),
+	PROP_SNOOP("snoop"),
 	PROP_CONSOLE_TIMEOUT("consoleTimeout"),
 	PROP_CONFIGURATION("configuration"),
 	PROP_PROPERTIES("properties"),

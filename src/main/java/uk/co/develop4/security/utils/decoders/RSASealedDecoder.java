@@ -52,20 +52,15 @@ import uk.co.develop4.security.utils.PropertySealed;
  *	public String label;
  *	public String value;
  *	public Date date;
- * 
- * TODO: build individual unit tests, hand craft the strings in the tests and do not rely on file system.
- * 
- * @author william timpany
+ *   
+ * @author wtimpany
  *
  */
-public class RSASealedDecoder implements Decoder, StringEncryptor {
-
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(RSASealedDecoder.class);
+public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncryptor {
 
 	private static final String INFO 		= "RSA Decoder Test v1.00";
 	private String NAMESPACE 				= "rsa:sealed//";
 	private String DESCRIPTION 				= "RSA";
-    
     
     private String DEFAULT_NAMESPACE 				= "rsa:sealed//";
     private String DEFAULT_PASSPHRASE 				= "446576656C6F7034546563686E6F6C6F67696573";
@@ -84,9 +79,7 @@ public class RSASealedDecoder implements Decoder, StringEncryptor {
     private PrivateKey privateKey;
     private PublicKey publicKey;
 
-    
     private Properties properties;
-    private boolean debug = false;
     
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
@@ -107,12 +100,14 @@ public class RSASealedDecoder implements Decoder, StringEncryptor {
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
@@ -146,10 +141,10 @@ public class RSASealedDecoder implements Decoder, StringEncryptor {
 		if(props != null) {
 			this.properties = props;
 		}
+		
+		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
 		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
-		if (isDebug()) {
-			log.info("Debug mode has been activated:");
-		}
+		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
 		
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
@@ -167,12 +162,7 @@ public class RSASealedDecoder implements Decoder, StringEncryptor {
 		this.setPrivateKey(DecoderUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
-			log.info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}
-		if (isDebug()) {
-			for (String myKey : this.properties.stringPropertyNames()) {
-				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
-			}
+			info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
 		}
 	}
 	
@@ -183,7 +173,6 @@ public class RSASealedDecoder implements Decoder, StringEncryptor {
 	public String encrypt(String clearText, String label) {
 		String cypherText = clearText;
 		SealedObject sealed;
-		byte[] cypherBytes;
 		if (label == null) {
 			label = UUID.randomUUID().toString();
 		}
@@ -198,63 +187,63 @@ public class RSASealedDecoder implements Decoder, StringEncryptor {
 		    sealable.setLabel(label);
 		    sealable.setValue(clearText);
 		    sealable.setDate(new Date());
-		    if (isDebug()) {
-		    	log.info("Sealed Object: " + sealable);
-		    }
-		    
 		    sealed = new SealedObject(sealable, cipher); 
-		    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		    ObjectOutputStream oos = new ObjectOutputStream(bos);
-		    try {
-		    	oos.writeObject(sealed);
-		    	cypherBytes = bos.toByteArray();
-		    } finally {
-		    	oos.close();
-		    }
-		    		    
-			cypherText = this.getNamespace() + Hex.toHexString(cypherBytes);
+		    
+			cypherText = this.getNamespace() + sealedToHex(sealed);
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 
 		}
 		return cypherText;
 	}
+	
+	public String sealedToHex(SealedObject sealedObject) throws Exception {
+		byte[] cypherBytes;
+		ByteArrayOutputStream bos = null;
+	    ObjectOutputStream oos = null;
+	    try {
+	    	bos = new ByteArrayOutputStream();
+		    oos = new ObjectOutputStream(bos);
+	    	oos.writeObject(sealedObject);
+	    	cypherBytes = bos.toByteArray();
+	    } finally {
+	    	if (oos != null) {
+	    		oos.close();
+	    	}
+	    }
+	    return Hex.toHexString(cypherBytes);
+	}
+	
+	public SealedObject hexToSealed(String textValue) throws Exception{
+		SealedObject sealed;
+		ByteArrayInputStream bis = null;
+	    ObjectInputStream ois = null;
+	    try {
+	    	bis = new ByteArrayInputStream(Hex.decode(textValue));
+		    ois = new ObjectInputStream(bis);
+	    	sealed = (SealedObject) ois.readObject();
+	    } finally {
+	    	if (ois != null) {
+	    		ois.close();
+	    	}
+	    }
+	    return sealed;
+	}
 
 	public String decrypt(String cyphertext){
 		String plainText = cyphertext;
-		SealedObject sealed;
 		try {
 			if (cyphertext != null && cyphertext.startsWith(this.getNamespace())) {
 				String stripped = cyphertext.replace(this.getNamespace(), "");		
 				Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
 			    cipher.init(Cipher.DECRYPT_MODE, this.getPrivateKey());		
-			    
-			    ByteArrayInputStream bis = new ByteArrayInputStream(Hex.decode(stripped));
-			    ObjectInputStream ois = new ObjectInputStream(bis);
-			    try {
-			    	sealed = (SealedObject) ois.readObject();
-			    } finally {
-			    	ois.close();
-			    }
+			    SealedObject sealed = hexToSealed(stripped);
 			    PropertySealed sealable = (PropertySealed)sealed.getObject(cipher); 
-			    
-			    if (isDebug()) {
-			    	log.info("Sealed Object: " + sealable);
-			    }
-			    
 				plainText = sealable.getValue();
 			}
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 
 		}
 		return plainText;	
-	}
-	
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(final boolean debug) {
-		this.debug = debug;
 	}
 	
 	public String getPassphrase() {

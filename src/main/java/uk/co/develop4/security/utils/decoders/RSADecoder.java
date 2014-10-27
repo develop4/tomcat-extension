@@ -37,22 +37,14 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
- * TODO: rename the parameters to encrypt/decrypt key
- * TODO: pass the keys as strings to the init to allow embeding in web page
- * TODO: cache keys in local variables to prevent re-read operations
- * TODO: build individual unit tests, hand craft the strings in the tests and do not rely on file system.
- * 
- * @author william timpany
+ * @author wtimpany
  *
  */
-public class RSADecoder implements Decoder, StringEncryptor {
-
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(RSADecoder.class);
+public class RSADecoder extends BaseDecoder implements Decoder, StringEncryptor {
 
 	private static final String INFO 		= "RSA Decoder Test v1.00";
 	private String NAMESPACE 				= "rsa://";
 	private String DESCRIPTION 				= "RSA";
-    
     
     private String DEFAULT_NAMESPACE 				= "rsa://";
     private String DEFAULT_PASSPHRASE 				= "446576656C6F7034546563686E6F6C6F67696573";
@@ -72,7 +64,6 @@ public class RSADecoder implements Decoder, StringEncryptor {
     private PublicKey publicKey;
     
     private Properties properties;
-    private boolean debug = false;
     
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
@@ -93,12 +84,14 @@ public class RSADecoder implements Decoder, StringEncryptor {
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
@@ -132,10 +125,10 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		if(props != null) {
 			this.properties = props;
 		}
+		
+		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
 		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
-		if (isDebug()) {
-			log.info("Debug mode has been activated:");
-		}
+		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
 		
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
@@ -148,17 +141,11 @@ public class RSADecoder implements Decoder, StringEncryptor {
 		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
 		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
 		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));	
-		
 		this.setPublicKey(DecoderUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
 		this.setPrivateKey(DecoderUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
-			log.info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}
-		if (isDebug()) {
-			for (String myKey : this.properties.stringPropertyNames()) {
-				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
-			}
+			warn("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
 		}
 	}
 	
@@ -196,14 +183,6 @@ public class RSADecoder implements Decoder, StringEncryptor {
 			ex.printStackTrace(); 
 		}
 		return plainText;	
-	}
-	
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(final boolean debug) {
-		this.debug = debug;
 	}
 	
 	public String getPassphrase() {

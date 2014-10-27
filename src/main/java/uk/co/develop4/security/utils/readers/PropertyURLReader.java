@@ -30,9 +30,7 @@ import uk.co.develop4.security.utils.decoders.DecoderUtils;
  * @author william timpany
  *
  */
-public class PropertyURLReader implements Reader {
-
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyFileReader.class);
+public class PropertyURLReader extends BaseReader implements Reader {
 
     private static final String DEFAULT_PATH_SEPERATOR = ";";
 
@@ -41,7 +39,6 @@ public class PropertyURLReader implements Reader {
 	public PropertyURLReader() {
 	}
 	
-	@Override
 	public void init(String passphrase, Properties props) {
 		String pathSeperator = props.getProperty(PropertyNaming.PROP_PATH_SEPERATOR.toString(),DEFAULT_PATH_SEPERATOR);
 		String propertyFile = props.getProperty(PropertyNaming.PROP_PATH.toString());
@@ -57,13 +54,10 @@ public class PropertyURLReader implements Reader {
 				URL pUrl = DecoderUtils.isUrl(fileName);
 				if (pUrl != null) {
 					loader.putAll(DecoderUtils.readUrlProperties(pUrl));
-					log.info("Read application properties from: \"" + fileName + "\"");
-				} else {
-					log.info("Failed: Read application properties reader from: \"" + fileName + "\"");
-				}
+				} 
 			} catch (Exception ex) {
-				log.warn("Exception: Read application properties reader from: \"" + fileName + "\"");
-				log.warn(ex.getMessage());
+				System.out.println("Exception: Read application properties reader from: \"" + fileName + "\"");
+				System.out.println(ex.getMessage());
 			}
 		}
 		return loader;	}

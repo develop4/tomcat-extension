@@ -44,6 +44,9 @@ public class PropertyRSASealedDecoderServiceTest
 			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath);
 			
 			String catalinaBase = getClass().getResource("/").getPath();
+			if (catalinaBase.endsWith("/")) {
+				catalinaBase = catalinaBase.substring(0, catalinaBase.length()-1);
+			}
 			System.setProperty("catalina.base", catalinaBase);
 			
 			PropertyDecoderService pds = new PropertyDecoderService();

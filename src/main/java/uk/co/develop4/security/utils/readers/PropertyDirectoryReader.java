@@ -27,17 +27,28 @@ import uk.co.develop4.security.utils.PropertyNaming;
 import uk.co.develop4.security.utils.decoders.DecoderUtils;
 
 /**
+ * Read individual property items from a directory.  Rather than being name value pairs the "file name" will be
+ * used as a property key with the "file content" being the value.  The specified directories will be scanned, to
+ * create a Properties object, loading up all the individual files as property name/value pairs.  The properties object
+ * will then be scanned and decrypted as usual, when the properties are expanded by the decoders.
+ * 
+ * e.g.
+ * 
+ * Directory:		/tmp/secure/properties/propertyset1
+ * Files:			my.property.one
+ * 					my.property.two
+ * File Contents:	pbe://jtwefvcqbxewfjfcbewgjrtgcehrfbxywfvxfeahgdxvfxjtwFDXBWjedtxjvw
  * 
  * @author william timpany
  * 
  */
-public class PropertyFileReader extends BaseReader implements Reader {
+public class PropertyDirectoryReader extends BaseReader implements Reader {
 
 	private static final String DEFAULT_PATH_SEPERATOR = ";";
 
-	private String[] fileNames;
+	private String[] directoyNames;
 	
-	public PropertyFileReader () {
+	public PropertyDirectoryReader () {
 	}
 	
 	public void init(String passphrase, Properties props) {
@@ -45,22 +56,28 @@ public class PropertyFileReader extends BaseReader implements Reader {
 		String pathSeperator = props.getProperty(PropertyNaming.PROP_PATH_SEPERATOR.toString(),DEFAULT_PATH_SEPERATOR);
 		String propertyFile = props.getProperty(PropertyNaming.PROP_PATH.toString());
 		if (propertyFile != null) {
-			this.fileNames = propertyFile.split(pathSeperator);
+			this.directoyNames = propertyFile.split(pathSeperator);
 		}
 	}
 
 	public Properties read() {
-		//log.info("Load properties from reader: \"" + tmpReader.toString());
 		Properties loader = new Properties();
-		for(String fileName : fileNames) {
+		for(String directoryName : directoyNames) {
 			try {
-				File pFile = DecoderUtils.isFile(fileName);
-				if (pFile != null) {
-					loader.putAll(DecoderUtils.readFileProperties(pFile));
+				File pDirectory = DecoderUtils.isDirectory(directoryName);
+				if (pDirectory != null) {
+					debug("Scanning Directory: " + pDirectory.getName());
+					File[] fileList = pDirectory.listFiles();
+					for(File pFile : fileList) {
+						String pKey = pFile.getName();
+						debug("Scanning File: " + pKey);
+						String pValue = DecoderUtils.readFileValue(pFile);
+						loader.put(pKey, pValue);
+					}	
 				} 
 			} catch (Exception ex) {
-				System.out.println("Exception: Read application properties reader from: \"" + fileName + "\"");
-				System.out.println(ex.getMessage());
+				error("Exception: Read application properties reader from: \"" + directoryName + "\"");
+				error(ex.getMessage());
 			}
 		}
 		return loader;
@@ -74,8 +91,8 @@ public class PropertyFileReader extends BaseReader implements Reader {
     @Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PropertyFileReader [fileNames=");
-		builder.append(Arrays.toString(fileNames));
+		builder.append("PropertyDirectoryReader [directoyNames=");
+		builder.append(Arrays.toString(directoyNames));
 		builder.append("]");
 		return builder.toString();
 	}

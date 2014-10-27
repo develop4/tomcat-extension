@@ -26,7 +26,7 @@ import java.util.Properties;
  * @author william timpany
  *
  */
-public class PropertyMemoryReader implements Reader {
+public class PropertyMemoryReader extends BaseReader implements Reader {
 
 	private Properties properties;	
 
@@ -37,7 +37,6 @@ public class PropertyMemoryReader implements Reader {
 		this.properties = new Properties();
 		this.properties.put("property.memory.reader.test1", "TEST_ONE");
 		this.properties.put("property.memory.reader.test2", "TEST_TWO");
-
 	}
 
 	public Properties read() {
@@ -46,6 +45,13 @@ public class PropertyMemoryReader implements Reader {
 
 	public void write(Properties props, String path) {
 		this.properties = props;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PropertyMemoryReader");
+		return builder.toString();
 	}
 
 }

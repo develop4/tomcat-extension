@@ -17,25 +17,11 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.utils.readers;
 
-import java.util.Properties;
+import uk.co.develop4.security.utils.BaseCommon;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+public class BaseReader extends BaseCommon {
 
-/**
- * 
- * @author william timpany
- *
- */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
-
-	LocalPropertySource(Properties props) {
-		this.props = props;
-	}
-
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
-	}
 }
+

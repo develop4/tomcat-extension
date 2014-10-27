@@ -27,7 +27,7 @@ then
   JAVA_EXECUTABLE=$JAVA_HOME/bin/java
 fi
 
-DECODER_PROPERTIES=file:///${CATALINA_BASE}/restricted/settings/decoder.properties
+DECODER_PROPERTIES=${CATALINA_BASE}/restricted/settings/decoder.properties
 
 echo ===========================================
 echo "CATALINA_BASE:      ${CATALINA_BASE}"

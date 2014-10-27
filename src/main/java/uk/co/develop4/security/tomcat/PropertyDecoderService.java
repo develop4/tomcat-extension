@@ -48,15 +48,13 @@ import uk.co.develop4.security.utils.readers.Reader;
  * 
  * <pre>
  *   org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyDecoderService
- *   uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=file://${catalina.base}/restricted/settings/decoder.properties
+ *   uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.base}/restricted/settings/decoder.properties
  * </pre>
  * 
  * @author william timpany
  *
  */
-public class PropertyDecoderService implements IntrospectionUtils.PropertySource {
-
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PropertyDecoderService.class);
+public class PropertyDecoderService extends BaseService implements IntrospectionUtils.PropertySource {
 
 	/* Configuration Constants */
 	public static final String CONSOLE_TIMEOUT_PROP = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
@@ -66,7 +64,8 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	public static final String PROPERTIES_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
 	public static final String DECODER_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DECODER;
 	public static final String DEBUG_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
-
+	public static final String LOGGING_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_LOGGING;
+	public static final String SNOOP_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_SNOOP;
 
 	/* Default Values */
 	protected static final Pattern patternUri 		= Pattern.compile("(^\\S+://)");
@@ -83,9 +82,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 	protected String defaultKey = null;
 	protected long consoleTimeout = 30000l;
-	
-	private boolean debug = false;
-	
+		
 	public Map<String, Decoder> getDecoders() {
 		return this.decoders;
 	}
@@ -104,10 +101,8 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	}
 
 	public PropertyDecoderService() throws Exception {
-
-		log.info("======================================================================");
-		log.info("SecurePropertyDigester Initializing");
 		
+		String tempCanonicalPath = null;
 		// -- Add BouncyCastle provider if it is missing
 		if (Security.getProvider("BC") == null) {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
@@ -115,7 +110,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		
 		// -- Check if the Unlimited Strength if installed
 		if (Cipher.getMaxAllowedKeyLength("AES") == 128) {
-			log.fatal("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
+			warn("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
 		}
 
 		/* get the configuration file to be used for setting up the decoder */
@@ -128,7 +123,7 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 			File pFile = DecoderUtils.isFile(configurationFile);
 			if (pFile != null) {
-				log.info("Activate configuration file reader for file: \"" + pFile.getCanonicalPath() + "\"");
+				tempCanonicalPath = pFile.getCanonicalPath();
 				this.configuration = DecoderUtils.readFileProperties(pFile);
 			} else {
 				throw new IllegalArgumentException("Unable to load configuration file:" + configurationFile);
@@ -136,15 +131,12 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 
 		}
 		
-		String debugProperty = System.getProperty(DEBUG_PROP);
-		if (debugProperty == null) {
-			debugProperty = this.configuration.getProperty(DEBUG_PROP,"false");
-			if (debugProperty != null) {
-				setDebug(Boolean.parseBoolean(debugProperty));
-			}
-		}
-		if (isDebug()) {
-			log.info("Debug mode has been activated:");
+		this.setLogging(Boolean.parseBoolean(this.configuration.getProperty(LOGGING_PROP, "false")));
+		this.setDebug(Boolean.parseBoolean(this.configuration.getProperty(DEBUG_PROP, "false")));
+		this.setSnoop(Boolean.parseBoolean(this.configuration.getProperty(SNOOP_PROP, "false")));
+
+		if (tempCanonicalPath != null) {
+			debug("Activate configuration file reader for file: \"" + tempCanonicalPath + "\"");
 		}
 
 		/* Get the console timeout value to be used as the default */
@@ -183,45 +175,38 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 		
 		if (passphrase == null && passphraseFile != null) {
 			String localPassPhrase = null;
-			// -- Read passphrase from console 
 			if (passphraseFile.startsWith("console")) {
-				log.info("Activate console passphrase reader");
+				// -- Read passphrase from console 
+				debug("Activate console passphrase reader");
 				localPassPhrase = DecoderUtils.readConsole(this.consoleTimeout);
 				if (localPassPhrase == null) {
 					throw new NullPointerException("Invalid passphrase provided by console input.");
 				} 
-			} 
-			// -- Read the password from the secure file 
-			if (passphraseFile.startsWith("file")) {
-				File pFile = DecoderUtils.isFile(passphraseFile);
-				if (pFile != null) {
-					log.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
-					localPassPhrase = DecoderUtils.readFileValue(pFile);
-					if (localPassPhrase == null) {
-						throw new NullPointerException("Invalid passphrase provided by file input.");
-					}
-				}
-			} 
-			// -- Read the password from a secure url
-			if (passphraseFile.startsWith("http")) {
+			} else if (passphraseFile.startsWith("http")) {
+				// -- Read the password from a secure url
 				URL pUrl = DecoderUtils.isUrl(passphraseFile);
 				if (pUrl != null) {
-					log.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
+					debug("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
 					localPassPhrase = DecoderUtils.readUrlValue(pUrl);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
 					}
 				}
-			} 
+			} else {
+				// -- Read the password from the secure file 
+				File pFile = DecoderUtils.isFile(passphraseFile);
+				if (pFile != null) {
+					debug("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
+					localPassPhrase = DecoderUtils.readFileValue(pFile);
+					if (localPassPhrase == null) {
+						throw new NullPointerException("Invalid passphrase provided by file input.");
+					}
+				}
+			}
 			if (localPassPhrase != null) {
 				this.defaultKey = decode(localPassPhrase.trim());
 			} 
 		} 
-		
-		
-		if (log.isDebugEnabled()) {
-			log.info("Passphrase initialized: " + this.defaultKey);
-		}
 		
 		// -- load properties from providers specified
 		for (int i = 50; i > 0; i--) {
@@ -231,8 +216,6 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				if (className != null) {
 					Reader tmpReader = (Reader) Class.forName(className).newInstance();
 					if (tmpReader != null) {
-						log.info("Activate reader: \"" + tmpReader.toString());
-						// -- TODO : only pass parameters that as specific for the reader
 						Properties tmpProperties = new Properties();
 						for (String myKey : this.configuration.stringPropertyNames()) {
 							// -- Transfer property settings that begin with the reader mapping to ensure 
@@ -244,10 +227,11 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 						}
 						tmpReader.init(this.defaultKey, tmpProperties);
 						this.properties.putAll(tmpReader.read());
+						debug("Install reader: \"" + tmpReader.toString());
 					}
 				}
 			} catch (Exception ex) {
-				log.error("Failed to instanciate reader class: " + className);
+				warn("Failed to instanciate reader class: " + className);
 				ex.printStackTrace();
 			}
 
@@ -262,8 +246,6 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				if (className != null) {
 					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
-						log.info("Activate decoder: \"" + tmpDecoder.toString());
-						// -- TODO : only pass parameters that as specific for the decoder
 						Properties tmpProperties = new Properties();
 						for (String myKey : this.configuration.stringPropertyNames()) {
 							// -- Transfer property settings that begin with the decoder mapping to ensure 
@@ -275,30 +257,18 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 						}
 						tmpDecoder.init(this.defaultKey, tmpProperties);
 						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
-						log.info("Install decoder: \"" + tmpDecoder.toString());
+						debug("Install decoder: \"" + tmpDecoder.toString());
 					}
 				}
 			} catch (Exception ex) {
-				log.error("Failed to instanciate decoder class: " + className);
+				warn("Failed to instanciate decoder class: " + className);
 				ex.printStackTrace();
 			}
-
 		}
-		
-		/*
-		System.out.println("-- Decoders -----------------------------------------------------");
-		for(String key : this.decoders.keySet()) {
-			System.out.println("decoder: key: " + key + " - " + this.decoders.get(key));
-		}
-		System.out.println("-----------------------------------------------------------------");
-		 */
-		
-		log.info("SecurePropertyDigester Initialized");
-		log.info("======================================================================");
 	}
 
 	public String decode(String cyphertext) {
-		log.info("Decode value: " + cyphertext);
+		// -- info("Decode value: " + cyphertext);
 		if (cyphertext == null) {
 			return null;
 		}
@@ -306,27 +276,26 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			if (cyphertext.startsWith(PropertyNaming.PROP_BASE64.toString())) {
 				String stripped = cyphertext.replace(PropertyNaming.PROP_BASE64.toString(), "");
 				String cleartext = new String(Base64.decode(stripped.getBytes()));
-				if (log.isDebugEnabled()) {
-					log.debug("Decoded using Base64: " + cleartext);
-				}
+				// -- debug("Decoded using Base64: " + cleartext);
 				return cleartext;
 			} else if (cyphertext.startsWith(PropertyNaming.PROP_HEX.toString())) {
 				String stripped = cyphertext.replace(PropertyNaming.PROP_HEX.toString(), "");
 				String cleartext = new String(Hex.decode(stripped.getBytes()));
-				if (log.isDebugEnabled()) {
-					log.debug("Decoded using Hex: " + cleartext);
-				}
+				// -- debug("Decoded using Hex: " + cleartext);
 				return cleartext;
 			} else {
 				return cyphertext;
 			}
 		} catch (Exception dex) {
-			log.info("Problem trying to decode the text: " + dex.getMessage());
+			info("Problem trying to decode the text: " + dex.getMessage());
 		}
 		return cyphertext;
-
 	}
 
+	/**
+	 * 
+	 * @sequence.diagram test=uk.co.develop4.security.tomcat.PropertyDecoderServiceTest#basicTest()
+	 */
 	public String getProperty(String key) {
 		if (key == null) {
 			return null;
@@ -346,21 +315,18 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 			return value;
 		}
 		try {
-			if (log.isInfoEnabled()) {
-				log.info("Handle Key: \"" + key + "\"  Value: \"" + value + "\"");
-			}
-			
+			info("Handle Key:  \"" + key + "\"  Value: \"" + value + "\"");
 			Matcher matcher = patternUri.matcher(value);
 			if (matcher.find()) {
 				String namespaceKey = matcher.group(1);
 				Decoder decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
-					if (isDebug()) {
-						log.info("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
-					}
 					value = decoder.decrypt(value);
-					if (isDebug()) {
-						log.info("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					if (isSnoop()) {
+						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					} else {
+						String partial = value.substring(0, 3) + "........" + value.substring(value.length()-3, value.length());
+						info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
 					}
 				}
 			}
@@ -369,19 +335,18 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 				String namespaceKey = matcher.group(1);
 				Decoder decoder = this.decoders.get(namespaceKey);
 				if (decoder != null) {
-					if (isDebug()) {
-						log.info("Namespace for decoder found: " + namespaceKey + "  decoder: " + decoder.toString());
-					}
 					value = decoder.decrypt(value);
-					if (isDebug()) {
-						log.info("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					if (isSnoop()) {
+						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
+					} else {
+						String partial = value.substring(0, 3) + "********" + value.substring(value.length()-3, value.length());
+						info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
 					}
 				}
 			}
-
 			return value;
 		} catch (Exception x) {
-			log.fatal("Oops decoding has failed:" + key, x);
+			debug("Oops decoding has failed:" + key);
 			throw new IllegalArgumentException("Oops decoding has failed:" + key, x);
 		}
 	}
@@ -389,41 +354,30 @@ public class PropertyDecoderService implements IntrospectionUtils.PropertySource
 	public String encodePropertyValue(String namespaceKey, String value) {
 		return encodePropertyValue(namespaceKey, value, null);
 	}
+	
 	public String encodePropertyValue(String namespaceKey, String value, String label) {
 		if (value == null) {
 			return value;
 		}
 		try {
-			if (log.isInfoEnabled()) {
-				log.info("Handle Namespace: \"" + namespaceKey + "\"  Value: \"" + value + "\"");
-			}
-			
 			Decoder decoder = this.decoders.get(namespaceKey);
 			if (decoder != null) {
-				if (isDebug()) {
-					log.info("Namespace for encoder found: " + namespaceKey + "  encoder: " + decoder.toString());
-				}
 				value = decoder.encrypt(value, label);
-				if (isDebug()) {
-					log.info("Encoded Value: \"" + value + "\"");
+				snoop("Encoded Value: \"" + value + "\"");
+				if (isSnoop()) {
+					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + value + "\"");
+				} else {
+					String partial = value.substring(0, 3) + "********" + value.substring(value.length()-3, value.length());
+					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + partial + "\"");
 				}
 			} else {
-				log.error("No Encoder found for namespace: \"" + namespaceKey + "\"");
+				warn("No Encoder found for namespace: \"" + namespaceKey + "\"");
 			}
-
 			return value;
 		} catch (Exception x) {
-			log.fatal("Oops encoding has failed:" + namespaceKey, x);
+			warn("Oops encoding has failed:" + namespaceKey);
 			throw new IllegalArgumentException("Oops encoding has failed:" + namespaceKey, x);
 		}
 	}
 
-
-	public boolean isDebug() {
-		return this.debug;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
 }

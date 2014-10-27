@@ -33,13 +33,10 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
- * @author william timpany
- *
+ * @author wtimpany
  */
-public class PBEDecoder implements Decoder, StringEncryptor {
+public class PBEDecoder extends BaseDecoder implements Decoder, StringEncryptor {
 	
-	private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(PBEDecoder.class);
-
 	private static final String INFO 		= "PBE Decoder Test v1.00";
 	private String NAMESPACE 				= "pbe://";
 	private String DESCRIPTION 				= "PBE Decoder for Testing";
@@ -61,8 +58,6 @@ public class PBEDecoder implements Decoder, StringEncryptor {
     private String obtentionIterations;
     private String stringOutputType;
     private Properties properties;
-
-    private boolean debug = false;
         
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
@@ -80,14 +75,16 @@ public class PBEDecoder implements Decoder, StringEncryptor {
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
     			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
     			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(),
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
     			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
     			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
-    			PropertyNaming.PROP_DEBUG.toString()
+    			PropertyNaming.PROP_DEBUG.toString(),
+    			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
@@ -121,10 +118,11 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 		if(properties != null) {
 			this.properties = properties;
 		}
+		
+		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
 		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
-		if (isDebug()) {
-			log.info("Debug mode has been activated:");
-		}
+		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
+
 		// -- do the stuff, allow overriding the passphrase
 		this.setPassphrase(passphrase);
 		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null){
@@ -140,14 +138,8 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 		this.setSaltGeneratorClassName(this.properties.getProperty(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME.toString(), DEFAULT_SALT_GENERATOR_CLASS_NAME));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
-			log.info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}
-		if (isDebug()) {
-			for (String myKey : this.properties.stringPropertyNames()) {
-				log.info("Properties: key: \"" + myKey + "\" value: \"" + this.properties.getProperty(myKey) + "\"");
-			}
-		}
-		
+			info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
+		}		
 	}
 	
 	public String encrypt(String clearText) {
@@ -265,14 +257,6 @@ public class PBEDecoder implements Decoder, StringEncryptor {
 
 	public void setStringOutputType(final String stringOutputType) {
 		this.stringOutputType = stringOutputType;
-	}
-	
-	public boolean isDebug() {
-		return this.debug;
-	}
-
-	public void setDebug(final boolean debug) {
-		this.debug = debug;
 	}
 	
 	public String getProviderClassName() {

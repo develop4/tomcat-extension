@@ -19,23 +19,9 @@
  */
 package uk.co.develop4.security.tomcat;
 
-import java.util.Properties;
+import uk.co.develop4.security.utils.BaseCommon;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+public class BaseService extends BaseCommon {
 
-/**
- * 
- * @author william timpany
- *
- */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
-
-	LocalPropertySource(Properties props) {
-		this.props = props;
-	}
-
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
-	}
+	
 }

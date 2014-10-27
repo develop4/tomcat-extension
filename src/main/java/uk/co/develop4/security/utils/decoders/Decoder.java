@@ -25,7 +25,7 @@ import java.util.Set;
 
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  *
  */
 public abstract interface Decoder {
