@@ -20,6 +20,8 @@ then parameters can be passed from the decoder.properties file.
 At tomcat server startup the decryption modules are initialized. Then as tomcat reads the server configuration files the custom 
 digester will decrypt the properties and perform variable substitution of the matched values.
 
+![PropertyDecoderService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png "PropertyDecoderService Diagram")
+
 **Sample: catalina.properties**
 Modify the catalina properties file to plug-in the new custom digester and point to its configuration file.
 ```
