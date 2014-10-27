@@ -28,9 +28,10 @@ uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.b
 ```
 
 **Sample: decoder.properties**
-This file contains the list of decoders in order or precedence that will be used for decrypting the values which have a prefix that matches
-the decoder namespace.   Specific values can be passed as properties to each decoder to override the default values, create another property 
-prefixed with the decoder class name.  e.g. 'uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true'
+This file contains the list of Property Readers and Property Decoders, numbered in order of precedence.  Multiple readers can be configured to read the encrypted data values from multiple locations or sources.  Multiple Decoders can be specified to be used for decrypting the property values, that have a namespace prefix that matches
+the decoder namespace prefix.   Specific values can be passed as properties to each decoder to override the default behaviour.
+
+e.g. 'uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true'
 ```
 uk.co.develop4.security.tomcat.PropertyDecoderService.passphrase=${catalina.base}/restricted/keystore/secure.file
 uk.co.develop4.security.tomcat.PropertyDecoderService.properties=${catalina.base}/restricted/properties/application.properties
@@ -134,7 +135,9 @@ The following readers are provided as examples in the 'uk.co.develop4.security.u
 
 **Provided Decoders**
 
-The following Decoders are provided as examples in the 'uk.co.develop4.security.utils.decoders package'.
+The following Decoders are provided as examples in the 'uk.co.develop4.security.utils.decoders package'.  The namespace prefix is defied as "schema:sub-schema://" with the sub-schema element being optional.
+
+e.g. In the case where multiple RSA Private keys are in use the sub-schema namespace part can be used to identify the key to be used "rsa:key1://", or "rsa:key2://".  
 
 ```
 | Decoder | Prefix | Functionality
@@ -162,8 +165,6 @@ Bouncycastle [ http://www.bouncycastle.org ]
    bcpkix-jdk15on-150.jar * PKI functionality to access stored keys/certificates.
 Jasypt [ http://www.jasypt.org/ ]
    jasypt-1.9.2.jar       * simplifed access to encryption utils
-Unicode Project [ http://icu-project.org/ ]
-   icu4j-3.4.4.jar        * International Components for Unicode
 This Project
    tomcat-extension-0.1.0.jar
 ```
