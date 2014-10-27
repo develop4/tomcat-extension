@@ -160,12 +160,14 @@
 			<version>${version.jasypt}</version>
 		</dependency>
 
+<!--  
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
 			<version>${version.bouncycastle}</version>
 			<scope>compile</scope>
 		</dependency>
+-->
 
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
