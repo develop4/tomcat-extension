@@ -17,8 +17,7 @@ namespace prefix is returned from the "getNamespace()" method on the Module.
 The Decoders default behavior should allow them to work without additional configuration. If the Decoder does require additional configuration
 then parameters can be passed from the decoder.properties file.
 
-At tomcat server startup the decryption modules are initialized. Then as tomcat reads the server configuration files the custom 
-digester will decrypt the properties and perform variable substitution of the matched values.
+At tomcat server startup the decryption modules are initialized. Then as tomcat reads the server configuration files the custom digester will decrypt the properties and perform variable substitution of the matched values.  If should be noted that the variable substitution takes place in memory within the Tomcat JVM, and that the underlying configuration files are never modified.
 
 ![PropertyDecoderService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png "PropertyDecoderService Diagram")
 
@@ -168,7 +167,7 @@ Bouncycastle [ http://www.bouncycastle.org ]
 Jasypt [ http://www.jasypt.org/ ]
    jasypt-1.9.2.jar       * simplifed access to encryption utils
 This Project
-   tomcat-extension-0.1.0.jar
+   tomcat-extension-0.3.0.jar
 ```
 
 Acknowledgments:
