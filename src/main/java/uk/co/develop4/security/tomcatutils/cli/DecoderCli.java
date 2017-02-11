@@ -113,8 +113,8 @@ public final class DecoderCli {
 			} else {
 				System.out.println("------------------------------------------------------------------- ");
 				System.out.println("Usage:");
-				System.out.println("  encrypt.sh  action=encode passphrase=<mypassphrase> namespace=<namespace> input=<plaintext>  [configuration=<decoder properties>]");
-				System.out.println("  encrypt.sh  action=decode passphrase=<mypassphrase> namespace=<namespace> input=<cyphertext> [configuration=<decoder properties>]");
+				System.out.println("  encoder.sh  action=encode passphrase=<mypassphrase> namespace=<namespace> input=<plaintext>  [configuration=<decoder properties>]");
+				System.out.println("  encoder.sh  action=decode passphrase=<mypassphrase> namespace=<namespace> input=<cyphertext> [configuration=<decoder properties>]");
 				System.out.println("");
 				System.out.println("-- Additional Parameters Based on Decoder Specified --");
 				System.out.println("   configuration: \"" + decoderFile + "\"");

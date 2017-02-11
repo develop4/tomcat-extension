@@ -3,14 +3,14 @@ tomcat-extension
 
 Digester Extensions for Tomcat 7
 
-Security extensions to allow the encryption of settings in the Tomcat 7 configuration files.  
+Security extensions to allow the encryption of settings in the Tomcat 7 configuration files.  
 
-This extra functionality should keep every auditor in the world happy, as well as dev/ops. 
+This extra functionality should keep every auditor in the world happy, as well as dev/ops. 
 
 This new digester allows the separation of Application Credentials and other sensitive information
-from the main tomcat configuration files.   The digester configuration, application credentials and passphrases
-can all be stored in separate areas under heightened security control.   The plug-able decryption modules allow
-for different decryption methods to be employed.  The cyphertext is passed to the appropriate module for decryption
+from the main tomcat configuration files.   The digester configuration, application credentials and passphrases
+can all be stored in separate areas under heightened security control.   The plug-able decryption modules allow
+for different decryption methods to be employed.  The cyphertext is passed to the appropriate module for decryption
 based on the namespace prefix of the cyphertext.   Each Decoder Module is associated with a namespace prefix, this
 namespace prefix is returned from the "getNamespace()" method on the Module.
  
@@ -18,6 +18,8 @@ The Decoders default behavior should allow them to work without additional confi
 then parameters can be passed from the decoder.properties file.
 
 At tomcat server startup the decryption modules are initialized. Then as tomcat reads the server configuration files the custom digester will decrypt the properties and perform variable substitution of the matched values.  If should be noted that the variable substitution takes place in memory within the Tomcat JVM, and that the underlying configuration files are never modified.
+
+![PropertyDecoderService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png "PropertyDecoderService Diagram")
 
 ![PropertyDecoderService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png "PropertyDecoderService Diagram")
 
@@ -177,8 +179,3 @@ Thanks to the people at http://www.jasypt.org/ for their wrappers wound the encr
 Thanks to the people at http://www.bouncycastle.org/ for providing, fast and strong encryption.
 
 And not least to the people at http://tomcat.apache.org/ for providing an excellent application server.
-
-
-
-
-
