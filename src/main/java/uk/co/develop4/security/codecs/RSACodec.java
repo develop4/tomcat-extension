@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -40,9 +40,9 @@ import uk.co.develop4.security.utils.PropertyNaming;
  * @author wtimpany
  *
  */
-public class RSADecoder extends BaseDecoder implements Decoder, StringEncryptor {
+public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 
-	private static final String INFO 		= "RSA Decoder Test v1.00";
+	private static final String INFO 		= "RSA Codec Test v1.00";
 	private String NAMESPACE 				= "rsa://";
 	private String DESCRIPTION 				= "RSA";
     
@@ -98,7 +98,7 @@ public class RSADecoder extends BaseDecoder implements Decoder, StringEncryptor 
     	return optionalParams;
     }
     
-	public RSADecoder() {
+	public RSACodec() {
 	}
 
 	public String getNamespace() {
@@ -141,8 +141,8 @@ public class RSADecoder extends BaseDecoder implements Decoder, StringEncryptor 
 		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
 		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
 		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));	
-		this.setPublicKey(DecoderUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
-		this.setPrivateKey(DecoderUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
+		this.setPublicKey(CodecUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
+		this.setPrivateKey(CodecUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			warn("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
@@ -244,7 +244,7 @@ public class RSADecoder extends BaseDecoder implements Decoder, StringEncryptor 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("RSADecoder [Namespace:");
+		builder.append("RSACodec [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

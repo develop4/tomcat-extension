@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,10 +36,10 @@ import uk.co.develop4.security.utils.PropertyNaming;
  * @author wtimpany
  *
  */
-public class Base64Decoder extends BaseDecoder implements Decoder, StringEncryptor {
+public class Base64Codec extends BaseCodec implements Codec, StringEncryptor {
 	
-	private static final String INFO 		= "Base64 Decoder Test v1.00";
-	private String DESCRIPTION 				= "Base64 Decoder for Testing";
+	private static final String INFO 		= "Base64 Codec Test v1.00";
+	private String DESCRIPTION 				= "Base64 Codec for Testing";
 	private String NAMESPACE 				= "base64://";
    
     private String DEFAULT_NAMESPACE 		= "base64://";
@@ -70,7 +70,7 @@ public class Base64Decoder extends BaseDecoder implements Decoder, StringEncrypt
     	return optionalParams;
     }
     
-	public Base64Decoder() {
+	public Base64Codec() {
 	}
 	
 	public String getNamespace() {
@@ -125,7 +125,7 @@ public class Base64Decoder extends BaseDecoder implements Decoder, StringEncrypt
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Base64Decoder [Namespace:");
+		builder.append("Base64Codec [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

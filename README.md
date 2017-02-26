@@ -11,52 +11,52 @@ This new digester allows the separation of Application Credentials and other sen
 from the main tomcat configuration files.   The digester configuration, application credentials and passphrases
 can all be stored in separate areas under heightened security control.   The plug-able decryption modules allow
 for different decryption methods to be employed.  The cyphertext is passed to the appropriate module for decryption
-based on the namespace prefix of the cyphertext.   Each Decoder Module is associated with a namespace prefix, this
+based on the namespace prefix of the cyphertext.   Each Codec Module is associated with a namespace prefix, this
 namespace prefix is returned from the "getNamespace()" method on the Module.
  
-The Decoders default behavior should allow them to work without additional configuration. If the Decoder does require additional configuration
-then parameters can be passed from the decoder.properties file.
+The Codecs default behavior should allow them to work without additional configuration. If the Codec does require additional configuration
+then parameters can be passed from the codec.properties file.
 
 At tomcat server startup the decryption modules are initialized. Then as tomcat reads the server configuration files the custom 
 digester will decrypt the properties and perform variable substitution of the matched values.
 
-![PropertyDecoderService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png "PropertyDecoderService Diagram")
+![PropertyCodecService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png "PropertyCodecService Diagram")
 
 **Sample: catalina.properties**
 Modify the catalina properties file to plug-in the new custom digester and point to its configuration file.
 ```
-org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyDecoderService
-uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.base}/restricted/settings/decoder.properties
+org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyCodecService
+uk.co.develop4.security.tomcat.PropertyCodecService.configuration=${catalina.base}/restricted/settings/codec.properties
 ```
 
-**Sample: decoder.properties**
-This file contains the list of Property Readers and Property Decoders, numbered in order of precedence.  Multiple readers can be configured to read the encrypted data values from multiple locations or sources.  Multiple Decoders can be specified to be used for decrypting the property values, that have a namespace prefix that matches
-the decoder namespace prefix.   Specific values can be passed as properties to each decoder to override the default behaviour.
+**Sample: codec.properties**
+This file contains the list of Property Readers and Property Codecs, numbered in order of precedence.  Multiple readers can be configured to read the encrypted data values from multiple locations or sources.  Multiple Codecs can be specified to be used for decrypting the property values, that have a namespace prefix that matches
+the codec namespace prefix.   Specific values can be passed as properties to each codec to override the default behaviour.
 
-e.g. 'uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true'
+e.g. 'uk.co.develop4.security.tomcat.PropertyCodecService.codec.1.debug=true'
 ```
-uk.co.develop4.security.tomcat.PropertyDecoderService.passphrase=${catalina.base}/restricted/keystore/secure.file
-uk.co.develop4.security.tomcat.PropertyDecoderService.properties=${catalina.base}/restricted/properties/application.properties
+uk.co.develop4.security.tomcat.PropertyCodecService.passphrase=${catalina.base}/restricted/keystore/secure.file
+uk.co.develop4.security.tomcat.PropertyCodecService.properties=${catalina.base}/restricted/properties/application.properties
 #
 # Application Properties Readers
 #
-uk.co.develop4.security.tomcat.PropertyDecoderService.properties.1=uk.co.develop4.security.utils.readers.PropertyFileReader
-uk.co.develop4.security.tomcat.PropertyDecoderService.properties.1.path=${catalina.base}/restricted/properties/application.properties;${catalina.base}/restricted/properties/application_rsa.properties
-uk.co.develop4.security.tomcat.PropertyDecoderService.properties.2=uk.co.develop4.security.utils.readers.PropertyMemoryReader
-uk.co.develop4.security.tomcat.PropertyDecoderService.properties.3=uk.co.develop4.security.utils.readers.PropertyDirectoryReader
-uk.co.develop4.security.tomcat.PropertyDecoderService.properties.3.path=${catalina.base}/restricted/properties/propertySetOne;${catalina.base}/restricted/properties/propertySetTwo
-# Decoders
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1=uk.co.develop4.security.utils.decoders.NullDecoder
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.1.debug=true
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.2=uk.co.develop4.security.utils.decoders.Base64Decoder
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.3=uk.co.develop4.security.utils.decoders.HexDecoder
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.4=uk.co.develop4.security.utils.decoders.PBEDecoder
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.5=uk.co.develop4.security.utils.decoders.RSADecoder
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyOne.pem
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6=uk.co.develop4.security.utils.decoders.RSADecoder
-# Create new decoder with seperate namespace to handle another private key
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyTwo.pem
-uk.co.develop4.security.tomcat.PropertyDecoderService.decoder.6.namespace=rsa:key2//
+uk.co.develop4.security.tomcat.PropertyCodecService.properties.1=uk.co.develop4.security.readers.PropertyFileReader
+uk.co.develop4.security.tomcat.PropertyCodecService.properties.1.path=${catalina.base}/restricted/properties/application.properties;${catalina.base}/restricted/properties/application_rsa.properties
+uk.co.develop4.security.tomcat.PropertyCodecService.properties.2=uk.co.develop4.security.readers.PropertyMemoryReader
+uk.co.develop4.security.tomcat.PropertyCodecService.properties.3=uk.co.develop4.security.readers.PropertyDirectoryReader
+uk.co.develop4.security.tomcat.PropertyCodecService.properties.3.path=${catalina.base}/restricted/properties/propertySetOne;${catalina.base}/restricted/properties/propertySetTwo
+# Codecs
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.1=uk.co.develop4.security.codecs.NullCodec
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.1.debug=true
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.2=uk.co.develop4.security.codecs.Base64Codec
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.3=uk.co.develop4.security.codecs.HexCodec
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.4=uk.co.develop4.security.codecs.PBECodec
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.5=uk.co.develop4.security.codecs.RSACodec
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyOne.pem
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.6=uk.co.develop4.security.codecs.RSACodec
+# Create new codec with seperate namespace to handle another private key
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyTwo.pem
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.6.namespace=rsa:key2//
 ```
 
 **Sample: secure.file (Encrypted Master Key)**
@@ -96,11 +96,11 @@ e.g. for the `context.xml` file add the placeholders for the LDAP User Account S
 Add the placeholders for the Database User Account Settings, or other properties that you do not want to be visible as plain text.  e.g. Replace all the Usernames and Passwords in the `server.xml` file with the 
 placeholder values stored in the `application.properties` file.
 ```
-<Resource name="jdbc/Reporter"
+<Resource name="jdbc/Reporting"
     connectionPoolName="Reporter"
-    url="jdbc:oracle:thin:@lnnart1.uk.com:9801:DONTLOOK1"
-    user="${tomcat.conf.server.jdbc.Reporter.user}"
-    password="${tomcat.conf.server.jdbc.Reporter.password}"
+    url="jdbc:oracle:thin:@develop4.co.uk:9801:DONTLOOK1"
+    user="${tomcat.conf.server.jdbc.Reporting.user}"
+    password="${tomcat.conf.server.jdbc.Reporting.password}"
 />
 <Resource name="jdbc/WalletUser" 
     connectionPoolName="WalletUser"
@@ -109,14 +109,14 @@ placeholder values stored in the `application.properties` file.
     type="oracle.ucp.jdbc.PoolDataSource" 
     factory="oracle.ucp.jdbc.PoolDataSourceImpl"
     connectionFactoryClassName="oracle.jdbc.pool.OracleDataSource"
-    url="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=lnnart1.db.com)(PORT=9802))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=LNNART1.UK.COM)))"
+    url="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=develop4.co.uk)(PORT=9802))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=DEVELOP4.CO.UK)))"
     connectionProperties="(oracle.net.ssl_version=3.0,
 oracle.net.ssl_client_authentication=true,
 oracle.net.authentication_services=(TCPS),
-javax.net.ssl.trustStore=${catalina.base}/restricted/wallets/nar_ssl_user/truststore.jks,
+javax.net.ssl.trustStore=${catalina.base}/restricted/wallets/d4_ssl_user/truststore.jks,
 javax.net.ssl.trustStoreType=JKS,
 javax.net.ssl.trustStorePassword=${tomcat.conf.server.jdbc.Secure.trustStorePassword},
-javax.net.ssl.keyStore=${catalina.base}/restricted/wallets/nar_ssl_user/nar_ssl_user.jks,
+javax.net.ssl.keyStore=${catalina.base}/restricted/wallets/d4_ssl_user/d4_ssl_user.jks,
 javax.net.ssl.keyStoreType=JKS,
 javax.net.ssl.keyStorePassword=${tomcat.conf.server.jdbc.Secure.keyStorePassword})"		
 	/>
@@ -124,7 +124,7 @@ javax.net.ssl.keyStorePassword=${tomcat.conf.server.jdbc.Secure.keyStorePassword
 
 **Provided Readers**
 
-The following readers are provided as examples in the 'uk.co.develop4.security.utils.readers package'.
+The following readers are provided as examples in the 'uk.co.develop4.security.readers package'.
 
 ```
 | reader  | Functionality
@@ -135,21 +135,21 @@ The following readers are provided as examples in the 'uk.co.develop4.security.u
 | PropertyURLReader | Reads Application Properties local or remote URL. 
 ```
 
-**Provided Decoders**
+**Provided Codecs**
 
-The following Decoders are provided as examples in the 'uk.co.develop4.security.utils.decoders package'.  The namespace prefix is defied as "schema:sub-schema://" with the sub-schema element being optional.
+The following Codecs are provided as examples in the 'uk.co.develop4.security.codecs package'.  The namespace prefix is defied as "schema:sub-schema://" with the sub-schema element being optional.
 
 e.g. In the case where multiple RSA Private keys are in use the sub-schema namespace part can be used to identify the key to be used "rsa:key1://", or "rsa:key2://".  
 
 ```
-| Decoder | Prefix | Functionality
+| Codec | Prefix | Functionality
 | ------- | ------ | -------------
-| NullDecoder |  null:// | Pass through, just returns the value without change.  For testing use only.
-| HexDecoder | hex:// | Hexadecimal decoder converts to/from Hex values
-| Base64Decoder | base64:// | Base64 decoder converts to/from Base64 values
-| PBEDecoder | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
-| RSADecoder | rsa:// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. 
-| RSASealedDecoder | rsa:sealed// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. A SealedObject is used to wrap an object that contains the (label,value,date).
+| NullCodec |  null:// | Pass through, just returns the value without change.  For testing use only.
+| HexCodec | hex:// | Hexadecimal codec converts to/from Hex values
+| Base64Codec | base64:// | Base64 codec converts to/from Base64 values
+| PBECodec | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 
+| RSACodec | rsa:// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. 
+| RSASealedCodec | rsa:sealed// | RSA Public Key Based Encryption : using RSA Public Key to encrypt the data and RSA Private Key to decrypt the data. A SealedObject is used to wrap an object that contains the (label,value,date).
 ```
 
 **Note**

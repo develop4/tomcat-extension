@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,9 +35,9 @@ import uk.co.develop4.security.utils.PropertyNaming;
  * @author wtimpany
  *
  */
-public class NullDecoder extends BaseDecoder implements Decoder, StringEncryptor {
+public class NullCodec extends BaseCodec implements Codec, StringEncryptor {
 
-	private static final String INFO 		= "Null Decoder Test v1.00";
+	private static final String INFO 		= "Null Codec Test v1.00";
 	private String DESCRIPTION 				= "NULL";
 	private String NAMESPACE 				= "null://";
 
@@ -69,7 +69,7 @@ public class NullDecoder extends BaseDecoder implements Decoder, StringEncryptor
     	return optionalParams;
     }
     
-	public NullDecoder() {
+	public NullCodec() {
 	}
 	
 	public String getNamespace() {
@@ -119,7 +119,7 @@ public class NullDecoder extends BaseDecoder implements Decoder, StringEncryptor
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("NullDecoder [Namespace:");
+		builder.append("NullCodec [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

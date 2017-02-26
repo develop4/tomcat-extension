@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,9 +31,9 @@ import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.utils.PropertyNaming;
 
-public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor {
+public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
 	
-	private static final String INFO 		= "Hexadecimal Decoder Test v1.00";
+	private static final String INFO 		= "Hexadecimal Codec Test v1.00";
 	private String NAMESPACE 				= "hex://";
 	private String DESCRIPTION 				= "HEX";
 
@@ -65,7 +65,7 @@ public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor 
     	return optionalParams;
     }
     
-	public HexDecoder() {
+	public HexCodec() {
 	}
 
 	public String getNamespace() {
@@ -120,7 +120,7 @@ public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("HexDecoder [Namespace:");
+		builder.append("HexCodec [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,7 +45,7 @@ import uk.co.develop4.security.utils.PropertySealed;
 
 /**
  * 
- * RSA Sealed Decoder - wraps the PropertySealed object to add a "name" and "date" parameter.   This allows the
+ * RSA Sealed Codec - wraps the PropertySealed object to add a "name" and "date" parameter.   This allows the
  * encoded value to contain extra data.  e.g. when the password was encoded.
  * 
  * PropertySealed 
@@ -56,9 +56,9 @@ import uk.co.develop4.security.utils.PropertySealed;
  * @author wtimpany
  *
  */
-public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncryptor {
+public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor {
 
-	private static final String INFO 		= "RSA Decoder Test v1.00";
+	private static final String INFO 		= "RSA Codec Test v1.00";
 	private String NAMESPACE 				= "rsa:sealed//";
 	private String DESCRIPTION 				= "RSA";
     
@@ -114,7 +114,7 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
     	return optionalParams;
     }
     
-	public RSASealedDecoder() {
+	public RSASealedCodec() {
 	}
 
 	public String getNamespace() {
@@ -158,8 +158,8 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
 		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
 		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));
 		
-		this.setPublicKey(DecoderUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
-		this.setPrivateKey(DecoderUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
+		this.setPublicKey(CodecUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
+		this.setPrivateKey(CodecUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
 		
 		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
 			info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
@@ -305,7 +305,7 @@ public class RSASealedDecoder extends BaseDecoder implements Decoder, StringEncr
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("RSADecoder [Namespace:");
+		builder.append("RSACodec [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,12 +47,12 @@ import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 
 /**
- * Common Utilities for use in the decoders
+ * Common Utilities for use in the codecs
  * 
  * @author wtimpany
  *
  */
-public class DecoderUtils {
+public class CodecUtils {
 
 	public static String readConsole(long timeout) throws InterruptedException, IOException {
 		BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
@@ -235,7 +235,7 @@ public class DecoderUtils {
 	        PEMDecryptorProvider pemProv = new JcePEMDecryptorProviderBuilder().setProvider(providerName).build(passphrase.toCharArray());
 	        InputDecryptorProvider pkcs8Prov = new JceOpenSSLPKCS8DecryptorProviderBuilder().build(passphrase.toCharArray());
 	        //res = this.getClass().getResourceAsStream(fileName);
-	        File file = DecoderUtils.isFile(fileName);
+	        File file = CodecUtils.isFile(fileName);
 	        FileReader fr = new FileReader(file);			
             fRd = new BufferedReader(fr);
             pemParser = new PEMParser(fRd);

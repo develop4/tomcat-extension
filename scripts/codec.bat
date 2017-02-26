@@ -1,7 +1,7 @@
 @echo off
 
 
-set SUN_HOME=C:\data\narowner\product\sun\jdk1.8.0_05_64bit
+set SUN_HOME=C:\data\develop4\product\sun\jdk1.8.0_05_64bit
 set KEYTOOL=%JAVA_HOME%\bin\keytool
 
 for /R "%SUN_HOME%" %%F in (keytool.exe.*) do (

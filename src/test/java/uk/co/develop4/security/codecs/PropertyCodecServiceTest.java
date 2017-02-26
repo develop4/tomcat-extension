@@ -1,4 +1,4 @@
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.codecs;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -7,10 +7,12 @@ import java.util.Properties;
 
 import org.junit.Test;
 
+import uk.co.develop4.security.tomcat.PropertyCodecService;
+
 /**
  * Unit test for simple configuration
  */
-public class PropertyDecoderServiceTest 
+public class PropertyCodecServiceTest 
 {
 	
     /**
@@ -22,9 +24,9 @@ public class PropertyDecoderServiceTest
     public void basicTest()
     {
 		try {
-			URL configUrl = getClass().getResource("/restricted/settings/decoder.properties");
+			URL configUrl = getClass().getResource("/restricted/settings/codec.properties");
 			Path configPath = Paths.get(configUrl.toURI());
-			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath.toString());
+			System.setProperty(PropertyCodecService.CONFIGURATION_PROP, configPath.toString());
 						
 			String catalinaBase = getClass().getResource("/").getPath();
 			if (catalinaBase.endsWith("/")) {
@@ -32,9 +34,9 @@ public class PropertyDecoderServiceTest
 			}
 			System.setProperty("catalina.base", catalinaBase);
 			
-			System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE","uk.co.develop4.security.tomcat.PropertyDecoderService");
+			System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE","uk.co.develop4.security.tomcat.PropertyCodecService");
 						
-			PropertyDecoderService service = new PropertyDecoderService();
+			PropertyCodecService service = new PropertyCodecService();
 
 			Properties props = new Properties();
 	        URL url = getClass().getResource("/context.properties");

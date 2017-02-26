@@ -35,37 +35,37 @@ import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
+import uk.co.develop4.security.codecs.Codec;
+import uk.co.develop4.security.codecs.CodecUtils;
+import uk.co.develop4.security.readers.Reader;
 import uk.co.develop4.security.utils.PropertyNaming;
-import uk.co.develop4.security.utils.decoders.Decoder;
-import uk.co.develop4.security.utils.decoders.DecoderUtils;
-import uk.co.develop4.security.utils.readers.Reader;
 
 /**
- * PropertyDecoderService
+ * PropertyCodecService
  * 
  * This is the main class that needs plugged into the Tomcat Servers <i>catalina.properties</i> file.  See
  * the entry below for the configuration additions required to activate the property introspector.
  * 
  * <pre>
- *   org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyDecoderService
- *   uk.co.develop4.security.tomcat.PropertyDecoderService.configuration=${catalina.base}/restricted/settings/decoder.properties
+ *   org.apache.tomcat.util.digester.PROPERTY_SOURCE=uk.co.develop4.security.tomcat.PropertyCodecService
+ *   uk.co.develop4.security.tomcat.PropertyCodecService.configuration=${catalina.base}/restricted/settings/codec.properties
  * </pre>
  * 
  * @author william timpany
  *
  */
-public class PropertyDecoderService extends BaseService implements IntrospectionUtils.PropertySource {
+public class PropertyCodecService extends BaseService implements IntrospectionUtils.PropertySource {
 
 	/* Configuration Constants */
-	public static final String CONSOLE_TIMEOUT_PROP = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
-	public static final String PASSPHRASE_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
-	public static final String PASSPHRASE_FILE_PROP = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE_FILE;
-	public static final String CONFIGURATION_PROP 	= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION;
-	public static final String PROPERTIES_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
-	public static final String DECODER_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DECODER;
-	public static final String DEBUG_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
-	public static final String LOGGING_PROP 		= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_LOGGING;
-	public static final String SNOOP_PROP 			= PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_SNOOP;
+	public static final String CONSOLE_TIMEOUT_PROP = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
+	public static final String PASSPHRASE_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
+	public static final String PASSPHRASE_FILE_PROP = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE_FILE;
+	public static final String CONFIGURATION_PROP 	= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION;
+	public static final String PROPERTIES_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
+	public static final String CODEC_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CODEC;
+	public static final String DEBUG_PROP 			= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
+	public static final String LOGGING_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_LOGGING;
+	public static final String SNOOP_PROP 			= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_SNOOP;
 
 	/* Default Values */
 	protected static final Pattern patternUri 		= Pattern.compile("(^\\S+://)");
@@ -78,13 +78,13 @@ public class PropertyDecoderService extends BaseService implements Introspection
 	protected Properties properties = new Properties();
 	protected Properties propertiesCommand = new Properties();
 	protected Properties configuration = new Properties();
-	protected Map<String, Decoder> decoders = new HashMap<String, Decoder>();
+	protected Map<String, Codec> codecs = new HashMap<String, Codec>();
 
 	protected String defaultKey = null;
 	protected long consoleTimeout = 30000l;
 		
-	public Map<String, Decoder> getDecoders() {
-		return this.decoders;
+	public Map<String, Codec> getDecoders() {
+		return this.codecs;
 	}
 	private String introspectProperty(String value) {
 		if (value == null) {
@@ -100,7 +100,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 		}
 	}
 
-	public PropertyDecoderService() throws Exception {
+	public PropertyCodecService() throws Exception {
 		
 		String tempCanonicalPath = null;
 		// -- Add BouncyCastle provider if it is missing
@@ -113,7 +113,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			warn("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
 		}
 
-		/* get the configuration file to be used for setting up the decoder */
+		/* get the configuration file to be used for setting up the codec */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile == null) {
 			configurationFile = this.configuration.getProperty(CONFIGURATION_PROP);
@@ -121,10 +121,10 @@ public class PropertyDecoderService extends BaseService implements Introspection
 		if (configurationFile != null) {
 			configurationFile = introspectProperty(configurationFile);
 
-			File pFile = DecoderUtils.isFile(configurationFile);
+			File pFile = CodecUtils.isFile(configurationFile);
 			if (pFile != null) {
 				tempCanonicalPath = pFile.getCanonicalPath();
-				this.configuration = DecoderUtils.readFileProperties(pFile);
+				this.configuration = CodecUtils.readFileProperties(pFile);
 			} else {
 				throw new IllegalArgumentException("Unable to load configuration file:" + configurationFile);
 			}
@@ -178,26 +178,26 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			if (passphraseFile.startsWith("console")) {
 				// -- Read passphrase from console 
 				debug("Activate console passphrase reader");
-				localPassPhrase = DecoderUtils.readConsole(this.consoleTimeout);
+				localPassPhrase = CodecUtils.readConsole(this.consoleTimeout);
 				if (localPassPhrase == null) {
 					throw new NullPointerException("Invalid passphrase provided by console input.");
 				} 
 			} else if (passphraseFile.startsWith("http")) {
 				// -- Read the password from a secure url
-				URL pUrl = DecoderUtils.isUrl(passphraseFile);
+				URL pUrl = CodecUtils.isUrl(passphraseFile);
 				if (pUrl != null) {
 					debug("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
-					localPassPhrase = DecoderUtils.readUrlValue(pUrl);
+					localPassPhrase = CodecUtils.readUrlValue(pUrl);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
 					}
 				}
 			} else {
 				// -- Read the password from the secure file 
-				File pFile = DecoderUtils.isFile(passphraseFile);
+				File pFile = CodecUtils.isFile(passphraseFile);
 				if (pFile != null) {
 					debug("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
-					localPassPhrase = DecoderUtils.readFileValue(pFile);
+					localPassPhrase = CodecUtils.readFileValue(pFile);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
 					}
@@ -237,31 +237,31 @@ public class PropertyDecoderService extends BaseService implements Introspection
 
 		}
 
-		// -- load the possible decoder mappings here, in reverse order.
+		// -- load the possible codec mappings here, in reverse order.
 		// -- this will ensure that the correct precedence is preserved.
 		for (int i = 50; i > 0; i--) {
-			String decoderMapping = DECODER_PROP + "." + i;
-			String className = this.configuration.getProperty(decoderMapping);
+			String codecMapping = CODEC_PROP + "." + i;
+			String className = this.configuration.getProperty(codecMapping);
 			try {
 				if (className != null) {
-					Decoder tmpDecoder = (Decoder) Class.forName(className).newInstance();
+					Codec tmpDecoder = (Codec) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
 						Properties tmpProperties = new Properties();
 						for (String myKey : this.configuration.stringPropertyNames()) {
-							// -- Transfer property settings that begin with the decoder mapping to ensure 
-							// -- properties settings do not leak between decoders.
-							if (myKey.startsWith(decoderMapping)) {
-								String myNewKey = myKey.replace(decoderMapping+".", "");
+							// -- Transfer property settings that begin with the codec mapping to ensure 
+							// -- properties settings do not leak between codecs.
+							if (myKey.startsWith(codecMapping)) {
+								String myNewKey = myKey.replace(codecMapping+".", "");
 								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
 							}
 						}
 						tmpDecoder.init(this.defaultKey, tmpProperties);
-						this.decoders.put(tmpDecoder.getNamespace(), tmpDecoder);
-						debug("Install decoder: \"" + tmpDecoder.toString());
+						this.codecs.put(tmpDecoder.getNamespace(), tmpDecoder);
+						debug("Install codec: \"" + tmpDecoder.toString());
 					}
 				}
 			} catch (Exception ex) {
-				warn("Failed to instanciate decoder class: " + className);
+				warn("Failed to instanciate codec class: " + className);
 				ex.printStackTrace();
 			}
 		}
@@ -294,7 +294,7 @@ public class PropertyDecoderService extends BaseService implements Introspection
 
 	/**
 	 * 
-	 * @sequence.diagram test=uk.co.develop4.security.tomcat.PropertyDecoderServiceTest#basicTest()
+	 * @sequence.diagram test=uk.co.develop4.security.tomcat.PropertyCodecServiceTest#basicTest()
 	 */
 	public String getProperty(String key) {
 		if (key == null) {
@@ -319,9 +319,9 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			Matcher matcher = patternUri.matcher(value);
 			if (matcher.find()) {
 				String namespaceKey = matcher.group(1);
-				Decoder decoder = this.decoders.get(namespaceKey);
-				if (decoder != null) {
-					value = decoder.decrypt(value);
+				Codec codec = this.codecs.get(namespaceKey);
+				if (codec != null) {
+					value = codec.decrypt(value);
 					if (isSnoop()) {
 						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
 					} else {
@@ -333,9 +333,9 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			matcher = patternUriWithSuffix.matcher(value);
 			if (matcher.find()) {
 				String namespaceKey = matcher.group(1);
-				Decoder decoder = this.decoders.get(namespaceKey);
-				if (decoder != null) {
-					value = decoder.decrypt(value);
+				Codec codec = this.codecs.get(namespaceKey);
+				if (codec != null) {
+					value = codec.decrypt(value);
 					if (isSnoop()) {
 						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
 					} else {
@@ -360,9 +360,9 @@ public class PropertyDecoderService extends BaseService implements Introspection
 			return value;
 		}
 		try {
-			Decoder decoder = this.decoders.get(namespaceKey);
-			if (decoder != null) {
-				value = decoder.encrypt(value, label);
+			Codec codec = this.codecs.get(namespaceKey);
+			if (codec != null) {
+				value = codec.encrypt(value, label);
 				snoop("Encoded Value: \"" + value + "\"");
 				if (isSnoop()) {
 					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + value + "\"");

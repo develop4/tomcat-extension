@@ -46,7 +46,7 @@ public enum PropertyNaming {
 	PROP_PROPERTIES("properties"),
 	PROP_PATH("path"),
 	PROP_PATH_SEPERATOR("pathSeperator"),
-	PROP_DECODER("decoder"),
+	PROP_CODEC("codec"),
 	PROP_CATALINA_BASE("catalina.base"),
 	PROP_INPUT("input"),
 	PROP_ACTION("action"),

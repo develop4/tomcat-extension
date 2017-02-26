@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.util.Map;
 import java.util.Properties;
@@ -28,7 +28,7 @@ import java.util.Set;
  * @author wtimpany
  *
  */
-public abstract interface Decoder {
+public abstract interface Codec {
 	
 	public abstract String getInfo();
 
