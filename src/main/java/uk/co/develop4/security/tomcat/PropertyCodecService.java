@@ -352,17 +352,13 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	}
 	
 	public String encodePropertyValue(String namespaceKey, String value) {
-		return encodePropertyValue(namespaceKey, value, null);
-	}
-	
-	public String encodePropertyValue(String namespaceKey, String value, String label) {
 		if (value == null) {
 			return value;
 		}
 		try {
 			Codec codec = this.codecs.get(namespaceKey);
 			if (codec != null) {
-				value = codec.encrypt(value, label);
+				value = codec.encrypt(value);
 				snoop("Encoded Value: \"" + value + "\"");
 				if (isSnoop()) {
 					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + value + "\"");

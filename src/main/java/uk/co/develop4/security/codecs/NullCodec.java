@@ -98,11 +98,7 @@ public class NullCodec extends BaseCodec implements Codec, StringEncryptor {
 		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
 	}
 	
-	public String encrypt(String clearText) {
-		return encrypt(clearText, null);
-	}
-	
-	public String encrypt(String cleartext, String label) {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}

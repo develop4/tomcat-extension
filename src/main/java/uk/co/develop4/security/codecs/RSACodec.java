@@ -149,19 +149,15 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 		}
 	}
 	
-	public String encrypt(String clearText) {
-		return encrypt(clearText, null);
-	}
-	
-	public String encrypt(String clearText, String label) {
-		String cypherText = clearText;
-		if (clearText == null) {
+	public String encrypt(String cleartext) {
+		String cypherText = cleartext;
+		if (cleartext == null) {
 			return null;
 		}
 		try {
 			Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
 		    cipher.init(Cipher.ENCRYPT_MODE, this.getPrivateKey());
-		    byte[] cypherBytes = cipher.doFinal(clearText.getBytes());	    
+		    byte[] cypherBytes = cipher.doFinal(cleartext.getBytes());	    
 			cypherText = this.getNamespace() + Hex.toHexString(cypherBytes);
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 

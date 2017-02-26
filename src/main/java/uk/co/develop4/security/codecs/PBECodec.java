@@ -142,11 +142,7 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 		}		
 	}
 	
-	public String encrypt(String clearText) {
-		return encrypt(clearText, null);
-	}
-	
-	public String encrypt(String cleartext, String label) {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}

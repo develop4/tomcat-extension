@@ -26,16 +26,9 @@ public class PropertySealed implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	public String label;
 	public String value;
 	public Date date;
 	
-	public String getLabel() {
-		return label;
-	}
-	public void setLabel(String label) {
-		this.label = label;
-	}
 	public String getValue() {
 		return value;
 	}
@@ -52,9 +45,7 @@ public class PropertySealed implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PropertySealed [label=");
-		builder.append(label);
-		builder.append(", value=");
+		builder.append("PropertySealed [value=");
 		builder.append(value);
 		builder.append(", date=");
 		builder.append(date);

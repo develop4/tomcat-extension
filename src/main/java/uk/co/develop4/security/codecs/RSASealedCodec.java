@@ -167,15 +167,8 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 	}
 	
 	public String encrypt(String clearText) {
-		return encrypt(clearText, null);
-	}
-	
-	public String encrypt(String clearText, String label) {
 		String cypherText = clearText;
 		SealedObject sealed;
-		if (label == null) {
-			label = UUID.randomUUID().toString();
-		}
 		if (clearText == null) {
 			return null;
 		}
@@ -184,7 +177,6 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 		    cipher.init(Cipher.ENCRYPT_MODE, this.getPublicKey());
 		    
 		    PropertySealed sealable = new PropertySealed();
-		    sealable.setLabel(label);
 		    sealable.setValue(clearText);
 		    sealable.setDate(new Date());
 		    sealed = new SealedObject(sealable, cipher); 

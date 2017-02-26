@@ -53,7 +53,7 @@ public class PropertyRSASealedCodecServiceTest
 			
 			PropertyCodecService pds = new PropertyCodecService();
 			
-			String coded = pds.encodePropertyValue("rsa:sealed//", testValue, "LabelForSealedValue");
+			String coded = pds.encodePropertyValue("rsa:sealed//", testValue);
 			String decoded = pds.decodePropertyValue("rsa:sealed//", coded);
 			
 			assertEquals(testValue, decoded);
