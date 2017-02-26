@@ -17,16 +17,18 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.codecs;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import uk.co.develop4.security.tomcat.PropertyCodecService;
+
 /**
  * Unit test for simple configuration
  */
-public class PropertyRSASealedDecoderServiceTest
+public class PropertyRSASealedCodecServiceTest
 {
 	
     /**
@@ -40,8 +42,8 @@ public class PropertyRSASealedDecoderServiceTest
 		try {			
 			String testValue = "XXXxxxTESTxxxXXX";
 			
-			String configPath = getClass().getResource("/restricted/settings/decoder.properties").getPath();
-			System.setProperty(PropertyDecoderService.CONFIGURATION_PROP, configPath);
+			String configPath = getClass().getResource("/restricted/settings/codec.properties").getPath();
+			System.setProperty(PropertyCodecService.CONFIGURATION_PROP, configPath);
 			
 			String catalinaBase = getClass().getResource("/").getPath();
 			if (catalinaBase.endsWith("/")) {
@@ -49,9 +51,9 @@ public class PropertyRSASealedDecoderServiceTest
 			}
 			System.setProperty("catalina.base", catalinaBase);
 			
-			PropertyDecoderService pds = new PropertyDecoderService();
+			PropertyCodecService pds = new PropertyCodecService();
 			
-			String coded = pds.encodePropertyValue("rsa:sealed//", testValue, "LabelForSealedValue");
+			String coded = pds.encodePropertyValue("rsa:sealed//", testValue);
 			String decoded = pds.decodePropertyValue("rsa:sealed//", coded);
 			
 			assertEquals(testValue, decoded);

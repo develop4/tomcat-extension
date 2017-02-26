@@ -4,14 +4,11 @@
 
 	<groupId>uk.co.develop4</groupId>
 	<artifactId>tomcat-extension</artifactId>
-	<version>0.4.0-SNAPSHOT</version>
+	<version>0.5.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>
-    	Build to keep auditors happy, by ensuring that resources in Tomcat configuration files can be
-    	encrypted or hidden so that the settings will never appear in plain text.
-    </description>
+	<description>Build to keep auditors happy, by ensuring that resources in Tomcat configuration files can be encrypted or hidden so that the settings will never appear in plain text.</description>
 	<url>http://develop4.io/Projects/Tomcat</url>
 
 	<developers>

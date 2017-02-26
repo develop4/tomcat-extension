@@ -27,12 +27,12 @@ then
   JAVA_EXECUTABLE=$JAVA_HOME/bin/java
 fi
 
-DECODER_PROPERTIES=${CATALINA_BASE}/restricted/settings/decoder.properties
+CODEC_PROPERTIES=${CATALINA_BASE}/restricted/settings/codec.properties
 
 echo ===========================================
 echo "CATALINA_BASE:      ${CATALINA_BASE}"
 echo "CATALINA_HOME:      ${CATALINA_HOME}"
-echo "DECODER_PROPERTIES: ${DECODER_PROPERTIES}"
+echo "CODEC_PROPERTIES: ${CODEC_PROPERTIES}"
 echo "PARAMS:             ""$@"
 
-$JAVA_EXECUTABLE -Dcatalina.base=${CATALINA_BASE} -classpath ${EXEC_CLASSPATH} uk.co.develop4.security.tomcatutils.cli.DecoderCli configuration=${DECODER_PROPERTIES} "$@"
+$JAVA_EXECUTABLE -Dcatalina.base=${CATALINA_BASE} -classpath ${EXEC_CLASSPATH} uk.co.develop4.security.tomcatutils.cli.CodecCli configuration=${CODEC_PROPERTIES} "$@"

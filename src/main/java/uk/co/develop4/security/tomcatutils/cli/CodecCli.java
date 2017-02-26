@@ -25,21 +25,21 @@ import java.util.Set;
 
 import org.jasypt.commons.CommonUtils;
 
-import uk.co.develop4.security.tomcat.PropertyDecoderService;
+import uk.co.develop4.security.codecs.Codec;
+import uk.co.develop4.security.tomcat.PropertyCodecService;
 import uk.co.develop4.security.utils.PropertyNaming;
-import uk.co.develop4.security.utils.decoders.Decoder;
 
 /**
  * 
  * @author wtimpany
  */
-public final class DecoderCli {
+public final class CodecCli {
 	
-	private DecoderCli() {
+	private CodecCli() {
 	}
 
 	public static void main(final String[] args) {
-		DecoderCli dcli = new DecoderCli();
+		CodecCli dcli = new CodecCli();
 		int status = dcli.run(args);
 		System.exit(status);
 	}
@@ -75,14 +75,14 @@ public final class DecoderCli {
 
 			String catalinaBase = System.getProperty(PropertyNaming.PROP_CATALINA_BASE.toString());
 
-			String sysPropConfig = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION.toString();
-			String sysPropProp = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES.toString();
-			String sysPropPass = PropertyDecoderService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE.toString();
+			String sysPropConfig = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION.toString();
+			String sysPropProp = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES.toString();
+			String sysPropPass = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE.toString();
 
 			if (argumentValues.getProperty(PropertyNaming.PROP_CONFIGURATION.toString()) != null) {
 				System.setProperty(sysPropConfig, argumentValues.getProperty(PropertyNaming.PROP_CONFIGURATION.toString()));
 			} else {
-				System.setProperty(sysPropConfig, catalinaBase + "/scripts/decoder.properties");
+				System.setProperty(sysPropConfig, catalinaBase + "/scripts/codec.properties");
 			}
 			if (argumentValues.getProperty(PropertyNaming.PROP_PROPERTIES.toString()) != null) {
 				System.setProperty(sysPropProp, argumentValues.getProperty(PropertyNaming.PROP_PROPERTIES.toString()));
@@ -91,13 +91,13 @@ public final class DecoderCli {
 				System.setProperty(sysPropPass, argumentValues.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()));
 			}
 
-			PropertyDecoderService pds = new PropertyDecoderService();
+			PropertyCodecService pds = new PropertyCodecService();
 
 			String namespaceKey = (String) System.getProperty(PropertyNaming.PROP_NAMESPACE.toString());
 			String value = (String) System.getProperty(PropertyNaming.PROP_INPUT.toString());
 			String action = (String) System.getProperty(PropertyNaming.PROP_ACTION.toString());
 			//String passPhrase = (String) System.getProperty(PropertyNaming.PROP_PASSPHRASE.toString());
-			String decoderFile = (String) System.getProperty(sysPropConfig);
+			String codecFile = (String) System.getProperty(sysPropConfig);
 
 			String coded;
 			if ("encode".equalsIgnoreCase(action)) {
@@ -113,26 +113,26 @@ public final class DecoderCli {
 			} else {
 				System.out.println("------------------------------------------------------------------- ");
 				System.out.println("Usage:");
-				System.out.println("  encoder.sh  action=encode passphrase=<mypassphrase> namespace=<namespace> input=<plaintext>  [configuration=<decoder properties>]");
-				System.out.println("  encoder.sh  action=decode passphrase=<mypassphrase> namespace=<namespace> input=<cyphertext> [configuration=<decoder properties>]");
+				System.out.println("  encoder.sh  action=encode passphrase=<mypassphrase> namespace=<namespace> input=<plaintext>  [configuration=<codec properties>]");
+				System.out.println("  encoder.sh  action=decode passphrase=<mypassphrase> namespace=<namespace> input=<cyphertext> [configuration=<codec properties>]");
 				System.out.println("");
-				System.out.println("-- Additional Parameters Based on Decoder Specified --");
-				System.out.println("   configuration: \"" + decoderFile + "\"");
+				System.out.println("-- Additional Parameters Based on Codec Specified --");
+				System.out.println("   configuration: \"" + codecFile + "\"");
 				System.out.println("");
 				System.out.println("Supported Decoders: encode");
 				System.out.println("");
-				for (Decoder decoder : pds.getDecoders().values()) {
-					System.out.println("  Decoder: " + decoder);
-					System.out.println("    Required Parameters: " + decoder.getRequiredParameters().get("encode").toString());
-					System.out.println("    Optional Parameters: " + decoder.getOptionalParameters().get("encode").toString());
+				for (Codec codec : pds.getDecoders().values()) {
+					System.out.println("  Codec: " + codec);
+					System.out.println("    Required Parameters: " + codec.getRequiredParameters().get("encode").toString());
+					System.out.println("    Optional Parameters: " + codec.getOptionalParameters().get("encode").toString());
 					System.out.println("");
 				}
 				System.out.println("Supported Decoders: decode");
 				System.out.println("");
-				for (Decoder decoder : pds.getDecoders().values()) {
-					System.out.println("  Decoder: " + decoder);
-					System.out.println("    Required Parameters: " + decoder.getRequiredParameters().get("decode").toString());
-					System.out.println("    Optional Parameters: " + decoder.getOptionalParameters().get("decode").toString());
+				for (Codec codec : pds.getDecoders().values()) {
+					System.out.println("  Codec: " + codec);
+					System.out.println("    Required Parameters: " + codec.getRequiredParameters().get("decode").toString());
+					System.out.println("    Optional Parameters: " + codec.getOptionalParameters().get("decode").toString());
 					System.out.println("");
 				}
 				System.out.println("------------------------------------------------------------------- ");

@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.readers;
+package uk.co.develop4.security.readers;
 
 import java.util.Properties;
 

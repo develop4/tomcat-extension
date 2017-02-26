@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,19 +26,24 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.bouncycastle.util.encoders.Hex;
+import org.bouncycastle.util.encoders.Base64;
 import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.utils.PropertyNaming;
 
-public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor {
+/**
+ * 
+ * @author wtimpany
+ *
+ */
+public class Base64Codec extends BaseCodec implements Codec, StringEncryptor {
 	
-	private static final String INFO 		= "Hexadecimal Decoder Test v1.00";
-	private String NAMESPACE 				= "hex://";
-	private String DESCRIPTION 				= "HEX";
+	private static final String INFO 		= "Base64 Codec Test v1.00";
+	private String DESCRIPTION 				= "Base64 Codec for Testing";
+	private String NAMESPACE 				= "base64://";
+   
+    private String DEFAULT_NAMESPACE 		= "base64://";
 
-    private String DEFAULT_NAMESPACE 		= "hex://";
- 
     private Properties properties;
     
     public Map<String,Set<String>> getRequiredParameters() {
@@ -55,19 +60,19 @@ public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor 
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
-    			)) ;
+    			));
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
-    			)) ;
+    			));
     	optionalParams.put("encode", encodeParams);
     	optionalParams.put("decode", decodeParams);
     	return optionalParams;
     }
     
-	public HexDecoder() {
+	public Base64Codec() {
 	}
-
+	
 	public String getNamespace() {
 		return NAMESPACE;
 	}
@@ -88,31 +93,27 @@ public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor 
 		return INFO;
 	}
 	
-	public void init(String passphrase, Properties props)  {
+	public void init(String passphrase, Properties props) {
 		if(props != null) {
 			this.properties = props;
 		}	
 		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));	
+		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
 		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
 		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
 	}
 	
-	public String encrypt(String clearText) {
-		return encrypt(clearText, null);
-	}
-	
-	public String encrypt(String cleartext, String label) {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}
-		return NAMESPACE + new String(Hex.encode(cleartext.getBytes()));
+		return NAMESPACE + new String(Base64.encode(cleartext.getBytes()));
 	}
 
 	public String decrypt(String cyphertext) {
 		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
 			String stripped = cyphertext.replace(NAMESPACE, "");
-			return new String(Hex.decode(stripped.getBytes()));
+			return new String(Base64.decode(stripped.getBytes()));
 		}
 		return cyphertext;	
 	}
@@ -120,7 +121,7 @@ public class HexDecoder extends BaseDecoder implements Decoder, StringEncryptor 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("HexDecoder [Namespace:");
+		builder.append("Base64Codec [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

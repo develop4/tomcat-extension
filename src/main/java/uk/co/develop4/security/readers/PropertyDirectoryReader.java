@@ -17,20 +17,20 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.readers;
+package uk.co.develop4.security.readers;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
+import uk.co.develop4.security.codecs.CodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
-import uk.co.develop4.security.utils.decoders.DecoderUtils;
 
 /**
  * Read individual property items from a directory.  Rather than being name value pairs the "file name" will be
  * used as a property key with the "file content" being the value.  The specified directories will be scanned, to
  * create a Properties object, loading up all the individual files as property name/value pairs.  The properties object
- * will then be scanned and decrypted as usual, when the properties are expanded by the decoders.
+ * will then be scanned and decrypted as usual, when the properties are expanded by the codecs.
  * 
  * e.g.
  * 
@@ -64,14 +64,14 @@ public class PropertyDirectoryReader extends BaseReader implements Reader {
 		Properties loader = new Properties();
 		for(String directoryName : directoyNames) {
 			try {
-				File pDirectory = DecoderUtils.isDirectory(directoryName);
+				File pDirectory = CodecUtils.isDirectory(directoryName);
 				if (pDirectory != null) {
 					debug("Scanning Directory: " + pDirectory.getName());
 					File[] fileList = pDirectory.listFiles();
 					for(File pFile : fileList) {
 						String pKey = pFile.getName();
 						debug("Scanning File: " + pKey);
-						String pValue = DecoderUtils.readFileValue(pFile);
+						String pValue = CodecUtils.readFileValue(pFile);
 						loader.put(pKey, pValue);
 					}	
 				} 

@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,11 +35,11 @@ import uk.co.develop4.security.utils.PropertyNaming;
  * 
  * @author wtimpany
  */
-public class PBEDecoder extends BaseDecoder implements Decoder, StringEncryptor {
+public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 	
-	private static final String INFO 		= "PBE Decoder Test v1.00";
+	private static final String INFO 		= "PBE Codec Test v1.00";
 	private String NAMESPACE 				= "pbe://";
-	private String DESCRIPTION 				= "PBE Decoder for Testing";
+	private String DESCRIPTION 				= "PBE Codec for Testing";
     
     private String DEFAULT_NAMESPACE 					= "pbe://";
     private String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
@@ -91,7 +91,7 @@ public class PBEDecoder extends BaseDecoder implements Decoder, StringEncryptor 
     	return optionalParams;
     }
     
-	public PBEDecoder() {
+	public PBECodec() {
 	}
 	
 	public String getInfo() {
@@ -142,11 +142,7 @@ public class PBEDecoder extends BaseDecoder implements Decoder, StringEncryptor 
 		}		
 	}
 	
-	public String encrypt(String clearText) {
-		return encrypt(clearText, null);
-	}
-	
-	public String encrypt(String cleartext, String label) {
+	public String encrypt(String cleartext) {
 		if (cleartext == null) {
 			return null;
 		}
@@ -270,7 +266,7 @@ public class PBEDecoder extends BaseDecoder implements Decoder, StringEncryptor 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PBEDecoder [Namespace:");
+		builder.append("PBECodec [Namespace:");
 		builder.append(getNamespace());
 		builder.append(", Description:");
 		builder.append(getDescription());

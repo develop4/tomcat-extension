@@ -17,26 +17,11 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.readers;
+package uk.co.develop4.security.readers;
 
-import java.util.Properties;
+import uk.co.develop4.security.utils.BaseCommon;
 
-/**
- * 
- * Reader Interface : this is to allow multiple application properties readers to be plugged in.  This will allow
- * the application properties to be stored in multiple locations,formats.
- * 
- * e.g. PropertyFileReader : reads local Property files
- * 
- * @author william timpany
- *
- */
-public abstract interface Reader {
-	
-	public abstract void init(String passphrase, Properties props);
-
-	public abstract Properties read();
-
-	public abstract void write(Properties prop, String path);
+public class BaseReader extends BaseCommon {
 
 }
+

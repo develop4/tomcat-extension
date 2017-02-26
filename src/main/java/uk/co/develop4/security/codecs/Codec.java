@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.decoders;
+package uk.co.develop4.security.codecs;
 
 import java.util.Map;
 import java.util.Properties;
@@ -28,24 +28,22 @@ import java.util.Set;
  * @author wtimpany
  *
  */
-public abstract interface Decoder {
-	
-	public abstract String getInfo();
+public interface Codec {
 
-	public abstract String getNamespace();
-	
-	public abstract String getDescription();
-	
-	public abstract void init(String passphrase, Properties props);
-	
-	public abstract String encrypt(String plaintext);
-	
-	public abstract String encrypt(String plaintext, String label);
+	public String getInfo();
 
-	public abstract String decrypt(String cyphertext);
-	
-	public abstract Map<String,Set<String>> getRequiredParameters();
-	
-	public abstract Map<String,Set<String>> getOptionalParameters();
-	
+	public String getNamespace();
+
+	public String getDescription();
+
+	public void init(String passphrase, Properties props);
+
+	public String encrypt(String plaintext);
+
+	public String decrypt(String cyphertext);
+
+	public Map<String, Set<String>> getRequiredParameters();
+
+	public Map<String, Set<String>> getOptionalParameters();
+
 }

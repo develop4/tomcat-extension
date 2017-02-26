@@ -17,13 +17,13 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.readers;
+package uk.co.develop4.security.readers;
 
 import java.net.URL;
 import java.util.Properties;
 
+import uk.co.develop4.security.codecs.CodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
-import uk.co.develop4.security.utils.decoders.DecoderUtils;
 
 /**
  * 
@@ -51,9 +51,9 @@ public class PropertyURLReader extends BaseReader implements Reader {
 		Properties loader = new Properties();
 		for(String fileName : fileNames) {
 			try {
-				URL pUrl = DecoderUtils.isUrl(fileName);
+				URL pUrl = CodecUtils.isUrl(fileName);
 				if (pUrl != null) {
-					loader.putAll(DecoderUtils.readUrlProperties(pUrl));
+					loader.putAll(CodecUtils.readUrlProperties(pUrl));
 				} 
 			} catch (Exception ex) {
 				System.out.println("Exception: Read application properties reader from: \"" + fileName + "\"");

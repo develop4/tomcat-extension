@@ -17,11 +17,10 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils.readers;
+package uk.co.develop4.security.codecs;
 
 import uk.co.develop4.security.utils.BaseCommon;
 
-public class BaseReader extends BaseCommon {
+public class BaseCodec extends BaseCommon {
 
 }
-
