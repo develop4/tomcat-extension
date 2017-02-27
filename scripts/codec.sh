@@ -35,4 +35,4 @@ echo "CATALINA_HOME:      ${CATALINA_HOME}"
 echo "CODEC_PROPERTIES: ${CODEC_PROPERTIES}"
 echo "PARAMS:             ""$@"
 
-$JAVA_EXECUTABLE -Dcatalina.base=${CATALINA_BASE} -classpath ${EXEC_CLASSPATH} uk.co.develop4.security.tomcatutils.cli.CodecCli configuration=${CODEC_PROPERTIES} "$@"
+$JAVA_EXECUTABLE -Dcatalina.base=${CATALINA_BASE} -classpath ${EXEC_CLASSPATH} uk.co.develop4.security.tomcat.cli.CodecCli configuration=${CODEC_PROPERTIES} "$@"

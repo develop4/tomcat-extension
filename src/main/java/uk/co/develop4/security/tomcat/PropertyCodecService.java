@@ -36,8 +36,8 @@ import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
 import uk.co.develop4.security.codecs.Codec;
-import uk.co.develop4.security.codecs.CodecUtils;
 import uk.co.develop4.security.readers.Reader;
+import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
@@ -121,10 +121,10 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		if (configurationFile != null) {
 			configurationFile = introspectProperty(configurationFile);
 
-			File pFile = CodecUtils.isFile(configurationFile);
+			File pFile = IOCodecUtils.isFile(configurationFile);
 			if (pFile != null) {
 				tempCanonicalPath = pFile.getCanonicalPath();
-				this.configuration = CodecUtils.readFileProperties(pFile);
+				this.configuration = IOCodecUtils.readFileProperties(pFile);
 			} else {
 				throw new IllegalArgumentException("Unable to load configuration file:" + configurationFile);
 			}
@@ -178,26 +178,26 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			if (passphraseFile.startsWith("console")) {
 				// -- Read passphrase from console 
 				debug("Activate console passphrase reader");
-				localPassPhrase = CodecUtils.readConsole(this.consoleTimeout);
+				localPassPhrase = IOCodecUtils.readConsole(this.consoleTimeout);
 				if (localPassPhrase == null) {
 					throw new NullPointerException("Invalid passphrase provided by console input.");
 				} 
 			} else if (passphraseFile.startsWith("http")) {
 				// -- Read the password from a secure url
-				URL pUrl = CodecUtils.isUrl(passphraseFile);
+				URL pUrl = IOCodecUtils.isUrl(passphraseFile);
 				if (pUrl != null) {
 					debug("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
-					localPassPhrase = CodecUtils.readUrlValue(pUrl);
+					localPassPhrase = IOCodecUtils.readUrlValue(pUrl);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
 					}
 				}
 			} else {
 				// -- Read the password from the secure file 
-				File pFile = CodecUtils.isFile(passphraseFile);
+				File pFile = IOCodecUtils.isFile(passphraseFile);
 				if (pFile != null) {
 					debug("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
-					localPassPhrase = CodecUtils.readFileValue(pFile);
+					localPassPhrase = IOCodecUtils.readFileValue(pFile);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
 					}
@@ -227,7 +227,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 						}
 						tmpReader.init(this.defaultKey, tmpProperties);
 						this.properties.putAll(tmpReader.read());
-						debug("Install reader: \"" + tmpReader.toString());
+						debug("Install reader: " + tmpReader.toString());
 					}
 				}
 			} catch (Exception ex) {
@@ -257,7 +257,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 						}
 						tmpDecoder.init(this.defaultKey, tmpProperties);
 						this.codecs.put(tmpDecoder.getNamespace(), tmpDecoder);
-						debug("Install codec: \"" + tmpDecoder.toString());
+						debug("Install codec: " + tmpDecoder.toString());
 					}
 				}
 			} catch (Exception ex) {

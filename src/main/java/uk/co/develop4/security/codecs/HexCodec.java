@@ -29,18 +29,14 @@ import java.util.Set;
 import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
+import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
-	
-	private static final String INFO 		= "Hexadecimal Codec Test v1.00";
-	private String NAMESPACE 				= "hex://";
-	private String DESCRIPTION 				= "HEX";
+     
+    private final String DEFAULT_NAMESPACE 		= "hex://";
+    private final String DEFAULT_DESCRIPTION 	= "Hexadecimal codec";
 
-    private String DEFAULT_NAMESPACE 		= "hex://";
- 
-    private Properties properties;
-    
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
     	Set<String> encodeParams = new HashSet<String>();
@@ -67,63 +63,35 @@ public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
     
 	public HexCodec() {
 	}
-
-	public String getNamespace() {
-		return NAMESPACE;
+	
+	@Override
+	public void init(final String passphrase, final Properties props) throws ConfigurationException {
+		try {
+			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
+			setDebug(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));	
+			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));	
+			
+			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
+			setNamespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
+		} catch (Exception ex) {
+			throw new ConfigurationException("Property initialization failed", ex.fillInStackTrace());
+		}
 	}
 	
-	public String getDescription() {
-		return DESCRIPTION;
-	}
-	
-	public void setNamespace(String namespace) {
-		this.NAMESPACE = namespace;
-	}
-	
-	public void setDescription(String description) {
-		this.DESCRIPTION = description;
-	}
-	
-	public String getInfo() {
-		return INFO;
-	}
-	
-	public void init(String passphrase, Properties props)  {
-		if(props != null) {
-			this.properties = props;
-		}	
-		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));	
-		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
-		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
-	}
-	
-	public String encrypt(String cleartext) {
+	@Override
+	public String encrypt(final String cleartext) {
 		if (cleartext == null) {
-			return null;
+			return cleartext;
 		}
-		return NAMESPACE + new String(Hex.encode(cleartext.getBytes()));
-	}
-
-	public String decrypt(String cyphertext) {
-		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
-			String stripped = cyphertext.replace(NAMESPACE, "");
-			return new String(Hex.decode(stripped.getBytes()));
-		}
-		return cyphertext;	
+		return addNamespacePrefix(Hex.encode(cleartext.getBytes()));
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("HexCodec [Namespace:");
-		builder.append(getNamespace());
-		builder.append(", Description:");
-		builder.append(getDescription());
-		builder.append(", Info:");
-		builder.append(getInfo());
-		builder.append("]");
-		return builder.toString();
+	public String decrypt(final String cyphertext) {
+		if (cyphertext == null) {
+			return cyphertext;
+		}
+		return new String(Hex.decode(removeNamespacePrefix(cyphertext).getBytes()));
 	}
 
 }

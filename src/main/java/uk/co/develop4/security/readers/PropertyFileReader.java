@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
-import uk.co.develop4.security.codecs.CodecUtils;
+import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
@@ -54,9 +54,9 @@ public class PropertyFileReader extends BaseReader implements Reader {
 		Properties loader = new Properties();
 		for(String fileName : fileNames) {
 			try {
-				File pFile = CodecUtils.isFile(fileName);
+				File pFile = IOCodecUtils.isFile(fileName);
 				if (pFile != null) {
-					loader.putAll(CodecUtils.readFileProperties(pFile));
+					loader.putAll(IOCodecUtils.readFileProperties(pFile));
 				} 
 			} catch (Exception ex) {
 				System.out.println("Exception: Read application properties reader from: \"" + fileName + "\"");

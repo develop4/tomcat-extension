@@ -22,7 +22,7 @@ package uk.co.develop4.security.readers;
 import java.net.URL;
 import java.util.Properties;
 
-import uk.co.develop4.security.codecs.CodecUtils;
+import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
@@ -51,9 +51,9 @@ public class PropertyURLReader extends BaseReader implements Reader {
 		Properties loader = new Properties();
 		for(String fileName : fileNames) {
 			try {
-				URL pUrl = CodecUtils.isUrl(fileName);
+				URL pUrl = IOCodecUtils.isUrl(fileName);
 				if (pUrl != null) {
-					loader.putAll(CodecUtils.readUrlProperties(pUrl));
+					loader.putAll(IOCodecUtils.readUrlProperties(pUrl));
 				} 
 			} catch (Exception ex) {
 				System.out.println("Exception: Read application properties reader from: \"" + fileName + "\"");

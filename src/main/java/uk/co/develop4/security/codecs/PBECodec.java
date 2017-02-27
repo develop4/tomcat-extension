@@ -29,6 +29,7 @@ import java.util.Set;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.intf.service.JasyptStatelessService;
 
+import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
@@ -36,19 +37,16 @@ import uk.co.develop4.security.utils.PropertyNaming;
  * @author wtimpany
  */
 public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
-	
-	private static final String INFO 		= "PBE Codec Test v1.00";
-	private String NAMESPACE 				= "pbe://";
-	private String DESCRIPTION 				= "PBE Codec for Testing";
     
-    private String DEFAULT_NAMESPACE 					= "pbe://";
-    private String DEFAULT_PASSPHRASE 					= "446576656C6F7034546563686E6F6C6F67696573";
-    private String DEFAULT_PROVIDER_NAME 				= "BC";
-    private String DEFAULT_ALGORITHM_NAME 				= "PBEWITHSHA256AND256BITAES-CBC-BC";
-    private String DEFAULT_PROVIDER_CLASS_NAME 			= "org.bouncycastle.jce.provider.BouncyCastleProvider";
-    private String DEFAULT_OBTENTION_ITERATIONS 		= "50000";
-    private String DEFAULT_SALT_GENERATOR_CLASS_NAME 	= null;
-    private String DEFAULT_STRING_OUTPUT_TYPE 			= "hexadecimal";
+    private final String DEFAULT_DESCRIPTION 				= "PBE codec";
+    private final String DEFAULT_NAMESPACE 					= "pbe://";
+    private final String DEFAULT_PASSPHRASE 				= "446576656C6F7034546563686E6F6C6F67696573";
+    private final String DEFAULT_PROVIDER_NAME 				= "BC";
+    private final String DEFAULT_ALGORITHM_NAME 			= "PBEWITHSHA256AND256BITAES-CBC-BC";
+    private final String DEFAULT_PROVIDER_CLASS_NAME 		= "org.bouncycastle.jce.provider.BouncyCastleProvider";
+    private final String DEFAULT_OBTENTION_ITERATIONS 		= "50000";
+    private final String DEFAULT_SALT_GENERATOR_CLASS_NAME 	= null;
+    private final String DEFAULT_STRING_OUTPUT_TYPE 		= "hexadecimal";
     
     private String passphrase;
     private String providerName;
@@ -57,7 +55,6 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
     private String saltGeneratorClassName;
     private String obtentionIterations;
     private String stringOutputType;
-    private Properties properties;
         
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
@@ -94,114 +91,95 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 	public PBECodec() {
 	}
 	
-	public String getInfo() {
-		return INFO;
-	}
+	@Override
+	public void init(final String passphrase, final Properties props) throws ConfigurationException  {
+		try {
+			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
+			setDebug(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
+			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
 	
-	public String getNamespace() {
-		return this.NAMESPACE;
-	}
-	
-	public String getDescription() {
-		return this.DESCRIPTION;
-	}
-	
-	public void setNamespace(String namespace) {
-		this.NAMESPACE = namespace;
-	}
-	
-	public void setDescription(String description) {
-		this.DESCRIPTION = description;
-	}
-	
-	public void init(final String passphrase, final Properties properties) {
-		if(properties != null) {
-			this.properties = properties;
+			// -- do the stuff, allow overriding the passphrase
+			setPassphrase(passphrase);
+			if (props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null){
+				setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
+			}
+			
+			setNamespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
+			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));		
+			setProviderName(props.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
+			setProviderClassName(props.getProperty(PropertyNaming.PROP_PROVIDER_CLASS_NAME.toString(), DEFAULT_PROVIDER_CLASS_NAME));
+			setAlgorithimName(props.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
+			setObtentionIterations(props.getProperty(PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(), DEFAULT_OBTENTION_ITERATIONS));
+			setStringOutputType(props.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(), DEFAULT_STRING_OUTPUT_TYPE));
+			setSaltGeneratorClassName(props.getProperty(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME.toString(), DEFAULT_SALT_GENERATOR_CLASS_NAME));
+		} catch (Exception ex) {
+			throw new ConfigurationException(ex.fillInStackTrace());
 		}
-		
-		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-		this.setDebug(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
-		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
-
-		// -- do the stuff, allow overriding the passphrase
-		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null){
-			this.setPassphrase(this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
-		}
-		
-		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
-		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
-		this.setProviderClassName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_CLASS_NAME.toString(), DEFAULT_PROVIDER_CLASS_NAME));
-		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
-		this.setObtentionIterations(this.properties.getProperty(PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(), DEFAULT_OBTENTION_ITERATIONS));
-		this.setStringOutputType(this.properties.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(), DEFAULT_STRING_OUTPUT_TYPE));
-		this.setSaltGeneratorClassName(this.properties.getProperty(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME.toString(), DEFAULT_SALT_GENERATOR_CLASS_NAME));
-		
-		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
-			info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}		
 	}
 	
-	public String encrypt(String cleartext) {
+	@Override
+	public String encrypt(final String cleartext) {
 		if (cleartext == null) {
-			return null;
+			return cleartext;
 		}
 		final JasyptStatelessService service = new JasyptStatelessService();
-		return NAMESPACE + service.encrypt(
+		return addNamespacePrefix(service.encrypt(
         		cleartext, 
-                this.getPassphrase(),
+                getPassphrase(),
                 null,
                 null,
-                this.getAlgorithimName(),
+                getAlgorithimName(),
                 null,
                 null,
-                this.getObtentionIterations(),
+                getObtentionIterations(),
                 null,
                 null,
-                this.getSaltGeneratorClassName(),
+                getSaltGeneratorClassName(),
                 null,
                 null,
-                this.getProviderName(),
+                getProviderName(),
                 null,
                 null,
-                this.getProviderClassName(),
+                getProviderClassName(),
                 null,
                 null,
-                this.getStringOutputType(),
+                getStringOutputType(),
                 null,
-                null);
+                null));
 	}
 
-	public String decrypt(String cyphertext) {
-		if (cyphertext != null && cyphertext.startsWith(NAMESPACE)) {
-			String stripped = cyphertext.replace(NAMESPACE, "");
-			
+	@Override
+	public String decrypt(final String cyphertext) {
+		if (cyphertext == null) {
+			return cyphertext;
+		}
+		try {	
             final JasyptStatelessService service = new JasyptStatelessService();
-            final String cleartext =
-                    service.decrypt(
-                    		stripped, 
-                            this.getPassphrase(),
-                            null,
-                            null,
-                            this.getAlgorithimName(),
-                            null,
-                            null,
-                            this.getObtentionIterations(),
-                            null,
-                            null,
-                            this.getSaltGeneratorClassName(),
-                            null,
-                            null,
-                            this.getProviderName(),
-                            null,
-                            null,
-                            this.getProviderClassName(),
-                            null,
-                            null,
-                            this.getStringOutputType(),
-                            null,
-                            null);
-			return cleartext;
+			return service.decrypt(
+            		removeNamespacePrefix(cyphertext), 
+                    getPassphrase(),
+                    null,
+                    null,
+                    getAlgorithimName(),
+                    null,
+                    null,
+                    getObtentionIterations(),
+                    null,
+                    null,
+                    getSaltGeneratorClassName(),
+                    null,
+                    null,
+                    getProviderName(),
+                    null,
+                    null,
+                    getProviderClassName(),
+                    null,
+                    null,
+                    getStringOutputType(),
+                    null,
+                    null);
+		} catch (Exception ex) { 
+			ex.printStackTrace(); 
 		}
 		return cyphertext;	
 	}
@@ -263,17 +241,5 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 		this.providerClassName = providerClassName;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("PBECodec [Namespace:");
-		builder.append(getNamespace());
-		builder.append(", Description:");
-		builder.append(getDescription());
-		builder.append(", Info:");
-		builder.append(getInfo());
-		builder.append("]");
-		return builder.toString();
-	}
 
 }

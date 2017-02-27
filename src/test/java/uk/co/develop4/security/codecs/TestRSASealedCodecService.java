@@ -20,47 +20,36 @@
 package uk.co.develop4.security.codecs;
 
 import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
 import uk.co.develop4.security.tomcat.PropertyCodecService;
 
 /**
  * Unit test for simple configuration
  */
-public class PropertyRSASealedCodecServiceTest
-{
-	
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
+public class TestRSASealedCodecService {
+
+	/**
+	 */
 	@Test
-    public void basicTest()
-    {
-		try {			
-			String testValue = "XXXxxxTESTxxxXXX";
-			
-			String configPath = getClass().getResource("/restricted/settings/codec.properties").getPath();
-			System.setProperty(PropertyCodecService.CONFIGURATION_PROP, configPath);
-			
-			String catalinaBase = getClass().getResource("/").getPath();
-			if (catalinaBase.endsWith("/")) {
-				catalinaBase = catalinaBase.substring(0, catalinaBase.length()-1);
-			}
-			System.setProperty("catalina.base", catalinaBase);
-			
-			PropertyCodecService pds = new PropertyCodecService();
-			
-			String coded = pds.encodePropertyValue("rsa:sealed//", testValue);
-			String decoded = pds.decodePropertyValue("rsa:sealed//", coded);
-			
-			assertEquals(testValue, decoded);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
+	public void configureFromPropertyService() throws Exception {
+		String secret = "XXXxxxTESTxxxXXX";
+
+		String configPath = getClass().getResource("/restricted/settings/codec.properties").getPath();
+		System.setProperty(PropertyCodecService.CONFIGURATION_PROP, configPath);
+
+		String catalinaBase = getClass().getResource("/").getPath();
+		if (catalinaBase.endsWith("/")) {
+			catalinaBase = catalinaBase.substring(0, catalinaBase.length() - 1);
 		}
-    }
+		System.setProperty("catalina.base", catalinaBase);
+
+		PropertyCodecService pds = new PropertyCodecService();
+
+		String cyphertext = pds.encodePropertyValue("rsa:sealed//", secret);
+		String cleartext = pds.decodePropertyValue("rsa:sealed//", cyphertext);
+
+		assertEquals(secret, cleartext);
+
+	}
 
 }

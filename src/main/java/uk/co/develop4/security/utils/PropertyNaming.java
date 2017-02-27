@@ -25,7 +25,9 @@ package uk.co.develop4.security.utils;
  */
 public enum PropertyNaming {
 
+	PROP_INFO("info"),
 	PROP_NAMESPACE("namespace"),
+	PROP_DESCRIPTION("description"),
 	PROP_PASSPHRASE("passphrase"),
 	PROP_PASSPHRASE_FILE("passphraseFile"),
 	PROP_PROVIDER_NAME("providerName"),

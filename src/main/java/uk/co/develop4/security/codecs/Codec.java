@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import uk.co.develop4.security.ConfigurationException;
+
 /**
  * 
  * @author wtimpany
@@ -30,14 +32,12 @@ import java.util.Set;
  */
 public interface Codec {
 
-	public String getInfo();
-
 	public String getNamespace();
 
 	public String getDescription();
 
-	public void init(String passphrase, Properties props);
-
+	public void init(String passphrase, Properties props) throws ConfigurationException;
+	
 	public String encrypt(String plaintext);
 
 	public String decrypt(String cyphertext);

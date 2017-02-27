@@ -19,8 +19,70 @@
  */
 package uk.co.develop4.security.codecs;
 
+import java.util.Properties;
+
+import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.utils.BaseCommon;
 
-public class BaseCodec extends BaseCommon {
+public abstract class BaseCodec extends BaseCommon {
+
+	private String namespace;
+	private String description;
+
+	public String getNamespace() {
+		return this.namespace;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setNamespace(final String namespace) {
+		this.namespace = namespace;
+	}
+
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+	
+	protected String removeNamespacePrefix(final String value) {
+		return value.replaceAll("^"+getNamespace(), "");
+	}
+	
+	protected String addNamespacePrefix(final String value) {
+		return getNamespace() + value;
+	}
+	
+	protected String addNamespacePrefix(byte[] value) {
+		return getNamespace() + new String(value);
+	}
+	
+	protected boolean isValueInNamespace(final String cyphertext) {
+		if (cyphertext == null ) {
+			return false;
+		}
+		if (cyphertext.startsWith(getNamespace())) {
+			return true;
+		}
+		return false;
+	}
+	
+	public abstract void init(final String passphrase, final Properties props) throws ConfigurationException;
+	
+	public abstract String encrypt(final String cleartext);
+
+	public abstract String decrypt(final String cyphertext);
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.getClass().getSimpleName());
+		builder.append(":[Namespace: \"");
+		builder.append(getNamespace());
+		builder.append("\", Description: \"");
+		builder.append(getDescription());
+		builder.append("\"]");
+		return builder.toString();
+	}
 
 }

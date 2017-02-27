@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.crypto.Cipher;
 import javax.crypto.SealedObject;
@@ -40,204 +39,147 @@ import javax.crypto.SealedObject;
 import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
+import uk.co.develop4.security.ConfigurationException;
+import uk.co.develop4.security.ConversionException;
+import uk.co.develop4.security.utils.PEMCertificateUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 import uk.co.develop4.security.utils.PropertySealed;
 
 /**
  * 
- * RSA Sealed Codec - wraps the PropertySealed object to add a "name" and "date" parameter.   This allows the
- * encoded value to contain extra data.  e.g. when the password was encoded.
+ * RSA Sealed Codec - wraps the PropertySealed object to add a "name" and "date"
+ * parameter. This allows the encoded value to contain extra data. e.g. when the
+ * password was encoded.
  * 
- * PropertySealed 
- *	public String label;
- *	public String value;
- *	public Date date;
- *   
+ * PropertySealed public String label; public String value; public Date date;
+ * 
  * @author wtimpany
  *
  */
 public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor {
 
-	private static final String INFO 		= "RSA Codec Test v1.00";
-	private String NAMESPACE 				= "rsa:sealed//";
-	private String DESCRIPTION 				= "RSA";
-    
-    private String DEFAULT_NAMESPACE 				= "rsa:sealed//";
-    private String DEFAULT_PASSPHRASE 				= "446576656C6F7034546563686E6F6C6F67696573";
-    private String DEFAULT_PROVIDER_NAME 			= "BC";
-    private String DEFAULT_ALGORITHM_NAME 			= "RSA/None/PKCS1Padding";
-    
-    private String DEFAULT_PRIVATE_KEY_FILE 		= "private.pem";
-    private String DEFAULT_PUBLIC_KEY_FILE 			= "public.pem";
-        
-    private String passphrase;
-    private String providerName;
-    private String algorithimName;
-    private String privateKeyFile;
-    private String publicKeyFile;
-    
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
+	private final String DEFAULT_DESCRIPTION = "RSA Codec";
+	private final String DEFAULT_NAMESPACE = "rsa:sealed//";
+	private final String DEFAULT_PASSPHRASE = "446576656C6F7034546563686E6F6C6F67696573";
+	private final String DEFAULT_PROVIDER_NAME = "BC";
+	private final String DEFAULT_ALGORITHM_NAME = "RSA/None/PKCS1Padding";
 
-    private Properties properties;
-    
-    public Map<String,Set<String>> getRequiredParameters() {
-    	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
-    	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_PASSPHRASE.toString(), 
-    			PropertyNaming.PROP_PRIVATE_KEYFILE.toString()
-    			)) ;
-    	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_PUBLIC_KEYFILE.toString()
-    			)) ;
-    	requiredParams.put("encode", encodeParams);
-    	requiredParams.put("decode", decodeParams);
-    	return requiredParams;
-    }
-    
-    public Map<String,Set<String>> getOptionalParameters() {
-    	Map<String,Set<String>> optionalParams = new HashMap<String,Set<String>>();
-    	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
-    			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString(),
-    			PropertyNaming.PROP_LOGGING.toString()
-    			)) ;
-    	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
-    			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString(),
-    			PropertyNaming.PROP_LOGGING.toString()
-    			)) ;
-    	optionalParams.put("encode", encodeParams);
-    	optionalParams.put("decode", decodeParams);
-    	return optionalParams;
-    }
-    
+	private final String DEFAULT_PRIVATE_KEY_FILE = "private.pem";
+	private final String DEFAULT_PUBLIC_KEY_FILE = "public.pem";
+
+	private String passphrase;
+	private String providerName;
+	private String algorithimName;
+	private String privateKeyFile;
+	private String publicKeyFile;
+
+	private PrivateKey privateKey;
+	private PublicKey publicKey;
+
+	public Map<String, Set<String>> getRequiredParameters() {
+		Map<String, Set<String>> requiredParams = new HashMap<String, Set<String>>();
+		Set<String> encodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PASSPHRASE.toString(), PropertyNaming.PROP_PRIVATE_KEYFILE.toString()));
+		Set<String> decodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PUBLIC_KEYFILE.toString()));
+		requiredParams.put("encode", encodeParams);
+		requiredParams.put("decode", decodeParams);
+		return requiredParams;
+	}
+
+	public Map<String, Set<String>> getOptionalParameters() {
+		Map<String, Set<String>> optionalParams = new HashMap<String, Set<String>>();
+		Set<String> encodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PROVIDER_NAME.toString(), PropertyNaming.PROP_ALGORITHM_NAME.toString(),
+				PropertyNaming.PROP_DEBUG.toString(), PropertyNaming.PROP_LOGGING.toString()));
+		Set<String> decodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PROVIDER_NAME.toString(), PropertyNaming.PROP_ALGORITHM_NAME.toString(),
+				PropertyNaming.PROP_DEBUG.toString(), PropertyNaming.PROP_LOGGING.toString()));
+		optionalParams.put("encode", encodeParams);
+		optionalParams.put("decode", decodeParams);
+		return optionalParams;
+	}
+
 	public RSASealedCodec() {
 	}
 
-	public String getNamespace() {
-		return NAMESPACE;
-	}
-	
-	public String getDescription() {
-		return DESCRIPTION;
-	}
-	
-	public void setNamespace(String namespace) {
-		this.NAMESPACE = namespace;
-	}
-	
-	public void setDescription(String description) {
-		this.DESCRIPTION = description;
-	}
-	
-	public String getInfo() {
-		return INFO;
-	}
-	
-	public void init(String passphrase, Properties props){
-		if(props != null) {
-			this.properties = props;
-		}
-		
-		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
-		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
-		
-		// -- do the stuff, allow overriding the passphrase
-		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null){
-			this.setPassphrase(this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
-		}
-
-		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
-		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
-		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
-		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
-		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));
-		
-		this.setPublicKey(CodecUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
-		this.setPrivateKey(CodecUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
-		
-		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
-			info("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}
-	}
-	
-	public String encrypt(String clearText) {
-		String cypherText = clearText;
-		SealedObject sealed;
-		if (clearText == null) {
-			return null;
-		}
+	@Override
+	public void init(final String passphrase, Properties props) throws ConfigurationException {
 		try {
-			Cipher cipher = Cipher.getInstance(this.getAlgorithimName(), this.getProviderName());
-		    cipher.init(Cipher.ENCRYPT_MODE, this.getPublicKey());
-		    
-		    PropertySealed sealable = new PropertySealed();
-		    sealable.setValue(clearText);
-		    sealable.setDate(new Date());
-		    sealed = new SealedObject(sealable, cipher); 
-		    
-			cypherText = this.getNamespace() + sealedToHex(sealed);
-		} catch (Exception ex) { 
-			ex.printStackTrace(); 
-		}
-		return cypherText;
-	}
-	
-	public String sealedToHex(SealedObject sealedObject) throws Exception {
-		byte[] cypherBytes;
-		ByteArrayOutputStream bos = null;
-	    ObjectOutputStream oos = null;
-	    try {
-	    	bos = new ByteArrayOutputStream();
-		    oos = new ObjectOutputStream(bos);
-	    	oos.writeObject(sealedObject);
-	    	cypherBytes = bos.toByteArray();
-	    } finally {
-	    	if (oos != null) {
-	    		oos.close();
-	    	}
-	    }
-	    return Hex.toHexString(cypherBytes);
-	}
-	
-	public SealedObject hexToSealed(String textValue) throws Exception{
-		SealedObject sealed;
-		ByteArrayInputStream bis = null;
-	    ObjectInputStream ois = null;
-	    try {
-	    	bis = new ByteArrayInputStream(Hex.decode(textValue));
-		    ois = new ObjectInputStream(bis);
-	    	sealed = (SealedObject) ois.readObject();
-	    } finally {
-	    	if (ois != null) {
-	    		ois.close();
-	    	}
-	    }
-	    return sealed;
-	}
+			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
+			setDebug(Boolean.parseBoolean(props.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
+			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
 
-	public String decrypt(String cyphertext){
-		String plainText = cyphertext;
-		try {
-			if (cyphertext != null && cyphertext.startsWith(this.getNamespace())) {
-				String stripped = cyphertext.replace(this.getNamespace(), "");		
-				Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
-			    cipher.init(Cipher.DECRYPT_MODE, this.getPrivateKey());		
-			    SealedObject sealed = hexToSealed(stripped);
-			    PropertySealed sealable = (PropertySealed)sealed.getObject(cipher); 
-				plainText = sealable.getValue();
+			// -- do the stuff, allow overriding the passphrase
+			setPassphrase(passphrase);
+			if (props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null) {
+				setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
 			}
-		} catch (Exception ex) { 
-			ex.printStackTrace(); 
+
+			setNamespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
+			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
+			setProviderName(props.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
+			setAlgorithimName(props.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
+			setPrivateKeyFile(props.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
+			setPublicKeyFile(props.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));
+
+			setPublicKey(PEMCertificateUtils.getPublicKey(getPublicKeyFile(), getPassphrase(), getProviderName()));
+			setPrivateKey(PEMCertificateUtils.getPrivateKey(getPrivateKeyFile(), getPassphrase(), getProviderName()));
+		} catch (Exception ex) {
+			throw new ConfigurationException("Property initialization failed", ex.fillInStackTrace());
 		}
-		return plainText;	
+	}
+
+	@Override
+	public String encrypt(final String cleartext) {
+		if (cleartext == null) {
+			return cleartext;
+		}
+		try {
+			Cipher cipher = Cipher.getInstance(getAlgorithimName(), getProviderName());
+			cipher.init(Cipher.ENCRYPT_MODE, getPublicKey());
+			PropertySealed sealable = new PropertySealed(cleartext, new Date());
+			SealedObject sealed = new SealedObject(sealable, cipher);
+			return addNamespacePrefix(sealedToHex(sealed));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return cleartext;
 	}
 	
+	@Override
+	public String decrypt(final String cyphertext) {
+		if (cyphertext == null) {
+			return cyphertext;
+		}
+		try {
+			if (cyphertext != null && cyphertext.startsWith(getNamespace())) {
+				Cipher cipher = Cipher.getInstance(getAlgorithimName(), getProviderName());
+				cipher.init(Cipher.DECRYPT_MODE, getPrivateKey());
+				SealedObject sealed = hexToSealed(removeNamespacePrefix(cyphertext));
+				PropertySealed sealable = (PropertySealed) sealed.getObject(cipher);
+				return sealable.getValue();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return cyphertext;
+	}
+
+	public String sealedToHex(SealedObject sealedObject) throws ConversionException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		try (ObjectOutputStream oos = new ObjectOutputStream(bos);) {
+			oos.writeObject(sealedObject);
+			return Hex.toHexString(bos.toByteArray());
+		} catch (Exception ex) {
+			throw new ConversionException(ex.getCause());
+		}
+	}
+
+	public SealedObject hexToSealed(String textValue) throws ConversionException {
+		try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Hex.decode(textValue)));) {
+			return (SealedObject) ois.readObject();
+		} catch (Exception ex) {
+			throw new ConversionException(ex.getCause());
+		}
+	}
+
 	public String getPassphrase() {
 		return this.passphrase;
 	}
@@ -277,7 +219,7 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 	public void setPublicKeyFile(String publicKeyFile) {
 		this.publicKeyFile = publicKeyFile;
 	}
-	
+
 	public PrivateKey getPrivateKey() {
 		return privateKey;
 	}
@@ -293,19 +235,5 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 	public void setPublicKey(PublicKey publicKey) {
 		this.publicKey = publicKey;
 	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("RSACodec [Namespace:");
-		builder.append(getNamespace());
-		builder.append(", Description:");
-		builder.append(getDescription());
-		builder.append(", Info:");
-		builder.append(getInfo());
-		builder.append("]");
-		return builder.toString();
-	}
-
 
 }

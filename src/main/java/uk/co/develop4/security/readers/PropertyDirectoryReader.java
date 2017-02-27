@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
-import uk.co.develop4.security.codecs.CodecUtils;
+import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
@@ -64,14 +64,14 @@ public class PropertyDirectoryReader extends BaseReader implements Reader {
 		Properties loader = new Properties();
 		for(String directoryName : directoyNames) {
 			try {
-				File pDirectory = CodecUtils.isDirectory(directoryName);
+				File pDirectory = IOCodecUtils.isDirectory(directoryName);
 				if (pDirectory != null) {
 					debug("Scanning Directory: " + pDirectory.getName());
 					File[] fileList = pDirectory.listFiles();
 					for(File pFile : fileList) {
 						String pKey = pFile.getName();
 						debug("Scanning File: " + pKey);
-						String pValue = CodecUtils.readFileValue(pFile);
+						String pValue = IOCodecUtils.readFileValue(pFile);
 						loader.put(pKey, pValue);
 					}	
 				} 

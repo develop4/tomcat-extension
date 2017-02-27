@@ -33,6 +33,8 @@ import javax.crypto.Cipher;
 import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
+import uk.co.develop4.security.ConfigurationException;
+import uk.co.develop4.security.utils.PEMCertificateUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
@@ -41,18 +43,15 @@ import uk.co.develop4.security.utils.PropertyNaming;
  *
  */
 public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
-
-	private static final String INFO 		= "RSA Codec Test v1.00";
-	private String NAMESPACE 				= "rsa://";
-	private String DESCRIPTION 				= "RSA";
     
-    private String DEFAULT_NAMESPACE 				= "rsa://";
-    private String DEFAULT_PASSPHRASE 				= "446576656C6F7034546563686E6F6C6F67696573";
-    private String DEFAULT_PROVIDER_NAME 			= "BC";
-    private String DEFAULT_ALGORITHM_NAME 			= "RSA/None/PKCS1Padding";
+	private final String DEFAULT_DESCRIPTION 			= "RSA codec";
+    private final String DEFAULT_NAMESPACE 				= "rsa://";
+    private final String DEFAULT_PASSPHRASE 			= "446576656C6F7034546563686E6F6C6F67696573";
+    private final String DEFAULT_PROVIDER_NAME 			= "BC";
+    private final String DEFAULT_ALGORITHM_NAME 		= "RSA/None/PKCS1Padding";
     
-    private String DEFAULT_PRIVATE_KEY_FILE 		= "private.pem";
-    private String DEFAULT_PUBLIC_KEY_FILE 			= "public.pem";
+    private final String DEFAULT_PRIVATE_KEY_FILE 		= "private.pem";
+    private final String DEFAULT_PUBLIC_KEY_FILE 		= "public.pem";
         
     private String passphrase;
     private String providerName;
@@ -62,9 +61,7 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
     
     private PrivateKey privateKey;
     private PublicKey publicKey;
-    
-    private Properties properties;
-    
+        
     public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
@@ -100,85 +97,62 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
     
 	public RSACodec() {
 	}
-
-	public String getNamespace() {
-		return NAMESPACE;
-	}
 	
-	public String getDescription() {
-		return DESCRIPTION;
-	}
-	
-	public void setNamespace(String namespace) {
-		this.NAMESPACE = namespace;
-	}
-	
-	public void setDescription(String description) {
-		this.DESCRIPTION = description;
-	}
-	
-	public String getInfo() {
-		return INFO;
-	}
-	
-	public void init(String passphrase, Properties props)  {
-		if(props != null) {
-			this.properties = props;
-		}
-		
-		this.setLogging(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-		this.setDebug(Boolean.parseBoolean(properties.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
-		this.setSnoop(Boolean.parseBoolean(properties.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
-		
-		// -- do the stuff, allow overriding the passphrase
-		this.setPassphrase(passphrase);
-		if (this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null){
-			this.setPassphrase(this.properties.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
-		}
-
-		this.setNamespace(this.properties.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
-		this.setProviderName(this.properties.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
-		this.setAlgorithimName(this.properties.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
-		this.setPrivateKeyFile(this.properties.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
-		this.setPublicKeyFile(this.properties.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));	
-		this.setPublicKey(CodecUtils.getPublicKey(this.getPublicKeyFile(), this.getPassphrase(), this.getProviderName()));
-		this.setPrivateKey(CodecUtils.getPrivateKey(this.getPrivateKeyFile(), this.getPassphrase(), this.getProviderName()));
-		
-		if (!this.getNamespace().equalsIgnoreCase(DEFAULT_NAMESPACE)) {
-			warn("Namespace Override: Default: " + DEFAULT_NAMESPACE + " \t New: " + this.getNamespace());
-		}
-	}
-	
-	public String encrypt(String cleartext) {
-		String cypherText = cleartext;
-		if (cleartext == null) {
-			return null;
-		}
+	@Override
+	public void init(String passphrase, Properties props)  throws ConfigurationException {
 		try {
-			Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
-		    cipher.init(Cipher.ENCRYPT_MODE, this.getPrivateKey());
-		    byte[] cypherBytes = cipher.doFinal(cleartext.getBytes());	    
-			cypherText = this.getNamespace() + Hex.toHexString(cypherBytes);
-		} catch (Exception ex) { 
-			ex.printStackTrace(); 
-		}
-		return cypherText;
-	}
-
-	public String decrypt(String cyphertext){
-		String plainText = cyphertext;
-		try {
-			if (cyphertext != null && cyphertext.startsWith(this.getNamespace())) {
-				String stripped = cyphertext.replace(this.getNamespace(), "");				
-				Cipher cipher = Cipher.getInstance(this.getAlgorithimName(),this.getProviderName());
-			    cipher.init(Cipher.DECRYPT_MODE, this.getPrivateKey());
-			    byte[] plainBytes =  cipher.doFinal(Hex.decode(stripped));			    
-				plainText = new String(plainBytes);
+			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
+			setDebug(Boolean.parseBoolean(props.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
+			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
+			
+			// -- do the stuff, allow overriding the passphrase
+			setPassphrase(passphrase);
+			if (props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString()) != null){
+				setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
 			}
+	
+			setNamespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
+			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));	
+	
+			setProviderName(props.getProperty(PropertyNaming.PROP_PROVIDER_NAME.toString(), DEFAULT_PROVIDER_NAME));
+			setAlgorithimName(props.getProperty(PropertyNaming.PROP_ALGORITHM_NAME.toString(), DEFAULT_ALGORITHM_NAME));
+			setPrivateKeyFile(props.getProperty(PropertyNaming.PROP_PRIVATE_KEYFILE.toString(), DEFAULT_PRIVATE_KEY_FILE));
+			setPublicKeyFile(props.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));	
+			setPublicKey(PEMCertificateUtils.getPublicKey(getPublicKeyFile(), getPassphrase(), getProviderName()));
+			setPrivateKey(PEMCertificateUtils.getPrivateKey(getPrivateKeyFile(), getPassphrase(), getProviderName()));
+		} catch (Exception ex) {
+			throw new ConfigurationException(ex.fillInStackTrace());
+		}	
+	}
+	
+	@Override
+	public String encrypt(final String cleartext) {
+		if (cleartext == null) {
+			return cleartext;
+		}
+		try {
+			Cipher cipher = Cipher.getInstance(getAlgorithimName(),getProviderName());
+		    cipher.init(Cipher.ENCRYPT_MODE, getPrivateKey());
+		    return addNamespacePrefix(Hex.toHexString(cipher.doFinal(cleartext.getBytes())));	    
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 
 		}
-		return plainText;	
+		return cleartext; 
+	}
+
+	@Override
+	public String decrypt(final String cyphertext){
+		if (cyphertext == null) {
+			return cyphertext;
+		}
+		try {
+			Cipher cipher = Cipher.getInstance(getAlgorithimName(),getProviderName());
+		    cipher.init(Cipher.DECRYPT_MODE, getPrivateKey());
+		    return new String(cipher.doFinal(Hex.decode(removeNamespacePrefix(cyphertext))));			    
+		} catch (Exception ex) { 
+			ex.printStackTrace(); 
+		}
+		return cyphertext;	
 	}
 	
 	public String getPassphrase() {
@@ -236,19 +210,5 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 	public void setPublicKey(PublicKey publicKey) {
 		this.publicKey = publicKey;
 	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("RSACodec [Namespace:");
-		builder.append(getNamespace());
-		builder.append(", Description:");
-		builder.append(getDescription());
-		builder.append(", Info:");
-		builder.append(getInfo());
-		builder.append("]");
-		return builder.toString();
-	}
-
 
 }

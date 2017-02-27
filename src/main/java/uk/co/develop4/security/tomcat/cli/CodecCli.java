@@ -17,7 +17,7 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcatutils.cli;
+package uk.co.develop4.security.tomcat.cli;
 
 import java.util.HashSet;
 import java.util.Properties;
@@ -113,13 +113,13 @@ public final class CodecCli {
 			} else {
 				System.out.println("------------------------------------------------------------------- ");
 				System.out.println("Usage:");
-				System.out.println("  encoder.sh  action=encode passphrase=<mypassphrase> namespace=<namespace> input=<plaintext>  [configuration=<codec properties>]");
-				System.out.println("  encoder.sh  action=decode passphrase=<mypassphrase> namespace=<namespace> input=<cyphertext> [configuration=<codec properties>]");
+				System.out.println("  codec.sh  action=encode passphrase=<mypassphrase> namespace=<namespace> input=<plaintext>  [configuration=<codec properties>]");
+				System.out.println("  codec.sh  action=decode passphrase=<mypassphrase> namespace=<namespace> input=<cyphertext> [configuration=<codec properties>]");
 				System.out.println("");
 				System.out.println("-- Additional Parameters Based on Codec Specified --");
 				System.out.println("   configuration: \"" + codecFile + "\"");
 				System.out.println("");
-				System.out.println("Supported Decoders: encode");
+				System.out.println("Supported Codecs: encode");
 				System.out.println("");
 				for (Codec codec : pds.getDecoders().values()) {
 					System.out.println("  Codec: " + codec);
@@ -127,7 +127,7 @@ public final class CodecCli {
 					System.out.println("    Optional Parameters: " + codec.getOptionalParameters().get("encode").toString());
 					System.out.println("");
 				}
-				System.out.println("Supported Decoders: decode");
+				System.out.println("Supported Codecs: decode");
 				System.out.println("");
 				for (Codec codec : pds.getDecoders().values()) {
 					System.out.println("  Codec: " + codec);

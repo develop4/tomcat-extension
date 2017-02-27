@@ -42,6 +42,14 @@ public class PropertySealed implements Serializable {
 		this.date = date;
 	}
 	
+	public PropertySealed() {
+	}
+	
+	public PropertySealed(String value, Date date) {
+		this.value = value;
+		this.date = date;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
