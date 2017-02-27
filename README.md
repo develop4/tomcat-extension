@@ -20,7 +20,7 @@ then parameters can be passed from the codec.properties file.
 At tomcat server startup the decryption modules are initialized. Then as tomcat reads the server configuration files the custom 
 digester will decrypt the properties and perform variable substitution of the matched values.
 
-![PropertyCodecService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png "PropertyCodecService Diagram")
+![PropertyCodecService Diagram](https://raw.githubusercontent.com/develop4/tomcat-extension/development/src/site/resources/images/PropertyDigester.png)
 
 **Sample: catalina.properties**
 Modify the catalina properties file to plug-in the new custom digester and point to its configuration file.
@@ -36,7 +36,7 @@ the codec namespace prefix.   Specific values can be passed as properties to eac
 e.g. 'uk.co.develop4.security.tomcat.PropertyCodecService.codec.1.debug=true'
 ```
 uk.co.develop4.security.tomcat.PropertyCodecService.passphrase=${catalina.base}/restricted/keystore/secure.file
-uk.co.develop4.security.tomcat.PropertyCodecService.properties=${catalina.base}/restricted/properties/application.properties
+uk.co.develop4.security.tomcat.PropertyCodecService.debug=true
 #
 # Application Properties Readers
 #
@@ -52,7 +52,7 @@ uk.co.develop4.security.tomcat.PropertyCodecService.codec.2=uk.co.develop4.secur
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.3=uk.co.develop4.security.codecs.HexCodec
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.4=uk.co.develop4.security.codecs.PBECodec
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.5=uk.co.develop4.security.codecs.RSACodec
-uk.co.develop4.security.tomcat.PropertyCodecService.codec.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyOne.pem
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.5.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyOne.pem
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.6=uk.co.develop4.security.codecs.RSACodec
 # Create new codec with seperate namespace to handle another private key
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.6.privateKeyFile=${catalina.base}/restricted/keystore/privateKeyTwo.pem
