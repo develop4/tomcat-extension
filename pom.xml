@@ -42,7 +42,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<version.jasypt>1.9.2</version.jasypt>
 		<version.junit>4.11</version.junit>
-		<version.bouncycastle>1.50</version.bouncycastle>
+		<version.bouncycastle>1.56</version.bouncycastle>
 		<version.apache.tomcat>7.0.54</version.apache.tomcat>
 		<version.apache.commons.validator>1.4.0</version.apache.commons.validator>
 		<version.apache.codec>1.9</version.apache.codec>
