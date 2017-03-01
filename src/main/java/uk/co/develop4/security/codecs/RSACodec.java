@@ -66,10 +66,10 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PASSPHRASE.toString(), 
-    			PropertyNaming.PROP_PRIVATE_KEYFILE.toString()
+    			PropertyNaming.PROP_PUBLIC_KEYFILE.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_PUBLIC_KEYFILE.toString()
+    			PropertyNaming.PROP_PRIVATE_KEYFILE.toString()
     			)) ;
     	requiredParams.put("encode", encodeParams);
     	requiredParams.put("decode", decodeParams);
