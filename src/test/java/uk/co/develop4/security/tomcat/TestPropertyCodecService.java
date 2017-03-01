@@ -29,8 +29,7 @@ public class TestPropertyCodecService {
 		}
 		System.setProperty("catalina.base", catalinaBase);
 
-		System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE",
-				"uk.co.develop4.security.tomcat.PropertyCodecService");
+		System.setProperty("org.apache.tomcat.util.digester.PROPERTY_SOURCE", "uk.co.develop4.security.tomcat.PropertyCodecService");
 
 		PropertyCodecService service = new PropertyCodecService();
 

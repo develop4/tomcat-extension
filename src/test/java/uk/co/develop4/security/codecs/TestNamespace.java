@@ -21,19 +21,33 @@ package uk.co.develop4.security.codecs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Optional;
 
 import org.junit.Test;
 
 public class TestNamespace {
 
 	@Test
+	public void extractNamespace() throws Exception{
+		String VALUE   	= "hex://";
+		String data  			= "hex://aaaaaaaa";
+		
+		Optional<Namespace> namespace = Namespace.extractNamespace(data);
+
+		assertNotNull(namespace.get());
+		assertEquals(VALUE, namespace.get().getValue());
+	}
+	
+	@Test
 	public void createNamespace() throws Exception {
 		String NAMESPACE = "test:one://";
 		
 		Namespace namespace = new Namespace(NAMESPACE);
 		
-		assertEquals(namespace.getNamespace(), NAMESPACE);
+		assertEquals(namespace.getValue(), NAMESPACE);
 	}
 	
 	@Test
@@ -60,11 +74,11 @@ public class TestNamespace {
 	@Test
 	public void addPrefixToValue() throws Exception {
 		String NAMESPACE = "test:one://";
-		String VALUE = "XXXXXXXXXX";
-		String NAMESPACED = NAMESPACE + VALUE;
+		String DATA = "XXXXXXXXXX";
+		String NAMESPACED = NAMESPACE + DATA;
 		
 		Namespace namespace = new Namespace(NAMESPACE);
-		String namespaced = namespace.addNamespacePrefix(VALUE);
+		String namespaced = namespace.addNamespacePrefix(DATA);
 		
 		assertEquals("Namespace string should equal precalculated version", NAMESPACED, namespaced);
 	}
@@ -72,13 +86,13 @@ public class TestNamespace {
 	@Test
 	public void removePrefixFromValue() throws Exception {
 		String NAMESPACE = "test:one://";
-		String VALUE = "XXXXXXXXXX";
+		String DATA = "XXXXXXXXXX";
 		String NAMESPACED = "test:one://XXXXXXXXXX";
 		
 		Namespace namespace = new Namespace(NAMESPACE);
-		String value = namespace.removeNamespacePrefix(NAMESPACED);
+		String data = namespace.removeNamespacePrefix(NAMESPACED);
 		
-		assertEquals("Namespace string should equal precalculated version", VALUE, value);
+		assertEquals("Namespace string should equal precalculated version", DATA, data);
 	}
 	
 	@Test

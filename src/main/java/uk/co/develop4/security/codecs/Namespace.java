@@ -19,46 +19,70 @@
  */
 package uk.co.develop4.security.codecs;
 
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public final class Namespace {
 
-	private final String namespace;
+	private final String value;
 	
-	public Namespace(final String namespace) {
-		this.namespace = namespace;
+	private static final Pattern patternUri 		= Pattern.compile("((^[a-zA-Z0-9]+://)|(^[a-zA-Z0-9]+:[a-zA-Z0-9]+//))");
+	
+	public Namespace(final String value) {
+		this.value = value;
 	}
 	
-	public String getNamespace() {
-		return this.namespace;
+	public static Optional<Namespace> extractNamespace(String value) {
+		try {
+			Matcher matcher = patternUri.matcher(value);
+			if (matcher.find()) {
+				return Optional.ofNullable(new Namespace(matcher.group(1)));
+			}
+		} catch (IndexOutOfBoundsException ex) {
+			// No namespace found so return Optional
+		}
+		return Optional.empty();
+	}
+	
+	public String getValue() {
+		return this.value;
 		
 	}
 
-	public String removeNamespacePrefix(final String value) {
-		return value.replaceAll("^"+getNamespace(), "");
+	public String removeNamespacePrefix(final String data) {
+		return data.replaceAll("^"+getValue(), "");
 	}
 	
-	public String addNamespacePrefix(final String value) {
-		return getNamespace() + value;
+	public String addNamespacePrefix(final String data) {
+		return getValue() + data;
 	}
 	
-	public String addNamespacePrefix(byte[] value) {
-		return getNamespace() + new String(value);
+	public String addNamespacePrefix(byte[] data) {
+		return getValue() + new String(data);
 	}
 	
 	public boolean isValueInNamespace(final String cyphertext) {
 		if (cyphertext == null ) {
 			return false;
 		}
-		if (cyphertext.startsWith(getNamespace())) {
+		if (cyphertext.startsWith(getValue())) {
 			return true;
 		}
 		return false;
+	}
+	
+
+	@Override
+	public String toString() {
+		return value;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -74,11 +98,11 @@ public final class Namespace {
 			return false;
 		}
 		Namespace other = (Namespace) obj;
-		if (namespace == null) {
-			if (other.namespace != null) {
+		if (value == null) {
+			if (other.value != null) {
 				return false;
 			}
-		} else if (!namespace.equals(other.namespace)) {
+		} else if (!value.equals(other.value)) {
 			return false;
 		}
 		return true;

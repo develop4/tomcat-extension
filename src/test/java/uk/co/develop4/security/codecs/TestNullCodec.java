@@ -36,7 +36,7 @@ public class TestNullCodec {
 		Properties propeties = new Properties();
 		
 		NullCodec codec = new NullCodec();
-		codec.init(passphrase, propeties);
+		codec.init(propeties);
 		
 		String secret = "XXXxxx TestValue xxxXXX";
 		String cyphertext = codec.encrypt(secret);
@@ -49,7 +49,7 @@ public class TestNullCodec {
     public void initWithNullPassphraseDoesNotThrowException() throws Exception
     {
 		NullCodec codec = new NullCodec();
-		codec.init(null, new Properties());
+		codec.init(new Properties());
 
     }
 	
@@ -57,6 +57,6 @@ public class TestNullCodec {
     public void initWithNullPropertiesThrowsException() throws Exception
     {
 		NullCodec codec = new NullCodec();
-		codec.init("Passphrase", null);
+		codec.init(null);
     }
 }

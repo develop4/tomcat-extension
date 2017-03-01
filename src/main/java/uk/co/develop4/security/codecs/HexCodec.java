@@ -66,14 +66,14 @@ public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
 	}
 	
 	@Override
-	public void init(final String passphrase, final Properties props) throws ConfigurationException {
+	public void init(final Properties props) throws ConfigurationException {
 		try {
 			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
 			setDebug(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));	
 			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));	
 						
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
-			setNamespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE));
+			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 		} catch (Exception ex) {
 			throw new ConfigurationException("Property initialization failed", ex.fillInStackTrace());
 		}

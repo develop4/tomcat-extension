@@ -32,12 +32,12 @@ import uk.co.develop4.security.ConfigurationException;
  */
 public interface Codec {
 
-	public String getNamespace();
+	public Namespace getNamespace();
 
 	public String getDescription();
 
-	public void init(String passphrase, Properties props) throws ConfigurationException;
-	
+	public void init(Properties props) throws ConfigurationException;
+
 	public String encrypt(String plaintext);
 
 	public String decrypt(String cyphertext);

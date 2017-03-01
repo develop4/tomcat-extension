@@ -22,20 +22,19 @@ package uk.co.develop4.security.tomcat;
 import java.io.File;
 import java.net.URL;
 import java.security.Security;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
 
 import org.apache.tomcat.util.IntrospectionUtils;
-import org.apache.tomcat.util.IntrospectionUtils.PropertySource;
-import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.Hex;
 
 import uk.co.develop4.security.codecs.Codec;
+import uk.co.develop4.security.codecs.CodecRegistry;
+import uk.co.develop4.security.codecs.Namespace;
 import uk.co.develop4.security.readers.Reader;
 import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
@@ -78,13 +77,14 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	protected Properties properties = new Properties();
 	protected Properties propertiesCommand = new Properties();
 	protected Properties configuration = new Properties();
-	protected Map<String, Codec> codecs = new HashMap<String, Codec>();
+	
+	protected CodecRegistry codecRegistry = new CodecRegistry();
 
 	protected String defaultKey = null;
 	protected long consoleTimeout = 30000l;
 		
-	public Map<String, Codec> getDecoders() {
-		return this.codecs;
+	public CodecRegistry getCodecRegistry() {
+		return this.codecRegistry;
 	}
 	private String introspectProperty(String value) {
 		if (value == null) {
@@ -247,6 +247,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 					Codec tmpDecoder = (Codec) Class.forName(className).newInstance();
 					if (tmpDecoder != null) {
 						Properties tmpProperties = new Properties();
+						tmpProperties.put(PropertyNaming.PROP_PASSPHRASE.toString(), this.defaultKey);
 						for (String myKey : this.configuration.stringPropertyNames()) {
 							// -- Transfer property settings that begin with the codec mapping to ensure 
 							// -- properties settings do not leak between codecs.
@@ -255,8 +256,8 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
 							}
 						}
-						tmpDecoder.init(this.defaultKey, tmpProperties);
-						this.codecs.put(tmpDecoder.getNamespace(), tmpDecoder);
+						tmpDecoder.init(tmpProperties);
+						getCodecRegistry().put(tmpDecoder);
 						debug("Install codec: " + tmpDecoder.toString());
 					}
 				}
@@ -310,70 +311,44 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		return decodePropertyValue(key, val);
 	}
 
-	public String decodePropertyValue(String key, String value) {
-		if (value == null) {
-			return value;
+	public String decodePropertyValue(String key, String data) {
+		String result = null;
+		if (data == null) {
+			return result;
 		}
-		try {
-			info("Handle Key:  \"" + key + "\"  Value: \"" + value + "\"");
-			Matcher matcher = patternUri.matcher(value);
-			if (matcher.find()) {
-				String namespaceKey = matcher.group(1);
-				Codec codec = this.codecs.get(namespaceKey);
-				if (codec != null) {
-					value = codec.decrypt(value);
-					if (isSnoop()) {
-						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
-					} else {
-						String partial = value.substring(0, 3) + "........" + value.substring(value.length()-3, value.length());
-						info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
-					}
-				}
+		info("Handle Key:  \"" + key + "\"  Value: \"" + data + "\"");
+		
+		Optional<Codec> codec  = Namespace.extractNamespace(data).flatMap(x -> codecRegistry.get(x));
+		if (codec.isPresent()) {
+			result = codec.get().decrypt(data);
+			if (isSnoop()) {
+				snoop("Decoded Key: \"" + key + "\"  Value: \"" + result + "\"");
+			} else {
+				String partial = result.substring(0, 3) + "........" + result.substring(result.length()-3, result.length());
+				info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
 			}
-			matcher = patternUriWithSuffix.matcher(value);
-			if (matcher.find()) {
-				String namespaceKey = matcher.group(1);
-				Codec codec = this.codecs.get(namespaceKey);
-				if (codec != null) {
-					value = codec.decrypt(value);
-					if (isSnoop()) {
-						snoop("Decoded Key: \"" + key + "\"  Value: \"" + value + "\"");
-					} else {
-						String partial = value.substring(0, 3) + "********" + value.substring(value.length()-3, value.length());
-						info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
-					}
-				}
-			}
-			return value;
-		} catch (Exception x) {
-			debug("Oops decoding has failed:" + key);
-			throw new IllegalArgumentException("Oops decoding has failed:" + key, x);
 		}
+		return result;
 	}
 	
-	public String encodePropertyValue(String namespaceKey, String value) {
-		if (value == null) {
-			return value;
+	public String encodePropertyValue(Namespace key, String data) {
+		String result = null;
+		if (data == null) {
+			return result;
 		}
-		try {
-			Codec codec = this.codecs.get(namespaceKey);
-			if (codec != null) {
-				value = codec.encrypt(value);
-				snoop("Encoded Value: \"" + value + "\"");
-				if (isSnoop()) {
-					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + value + "\"");
-				} else {
-					String partial = value.substring(0, 3) + "********" + value.substring(value.length()-3, value.length());
-					snoop("Encoded Value: \"" + namespaceKey + "\"  Value: \"" + partial + "\"");
-				}
+		Optional<Codec> codec  = codecRegistry.get(key);
+		if (codec.isPresent()) {
+			result = codec.get().encrypt(data);
+			if (isSnoop()) {
+				snoop("Encoded Value: \"" + key + "\"  Value: \"" + result + "\"");
 			} else {
-				warn("No Encoder found for namespace: \"" + namespaceKey + "\"");
+				String partial = result.substring(0, 3) + "********" + result.substring(result.length()-3, result.length());
+				snoop("Encoded Value: \"" + key + "\"  result: \"" + partial + "\"");
 			}
-			return value;
-		} catch (Exception x) {
-			warn("Oops encoding has failed:" + namespaceKey);
-			throw new IllegalArgumentException("Oops encoding has failed:" + namespaceKey, x);
+		} else {
+			warn("No Encoder found for namespace: \"" + key + "\"");
 		}
+		return result;
 	}
 
 }

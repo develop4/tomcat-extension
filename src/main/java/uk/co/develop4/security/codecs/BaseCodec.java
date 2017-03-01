@@ -25,11 +25,11 @@ import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.utils.BaseCommon;
 
 public abstract class BaseCodec extends BaseCommon {
-
-	private String namespace;
+	
+	private Namespace namespace;
 	private String description;
 
-	public String getNamespace() {
+	public Namespace getNamespace() {
 		return this.namespace;
 	}
 
@@ -37,7 +37,7 @@ public abstract class BaseCodec extends BaseCommon {
 		return this.description;
 	}
 
-	public void setNamespace(final String namespace) {
+	public void setNamespace(final Namespace namespace) {
 		this.namespace = namespace;
 	}
 
@@ -46,28 +46,29 @@ public abstract class BaseCodec extends BaseCommon {
 	}
 	
 	protected String removeNamespacePrefix(final String value) {
-		return value.replaceAll("^"+getNamespace(), "");
+		return namespace.removeNamespacePrefix(value);
 	}
 	
 	protected String addNamespacePrefix(final String value) {
-		return getNamespace() + value;
+		return namespace.addNamespacePrefix(value);
 	}
 	
 	protected String addNamespacePrefix(byte[] value) {
-		return getNamespace() + new String(value);
+		return namespace.addNamespacePrefix(new String(value));
 	}
 	
 	protected boolean isValueInNamespace(final String cyphertext) {
 		if (cyphertext == null ) {
 			return false;
 		}
-		if (cyphertext.startsWith(getNamespace())) {
+		if (namespace.isValueInNamespace(cyphertext)) {
 			return true;
 		}
 		return false;
 	}
-	
-	public abstract void init(final String passphrase, final Properties props) throws ConfigurationException;
+
+	public void init(final Properties props) throws ConfigurationException {
+	}
 	
 	public abstract String encrypt(final String cleartext);
 

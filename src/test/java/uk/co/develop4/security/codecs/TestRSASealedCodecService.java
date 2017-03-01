@@ -43,10 +43,10 @@ public class TestRSASealedCodecService {
 		}
 		System.setProperty("catalina.base", catalinaBase);
 
-		PropertyCodecService pds = new PropertyCodecService();
+		PropertyCodecService pds = new PropertyCodecService(); 
 
-		String cyphertext = pds.encodePropertyValue("rsa:sealed//", secret);
-		String cleartext = pds.decodePropertyValue("rsa:sealed//", cyphertext);
+		String cyphertext = pds.encodePropertyValue(new Namespace("rsa:sealed//"), secret);
+		String cleartext = pds.decodePropertyValue("property.key", cyphertext);
 
 		assertEquals(secret, cleartext);
 

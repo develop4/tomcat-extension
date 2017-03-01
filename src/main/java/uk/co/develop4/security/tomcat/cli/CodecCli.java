@@ -26,6 +26,7 @@ import java.util.Set;
 import org.jasypt.commons.CommonUtils;
 
 import uk.co.develop4.security.codecs.Codec;
+import uk.co.develop4.security.codecs.Namespace;
 import uk.co.develop4.security.tomcat.PropertyCodecService;
 import uk.co.develop4.security.utils.PropertyNaming;
 
@@ -101,7 +102,7 @@ public final class CodecCli {
 
 			String coded;
 			if ("encode".equalsIgnoreCase(action)) {
-				coded = pds.encodePropertyValue(namespaceKey, value);
+				coded = pds.encodePropertyValue(new Namespace(namespaceKey), value);
 				System.out.println("------------------------------------------------------------------- ");
 				System.out.println("Encrypted Value: " + coded);
 				System.out.println("------------------------------------------------------------------- ");
@@ -121,7 +122,7 @@ public final class CodecCli {
 				System.out.println("");
 				System.out.println("Supported Codecs: encode");
 				System.out.println("");
-				for (Codec codec : pds.getDecoders().values()) {
+				for (Codec codec : pds.getCodecRegistry().values()) {
 					System.out.println("  Codec: " + codec);
 					System.out.println("    Required Parameters: " + codec.getRequiredParameters().get("encode").toString());
 					System.out.println("    Optional Parameters: " + codec.getOptionalParameters().get("encode").toString());
@@ -129,7 +130,7 @@ public final class CodecCli {
 				}
 				System.out.println("Supported Codecs: decode");
 				System.out.println("");
-				for (Codec codec : pds.getDecoders().values()) {
+				for (Codec codec : pds.getCodecRegistry().values()) {
 					System.out.println("  Codec: " + codec);
 					System.out.println("    Required Parameters: " + codec.getRequiredParameters().get("decode").toString());
 					System.out.println("    Optional Parameters: " + codec.getOptionalParameters().get("decode").toString());

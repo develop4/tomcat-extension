@@ -35,7 +35,7 @@ public class TestHexCodec {
 		Properties propeties = new Properties();
 
 		HexCodec codec = new HexCodec();
-		codec.init(passphrase, propeties);
+		codec.init(propeties);
 
 		String secret = "XXXxxx TestValue xxxXXX";
 		String cyphertext = codec.encrypt(secret);
@@ -50,7 +50,7 @@ public class TestHexCodec {
 		Properties propeties = new Properties();
 
 		HexCodec codec = new HexCodec();
-		codec.init(passphrase, propeties);
+		codec.init(propeties);
 	}
 
 	@Test(expected = ConfigurationException.class)
@@ -59,6 +59,6 @@ public class TestHexCodec {
 		Properties propeties = null;
 
 		HexCodec codec = new HexCodec();
-		codec.init(passphrase, propeties);
+		codec.init(propeties);
 	}
 }

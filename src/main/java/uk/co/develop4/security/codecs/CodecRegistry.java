@@ -19,16 +19,29 @@
  */
 package uk.co.develop4.security.codecs;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-  TestNullCodec.class,
-  TestHexCodec.class,
-  TestRSASealedCodecService.class
-})
+public class CodecRegistry {
+	
+	private static final Map<Namespace,Codec> codecRepository;
+	
+	static {
+		codecRepository = new ConcurrentHashMap<Namespace,Codec>();
+	}
 
-public class CodecTestSuite {
+	public void put(Codec codec) {
+		codecRepository.put(codec.getNamespace(), codec);
+    }
+
+    public Optional<Codec> get(Namespace id) {
+        return Optional.ofNullable(codecRepository.get(id));
+    }
+
+	public Collection<Codec> values() {
+		return codecRepository.values();
+	}
 
 }
