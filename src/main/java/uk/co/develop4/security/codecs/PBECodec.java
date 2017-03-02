@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.intf.service.JasyptStatelessService;
@@ -34,10 +36,12 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
- * @author wtimpany
+ * @author william timpany
  */
 public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
     
+	private final static Logger logger = Logger.getLogger(PBECodec.class.getName());
+
     private final String DEFAULT_DESCRIPTION 				= "PBE codec";
     private final String DEFAULT_NAMESPACE 					= "pbe://";
     private final String DEFAULT_PASSPHRASE 				= "446576656C6F7034546563686E6F6C6F67696573";
@@ -94,10 +98,6 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 	@Override
 	public void init(final Properties props) throws ConfigurationException  {
 		try {
-			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-			setDebug(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
-			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
-	
 			setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));			
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));		
@@ -108,6 +108,7 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 			setStringOutputType(props.getProperty(PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(), DEFAULT_STRING_OUTPUT_TYPE));
 			setSaltGeneratorClassName(props.getProperty(PropertyNaming.PROP_SALT_GENERATOR_CLASS_NAME.toString(), DEFAULT_SALT_GENERATOR_CLASS_NAME));
 		} catch (Exception ex) {
+			logger.log(Level.SEVERE, "Failed to initialized Codec: {0}", getNamespace());
 			throw new ConfigurationException(ex.fillInStackTrace());
 		}
 	}

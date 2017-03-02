@@ -48,10 +48,12 @@
 		<version.apache.codec>1.9</version.apache.codec>
 		<version.apache.codec>1.9</version.apache.codec>
 		<version.slf4j>1.7.7</version.slf4j>
-		<github.global.server>github</github.global.server>
+		<github.global.server>github</github.global.server>	
+		<junit.version>4.12</junit.version>
+		<junit.jupiter.version>5.0.0-M3</junit.jupiter.version>
+		<junit.vintage.version>${junit.version}.0-M3</junit.vintage.version>
+		<junit.platform.version>1.0.0-M3</junit.platform.version>
 	</properties>
-
-
 
 	<distributionManagement>
 		<snapshotRepository>
@@ -176,11 +178,18 @@
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${version.junit}</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>	
 		
 	</dependencies>
 

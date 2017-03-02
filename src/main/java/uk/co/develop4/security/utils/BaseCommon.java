@@ -19,81 +19,36 @@
  */
 package uk.co.develop4.security.utils;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class BaseCommon {
 
-	private static final String INFO  = "[INFO]  ";
-	private static final String WARN  = "[WARN]  ";
-	private static final String DEBUG = "[DEBUG] ";
-	private static final String ERROR = "[ERROR] ";
-	private static final String SNOOP = "[SNOOP] ";
-
-	private boolean snoop 		= false;
-	private boolean debug 		= false;
-	private boolean error 		= false;
-	private boolean logging 	= false;
-
-	
-	public boolean isError() {
-		return error;
+	public boolean isSnoop(Logger log) {
+		return (log.getLevel().intValue() <= Level.FINEST.intValue());
 	}
 
-	public void setError(boolean error) {
-		this.error = error;
+	public static boolean isTrace(Logger log) {
+		return (log.getLevel().intValue() <= Level.FINER.intValue());
 	}
 
-	public boolean isSnoop() {
-		return snoop;
+	public static boolean isDebug(Logger log) {
+		return (log.getLevel().intValue() <= Level.FINE.intValue());
 	}
 
-	public void setSnoop(final boolean snoop) {
-		this.snoop = snoop;
-	}
-	
-	public boolean isDebug() {
-		return debug;
+	public static boolean isInfo(Logger log) {
+		return (log.getLevel().intValue() <= Level.INFO.intValue());
+
 	}
 
-	public void setDebug(final boolean debug) {
-		this.debug = debug;
-	}
-	
-	public boolean isLogging() {
-		return logging;
+	public static boolean isWarning(Logger log) {
+		return (log.getLevel().intValue() <= Level.WARNING.intValue());
+
 	}
 
-	public void setLogging(final boolean logging) {
-		this.logging 	= logging;
-	}
-	
-	public void info(final String message) {
-		if (isLogging()) {
-			System.out.println(INFO + message);
-		}
-	}
-	
-	public void warn(final String message) {
-		if (isLogging()) {
-			System.out.println(WARN + message);
-		}
-	}
-	
-	public void error(final String message) {
-		if (isLogging()) {
-			System.out.println(ERROR + message);
-		}
-	}
-	
-	public void debug(final String message) {
-		if (isDebug()) {
-			System.out.println(DEBUG + message);
-		}
-	}
-	
-	public void snoop(final String message) {
-		if (isSnoop()) {
-			System.out.println(SNOOP + message);
-		}
+	public static boolean isOff(Logger log) {
+		return (log.getLevel().intValue() <= Level.OFF.intValue());
+
 	}
 
 }
-

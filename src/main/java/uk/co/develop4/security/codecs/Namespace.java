@@ -72,6 +72,10 @@ public final class Namespace {
 		return false;
 	}
 	
+	public boolean isEqual(String value) {
+		return this.value.equals(value);
+	}
+	
 
 	@Override
 	public String toString() {

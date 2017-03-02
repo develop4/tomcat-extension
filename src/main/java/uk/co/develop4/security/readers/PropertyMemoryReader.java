@@ -20,6 +20,8 @@
 package uk.co.develop4.security.readers;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -28,6 +30,8 @@ import java.util.Properties;
  */
 public class PropertyMemoryReader extends BaseReader implements Reader {
 
+	private final static Logger logger = Logger.getLogger(PropertyMemoryReader.class.getName());
+
 	public PropertyMemoryReader() {
 	}
 
@@ -35,6 +39,7 @@ public class PropertyMemoryReader extends BaseReader implements Reader {
 	}
 
 	public Properties read() {
+		logger.log(Level.FINE, "Scanning memory: \"Test\"");
 		Properties properties = new Properties();
 		properties.put("property.memory.reader.test1", "TEST_ONE");
 		properties.put("property.memory.reader.test2", "TEST_TWO");

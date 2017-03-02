@@ -32,6 +32,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.SealedObject;
@@ -57,6 +59,8 @@ import uk.co.develop4.security.utils.PropertySealed;
  *
  */
 public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor {
+
+	private final static Logger logger = Logger.getLogger(RSASealedCodec.class.getName());
 
 	private final String DEFAULT_DESCRIPTION = "RSA Codec";
 	private final String DEFAULT_NAMESPACE = "rsa:sealed//";
@@ -102,10 +106,6 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 	@Override
 	public void init(final Properties props) throws ConfigurationException {
 		try {
-			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-			setDebug(Boolean.parseBoolean(props.getProperty((PropertyNaming.PROP_DEBUG.toString()), "false")));
-			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
-
 			setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
@@ -117,6 +117,7 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 			setPublicKey(PEMCertificateUtils.getPublicKey(getPublicKeyFile(), getPassphrase(), getProviderName()));
 			setPrivateKey(PEMCertificateUtils.getPrivateKey(getPrivateKeyFile(), getPassphrase(), getProviderName()));
 		} catch (Exception ex) {
+			logger.log(Level.SEVERE, "Failed to initialized Codec: {0}", getNamespace());
 			throw new ConfigurationException("Property initialization failed", ex.fillInStackTrace());
 		}
 	}

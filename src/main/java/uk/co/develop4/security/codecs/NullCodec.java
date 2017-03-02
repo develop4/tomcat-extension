@@ -25,8 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.ConfigurationException;
@@ -39,6 +40,8 @@ import uk.co.develop4.security.utils.PropertyNaming;
  */
 public class NullCodec extends BaseCodec implements Codec, StringEncryptor {
     
+	private final static Logger logger = Logger.getLogger(NullCodec.class.getName());
+
     private final String DEFAULT_NAMESPACE 		= "null://";
     private final String DEFAULT_DESCRIPTION 	= "Null codec";
     
@@ -72,13 +75,10 @@ public class NullCodec extends BaseCodec implements Codec, StringEncryptor {
 	@Override
 	public void init(Properties props) throws ConfigurationException {
 		try {
-			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-			setDebug(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));
-			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));
-			
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
 		} catch (Exception ex) {
+			logger.log(Level.SEVERE, "Failed to initialized Codec: {0}", getNamespace());
 			throw new ConfigurationException(ex.fillInStackTrace());
 		}
 	}

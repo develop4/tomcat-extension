@@ -25,6 +25,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
@@ -36,6 +38,7 @@ import org.bouncycastle.util.encoders.Hex;
 import uk.co.develop4.security.codecs.Codec;
 import uk.co.develop4.security.codecs.CodecRegistry;
 import uk.co.develop4.security.codecs.Namespace;
+import uk.co.develop4.security.readers.PropertyDirectoryReader;
 import uk.co.develop4.security.readers.Reader;
 import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
@@ -56,13 +59,15 @@ import uk.co.develop4.security.utils.PropertyNaming;
  */
 public class PropertyCodecService extends BaseService implements IntrospectionUtils.PropertySource {
 
+	private final static Logger logger = Logger.getLogger(PropertyCodecService.class.getName());
+
 	/* Configuration Constants */
 	public static final String CONSOLE_TIMEOUT_PROP = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
 	public static final String PASSPHRASE_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
 	public static final String PASSPHRASE_FILE_PROP = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE_FILE;
 	public static final String CONFIGURATION_PROP 	= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CONFIGURATION;
 	public static final String PROPERTIES_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PROPERTIES;
-	public static final String CODEC_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CODEC;
+	public static final String CODEC_PROP 			= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CODEC;
 	public static final String DEBUG_PROP 			= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_DEBUG;
 	public static final String LOGGING_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_LOGGING;
 	public static final String SNOOP_PROP 			= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_SNOOP;
@@ -125,12 +130,12 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 
 		}
 		
-		this.setLogging(Boolean.parseBoolean(this.configuration.getProperty(LOGGING_PROP, "false")));
-		this.setDebug(Boolean.parseBoolean(this.configuration.getProperty(DEBUG_PROP, "false")));
-		this.setSnoop(Boolean.parseBoolean(this.configuration.getProperty(SNOOP_PROP, "false")));
+		//this.setLogging(Boolean.parseBoolean(this.configuration.getProperty(LOGGING_PROP, "false")));
+		//this.setDebug(Boolean.parseBoolean(this.configuration.getProperty(DEBUG_PROP, "false")));
+		//this.setSnoop(Boolean.parseBoolean(this.configuration.getProperty(SNOOP_PROP, "false")));
 
 		if (tempCanonicalPath != null) {
-			debug("Activate configuration file reader for file: \"" + tempCanonicalPath + "\"");
+			logger.info("Activate configuration file reader for file: \"" + tempCanonicalPath + "\"");
 		}
 
 		/* Get the console timeout value to be used as the default */
@@ -147,7 +152,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		}
 
 		/* set the default key */
-		this.defaultKey = decode(this.defaultKey);
+		this.defaultKey = deobsuscate(this.defaultKey);
 		
 		/* Get the master key to be used as the default value */
 		String passphrase = System.getProperty(PASSPHRASE_PROP);
@@ -155,7 +160,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			passphrase = this.configuration.getProperty(PASSPHRASE_PROP);
 		}
 		if (passphrase != null) {
-			this.defaultKey = decode(passphrase.trim());
+			this.defaultKey = deobsuscate(passphrase.trim());
 		}
 		
 		/* Get the file where the master key is stored */
@@ -171,7 +176,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			String localPassPhrase = null;
 			if (passphraseFile.startsWith("console")) {
 				// -- Read passphrase from console 
-				debug("Activate console passphrase reader");
+				logger.info("Activate console passphrase reader");
 				localPassPhrase = IOCodecUtils.readConsole(this.consoleTimeout);
 				if (localPassPhrase == null) {
 					throw new NullPointerException("Invalid passphrase provided by console input.");
@@ -180,7 +185,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 				// -- Read the password from a secure url
 				URL pUrl = IOCodecUtils.isUrl(passphraseFile);
 				if (pUrl != null) {
-					debug("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
+					logger.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
 					localPassPhrase = IOCodecUtils.readUrlValue(pUrl);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
@@ -190,7 +195,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 				// -- Read the password from the secure file 
 				File pFile = IOCodecUtils.isFile(passphraseFile);
 				if (pFile != null) {
-					debug("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
+					logger.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
 					localPassPhrase = IOCodecUtils.readFileValue(pFile);
 					if (localPassPhrase == null) {
 						throw new NullPointerException("Invalid passphrase provided by file input.");
@@ -198,7 +203,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 				}
 			}
 			if (localPassPhrase != null) {
-				this.defaultKey = decode(localPassPhrase.trim());
+				this.defaultKey = deobsuscate(localPassPhrase.trim());
 			} 
 		} 
 		
@@ -220,12 +225,12 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 							}
 						}
 						tmpReader.init(tmpProperties);
+						logger.log(Level.FINE, "Activate reader: \"{0}\"", tmpReader.toString());
 						this.properties.putAll(tmpReader.read());
-						debug("Install reader: " + tmpReader.toString());
 					}
 				}
 			} catch (Exception ex) {
-				warn("Failed to instanciate reader class: " + className);
+				logger.warning("Failed to instanciate reader class: " + className);
 				ex.printStackTrace();
 			}
 
@@ -252,56 +257,44 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 						}
 						tmpDecoder.init(tmpProperties);
 						getCodecRegistry().addCodec(tmpDecoder);
-						debug("Install codec: " + tmpDecoder.toString());
 					}
 				}
 			} catch (Exception ex) {
-				warn("Failed to instanciate codec class: " + className);
+				logger.warning("Failed to instanciate codec class: " + className);
 				ex.printStackTrace();
 			}
 		}
 	}
 	private void configureUnlimitedStrengthEncryption() throws NoSuchAlgorithmException {
-		// -- Add BouncyCastle provider if it is missing
 		if (Security.getProvider("BC") == null) {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         }
-		
-		// -- Check if the Unlimited Strength if installed
 		if (Cipher.getMaxAllowedKeyLength("AES") == 128) {
-			warn("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
+			logger.warning("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
 		}
 	}
 
-	public String decode(String cyphertext) {
-		// -- info("Decode value: " + cyphertext);
+	public String deobsuscate(String cyphertext) {
 		if (cyphertext == null) {
-			return null;
+			return cyphertext;
 		}
 		try {
-			if (cyphertext.startsWith(PropertyNaming.PROP_BASE64.toString())) {
-				String stripped = cyphertext.replace(PropertyNaming.PROP_BASE64.toString(), "");
-				String cleartext = new String(Base64.decode(stripped.getBytes()));
-				// -- debug("Decoded using Base64: " + cleartext);
-				return cleartext;
-			} else if (cyphertext.startsWith(PropertyNaming.PROP_HEX.toString())) {
-				String stripped = cyphertext.replace(PropertyNaming.PROP_HEX.toString(), "");
-				String cleartext = new String(Hex.decode(stripped.getBytes()));
-				// -- debug("Decoded using Hex: " + cleartext);
-				return cleartext;
-			} else {
-				return cyphertext;
-			}
+			Optional<Namespace> optional = Namespace.extractNamespace(cyphertext);
+			if (optional.isPresent()) {
+				Namespace namespace = optional.get();
+				String stripped = namespace.removeNamespacePrefix(cyphertext);
+				if (namespace.isEqual(PropertyNaming.PROP_BASE64.toString())) {
+					return new String(Base64.decode(stripped.getBytes()));
+				} else if (namespace.isEqual(PropertyNaming.PROP_HEX.toString())) {
+					return new String(Hex.decode(stripped.getBytes()));
+				} 
+			} 
 		} catch (Exception dex) {
-			info("Problem trying to decode the text: " + dex.getMessage());
+			logger.info("Problem trying to decode the text: " + dex.getMessage());
 		}
 		return cyphertext;
 	}
 
-	/**
-	 * 
-	 * @sequence.diagram test=uk.co.develop4.security.tomcat.PropertyCodecServiceTest#basicTest()
-	 */
 	public String getProperty(String key) {
 		if (key == null) {
 			return null;
@@ -321,17 +314,19 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		if (data == null) {
 			return result;
 		}
-		info("Handle Key:  \"" + key + "\"  Value: \"" + data + "\"");
+		logger.info("Handle Key:  \"" + key + "\"  Value: \"" + data + "\"");
 		
 		Optional<Codec> codec  = Namespace.extractNamespace(data).flatMap(x -> codecRegistry.getCodec(x));
 		if (codec.isPresent()) {
 			result = codec.get().decrypt(data);
+			/*
 			if (isSnoop()) {
 				snoop("Decoded Key: \"" + key + "\"  Value: \"" + result + "\"");
 			} else {
 				String partial = result.substring(0, 3) + "........" + result.substring(result.length()-3, result.length());
 				info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
 			}
+			*/
 		}
 		return result;
 	}
@@ -344,14 +339,16 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		Optional<Codec> codec  = codecRegistry.getCodec(key);
 		if (codec.isPresent()) {
 			result = codec.get().encrypt(data);
+			/*
 			if (isSnoop()) {
 				snoop("Encoded Value: \"" + key + "\"  Value: \"" + result + "\"");
 			} else {
 				String partial = result.substring(0, 3) + "********" + result.substring(result.length()-3, result.length());
 				snoop("Encoded Value: \"" + key + "\"  result: \"" + partial + "\"");
 			}
+			*/
 		} else {
-			warn("No Encoder found for namespace: \"" + key + "\"");
+			logger.warning("No Encoder found for namespace: \"" + key + "\"");
 		}
 		return result;
 	}

@@ -23,8 +23,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CodecRegistry {
+	
+	private final static Logger logger = Logger.getLogger(CodecRegistry.class.getName());
 	
 	private static final Map<Namespace,Codec> codecRepository;
 	
@@ -34,6 +38,8 @@ public class CodecRegistry {
 
 	public void addCodec(Codec codec) {
 		codecRepository.put(codec.getNamespace(), codec);
+		logger.log(Level.INFO, "Added Codec to Registry: {0}", codec);
+		
     }
 
     public Optional<Codec> getCodec(Namespace id) {

@@ -21,6 +21,8 @@ package uk.co.develop4.security.readers;
 
 import java.net.URL;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
@@ -31,6 +33,8 @@ import uk.co.develop4.security.utils.PropertyNaming;
  *
  */
 public class PropertyURLReader extends BaseReader implements Reader {
+
+	private final static Logger logger = Logger.getLogger(PropertyURLReader.class.getName());
 
     private static final String DEFAULT_PATH_SEPERATOR = ";";
 
@@ -51,13 +55,14 @@ public class PropertyURLReader extends BaseReader implements Reader {
 		Properties loader = new Properties();
 		for(String fileName : fileNames) {
 			try {
+				logger.log(Level.FINE, "Scanning file: \"{0}\"", fileName);
 				URL pUrl = IOCodecUtils.isUrl(fileName);
 				if (pUrl != null) {
 					loader.putAll(IOCodecUtils.readUrlProperties(pUrl));
 				} 
 			} catch (Exception ex) {
-				System.out.println("Exception: Read application properties reader from: \"" + fileName + "\"");
-				System.out.println(ex.getMessage());
+				logger.log(Level.SEVERE, "Failed to read file: \"{0}\"", fileName);
+				logger.log(Level.SEVERE, "Exception: \"{0}\"", ex.getCause());		
 			}
 		}
 		return loader;	}

@@ -22,7 +22,10 @@ package uk.co.develop4.security.readers;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import uk.co.develop4.security.codecs.NullCodec;
 import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
@@ -43,6 +46,8 @@ import uk.co.develop4.security.utils.PropertyNaming;
  * 
  */
 public class PropertyDirectoryReader extends BaseReader implements Reader {
+
+	private final static Logger logger = Logger.getLogger(PropertyDirectoryReader.class.getName());
 
 	private static final String DEFAULT_PATH_SEPERATOR = ";";
 
@@ -66,18 +71,18 @@ public class PropertyDirectoryReader extends BaseReader implements Reader {
 			try {
 				File pDirectory = IOCodecUtils.isDirectory(directoryName);
 				if (pDirectory != null) {
-					debug("Scanning Directory: " + pDirectory.getName());
+					logger.log(Level.FINE, "Scanning Directory: \"{0}\"", pDirectory.getName());
 					File[] fileList = pDirectory.listFiles();
 					for(File pFile : fileList) {
-						String pKey = pFile.getName();
-						debug("Scanning File: " + pKey);
+						String pKey = pFile.getName();						
+						logger.log(Level.FINE, "Scanning file: \"{0}\"", pKey);
 						String pValue = IOCodecUtils.readFileValue(pFile);
 						loader.put(pKey, pValue);
 					}	
 				} 
 			} catch (Exception ex) {
-				error("Exception: Read application properties reader from: \"" + directoryName + "\"");
-				error(ex.getMessage());
+				logger.log(Level.SEVERE, "Failed to read file: \"{0}\"", directoryName);
+				logger.log(Level.SEVERE, "Exception: \"{0}\"", ex.getCause());		
 			}
 		}
 		return loader;

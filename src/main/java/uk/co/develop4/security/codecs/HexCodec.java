@@ -23,9 +23,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
@@ -35,6 +36,8 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
      
+	private final static Logger logger = Logger.getLogger(HexCodec.class.getName());
+
     private final String DEFAULT_NAMESPACE 		= "hex://";
     private final String DEFAULT_DESCRIPTION 	= "Hexadecimal codec";
 
@@ -68,13 +71,10 @@ public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
 	@Override
 	public void init(final Properties props) throws ConfigurationException {
 		try {
-			setLogging(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_LOGGING.toString(), "false")));
-			setDebug(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_DEBUG.toString(), "false")));	
-			setSnoop(Boolean.parseBoolean(props.getProperty(PropertyNaming.PROP_SNOOP.toString(), "false")));	
-						
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 		} catch (Exception ex) {
+			logger.log(Level.SEVERE, "Failed to initialized Codec: {0}", getNamespace());
 			throw new ConfigurationException("Property initialization failed", ex.fillInStackTrace());
 		}
 	}
