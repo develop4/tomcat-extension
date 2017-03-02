@@ -32,15 +32,15 @@ public class CodecRegistry {
 		codecRepository = new ConcurrentHashMap<Namespace,Codec>();
 	}
 
-	public void put(Codec codec) {
+	public void addCodec(Codec codec) {
 		codecRepository.put(codec.getNamespace(), codec);
     }
 
-    public Optional<Codec> get(Namespace id) {
+    public Optional<Codec> getCodec(Namespace id) {
         return Optional.ofNullable(codecRepository.get(id));
     }
 
-	public Collection<Codec> values() {
+	public Collection<Codec> getValues() {
 		return codecRepository.values();
 	}
 

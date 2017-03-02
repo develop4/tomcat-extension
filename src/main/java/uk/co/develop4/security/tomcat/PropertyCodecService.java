@@ -257,7 +257,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 							}
 						}
 						tmpDecoder.init(tmpProperties);
-						getCodecRegistry().put(tmpDecoder);
+						getCodecRegistry().addCodec(tmpDecoder);
 						debug("Install codec: " + tmpDecoder.toString());
 					}
 				}
@@ -318,7 +318,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		}
 		info("Handle Key:  \"" + key + "\"  Value: \"" + data + "\"");
 		
-		Optional<Codec> codec  = Namespace.extractNamespace(data).flatMap(x -> codecRegistry.get(x));
+		Optional<Codec> codec  = Namespace.extractNamespace(data).flatMap(x -> codecRegistry.getCodec(x));
 		if (codec.isPresent()) {
 			result = codec.get().decrypt(data);
 			if (isSnoop()) {
@@ -336,7 +336,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		if (data == null) {
 			return result;
 		}
-		Optional<Codec> codec  = codecRegistry.get(key);
+		Optional<Codec> codec  = codecRegistry.getCodec(key);
 		if (codec.isPresent()) {
 			result = codec.get().encrypt(data);
 			if (isSnoop()) {

@@ -27,9 +27,9 @@ public class TestCodecRegistry {
 		props.setProperty("description", "changed me");
 		codecIn.init(props);
 		
-		codecRegistry.put(codecIn);
+		codecRegistry.addCodec(codecIn);
 		
-		Optional<Codec> codecOut1 = codecRegistry.get(codecIn.getNamespace());
+		Optional<Codec> codecOut1 = codecRegistry.getCodec(codecIn.getNamespace());
 		
 		assertEquals(codecIn, codecOut1.get());
 

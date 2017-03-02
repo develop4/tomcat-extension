@@ -122,7 +122,7 @@ public final class CodecCli {
 				System.out.println("");
 				System.out.println("Supported Codecs: encode");
 				System.out.println("");
-				for (Codec codec : pds.getCodecRegistry().values()) {
+				for (Codec codec : pds.getCodecRegistry().getValues()) {
 					System.out.println("  Codec: " + codec);
 					System.out.println("    Required Parameters: " + codec.getRequiredParameters().get("encode").toString());
 					System.out.println("    Optional Parameters: " + codec.getOptionalParameters().get("encode").toString());
@@ -130,7 +130,7 @@ public final class CodecCli {
 				}
 				System.out.println("Supported Codecs: decode");
 				System.out.println("");
-				for (Codec codec : pds.getCodecRegistry().values()) {
+				for (Codec codec : pds.getCodecRegistry().getValues()) {
 					System.out.println("  Codec: " + codec);
 					System.out.println("    Required Parameters: " + codec.getRequiredParameters().get("decode").toString());
 					System.out.println("    Optional Parameters: " + codec.getOptionalParameters().get("decode").toString());
