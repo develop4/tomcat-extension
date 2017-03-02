@@ -62,8 +62,5 @@ public class PropertyURLReader extends BaseReader implements Reader {
 		}
 		return loader;	}
 
-	public void write(Properties props, String path) {
-		throw new UnsupportedOperationException();
-	}
 
 }

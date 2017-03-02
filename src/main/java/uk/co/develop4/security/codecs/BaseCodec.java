@@ -78,7 +78,7 @@ public abstract class BaseCodec extends BaseCommon {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getSimpleName());
-		builder.append(":[Namespace: \"");
+		builder.append("[Namespace: \"");
 		builder.append(getNamespace());
 		builder.append("\", Description: \"");
 		builder.append(getDescription());

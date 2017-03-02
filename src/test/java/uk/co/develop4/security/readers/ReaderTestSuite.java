@@ -19,21 +19,13 @@
  */
 package uk.co.develop4.security.readers;
 
-import java.util.Properties;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-/**
- * 
- * Reader Interface : this is to allow multiple application properties readers to be plugged in.  This will allow
- * the application properties to be stored in multiple locations,formats.
- * 
- * e.g. PropertyFileReader : reads local Property files
- * 
- * @author william timpany
- *
- */
-public abstract interface Reader {
-	
-	public abstract void init(Properties props);
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  TestPropertyMemoryReader.class
+})
 
-	public abstract Properties read();
+public class ReaderTestSuite {
 }

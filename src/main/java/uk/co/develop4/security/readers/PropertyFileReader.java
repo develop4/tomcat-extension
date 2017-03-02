@@ -66,11 +66,6 @@ public class PropertyFileReader extends BaseReader implements Reader {
 		return loader;
 	}
 
-	public void write(Properties prop, String path) {	
-		throw new UnsupportedOperationException();
-	}
-	
-
     @Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

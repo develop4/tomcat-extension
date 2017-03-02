@@ -28,23 +28,17 @@ import java.util.Properties;
  */
 public class PropertyMemoryReader extends BaseReader implements Reader {
 
-	private Properties properties;	
-
 	public PropertyMemoryReader() {
 	}
 
 	public void init(Properties props) {
-		this.properties = new Properties();
-		this.properties.put("property.memory.reader.test1", "TEST_ONE");
-		this.properties.put("property.memory.reader.test2", "TEST_TWO");
 	}
 
 	public Properties read() {
+		Properties properties = new Properties();
+		properties.put("property.memory.reader.test1", "TEST_ONE");
+		properties.put("property.memory.reader.test2", "TEST_TWO");
 		return properties;
-	}
-
-	public void write(Properties props, String path) {
-		this.properties = props;
 	}
 
 	@Override

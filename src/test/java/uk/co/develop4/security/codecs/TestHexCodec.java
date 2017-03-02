@@ -31,7 +31,6 @@ public class TestHexCodec {
 
 	@Test
 	public void validEncryptAndDecryptCycle() throws Exception {
-		String passphrase = "passphrase";
 		Properties propeties = new Properties();
 
 		HexCodec codec = new HexCodec();
@@ -46,7 +45,6 @@ public class TestHexCodec {
 
 	@Test
 	public void initWithNullPassphraseDoesNotThrowException() throws Exception {
-		String passphrase = null;
 		Properties propeties = new Properties();
 
 		HexCodec codec = new HexCodec();
@@ -55,7 +53,6 @@ public class TestHexCodec {
 
 	@Test(expected = ConfigurationException.class)
 	public void initWithNullPropertiesThrowsException() throws Exception {
-		String passphrase = "passphrase";
 		Properties propeties = null;
 
 		HexCodec codec = new HexCodec();

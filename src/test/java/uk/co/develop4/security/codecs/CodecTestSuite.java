@@ -26,7 +26,10 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
   TestNullCodec.class,
   TestHexCodec.class,
-  TestRSASealedCodecService.class
+  TestRSASealedCodecService.class,
+  TestNamespace.class,
+  TestNamespaceParams.class,
+  TestCodecRegistry.class
 })
 
 public class CodecTestSuite {

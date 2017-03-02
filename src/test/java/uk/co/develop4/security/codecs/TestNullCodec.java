@@ -32,7 +32,6 @@ public class TestNullCodec {
 	@Test
     public void performValidEncryptAndDecrypt() throws Exception
     {
-		String passphrase = "passphrase";
 		Properties propeties = new Properties();
 		
 		NullCodec codec = new NullCodec();

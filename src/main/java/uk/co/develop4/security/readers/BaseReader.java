@@ -28,7 +28,4 @@ public abstract class BaseReader extends BaseCommon {
 	public abstract void init(Properties props) ;
 	
 	public abstract Properties read();
-
-	public abstract void write(Properties props, String path);
 }
-

@@ -17,41 +17,24 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.codecs;
+package uk.co.develop4.security.readers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.Test;
 
-public class TestCodecRegistry {
+public class TestPropertyMemoryReader {
 
 	@Test
-	public void createRegistry() throws Exception{
+	public void testCreateAndRead() {
+		PropertyMemoryReader propertyMemoryReader = new PropertyMemoryReader();
+		propertyMemoryReader.init(new Properties());
 		
-		String value = "hex://";
-		String data  = "hex://5468697320697320612074657374";
+		Properties props = propertyMemoryReader.read();
 		
-		CodecRegistry codecRegistry = new CodecRegistry();
-		
-		Optional<Namespace> namespace = Namespace.extractNamespace(data);
-
-		assertNotNull(namespace.get());
-		assertEquals(value, namespace.get().getValue());
-				
-		Codec codecIn = new HexCodec();
-		Properties props = new Properties();
-		props.setProperty("description", "changed me");
-		codecIn.init(props);
-		
-		codecRegistry.addCodec(codecIn);
-		
-		Optional<Codec> codecOut1 = codecRegistry.getCodec(codecIn.getNamespace());
-		
-		assertEquals(codecIn, codecOut1.get());
-
+		assertEquals("Hardcoded properties match", "TEST_ONE", props.get("property.memory.reader.test1"));
+		assertEquals("Hardcoded properties match", "TEST_TWO", props.get("property.memory.reader.test2"));
 	}
-
 }
