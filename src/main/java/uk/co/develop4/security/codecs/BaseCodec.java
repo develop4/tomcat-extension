@@ -67,13 +67,13 @@ public abstract class BaseCodec extends BaseCommon {
 		return false;
 	}
 
-	public void init(final Properties props) throws ConfigurationException {
-	}
+	public abstract void init(final Properties props) throws ConfigurationException;
 	
 	public abstract String encrypt(final String cleartext);
 
 	public abstract String decrypt(final String cyphertext);
 
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

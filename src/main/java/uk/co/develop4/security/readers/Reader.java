@@ -33,7 +33,7 @@ import java.util.Properties;
  */
 public abstract interface Reader {
 	
-	public abstract void init(String passphrase, Properties props);
+	public abstract void init(Properties props);
 
 	public abstract Properties read();
 

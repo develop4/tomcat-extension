@@ -51,7 +51,7 @@ public class PropertyDirectoryReader extends BaseReader implements Reader {
 	public PropertyDirectoryReader () {
 	}
 	
-	public void init(String passphrase, Properties props) {
+	public void init(Properties props) {
 		
 		String pathSeperator = props.getProperty(PropertyNaming.PROP_PATH_SEPERATOR.toString(),DEFAULT_PATH_SEPERATOR);
 		String propertyFile = props.getProperty(PropertyNaming.PROP_PATH.toString());

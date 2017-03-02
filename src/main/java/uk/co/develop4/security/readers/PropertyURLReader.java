@@ -39,7 +39,7 @@ public class PropertyURLReader extends BaseReader implements Reader {
 	public PropertyURLReader() {
 	}
 	
-	public void init(String passphrase, Properties props) {
+	public void init(Properties props) {
 		String pathSeperator = props.getProperty(PropertyNaming.PROP_PATH_SEPERATOR.toString(),DEFAULT_PATH_SEPERATOR);
 		String propertyFile = props.getProperty(PropertyNaming.PROP_PATH.toString());
 		if (propertyFile != null) {

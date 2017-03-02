@@ -40,7 +40,7 @@ public class PropertyFileReader extends BaseReader implements Reader {
 	public PropertyFileReader () {
 	}
 	
-	public void init(String passphrase, Properties props) {
+	public void init(Properties props) {
 		
 		String pathSeperator = props.getProperty(PropertyNaming.PROP_PATH_SEPERATOR.toString(),DEFAULT_PATH_SEPERATOR);
 		String propertyFile = props.getProperty(PropertyNaming.PROP_PATH.toString());

@@ -19,9 +19,16 @@
  */
 package uk.co.develop4.security.readers;
 
+import java.util.Properties;
+
 import uk.co.develop4.security.utils.BaseCommon;
 
-public class BaseReader extends BaseCommon {
+public abstract class BaseReader extends BaseCommon {
+	
+	public abstract void init(Properties props) ;
+	
+	public abstract Properties read();
 
+	public abstract void write(Properties props, String path);
 }
 

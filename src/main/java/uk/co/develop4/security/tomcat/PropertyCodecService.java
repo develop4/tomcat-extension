@@ -21,6 +21,7 @@ package uk.co.develop4.security.tomcat;
 
 import java.io.File;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Optional;
 import java.util.Properties;
@@ -72,20 +73,21 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 
 
 	protected static final long DEFAULT_TIMEOUT_VALUE = 30000l;
-	protected static final String DEFAULT_KEY = "hex://446576656c6f7034546563686e6f6c6f67696573";
+	protected static final String DEFAULT_KEY 	= "hex://446576656c6f7034546563686e6f6c6f67696573";
 
-	protected Properties properties = new Properties();
-	protected Properties propertiesCommand = new Properties();
-	protected Properties configuration = new Properties();
+	protected Properties properties 			= new Properties();
+	protected Properties propertiesCommand 		= new Properties();
+	protected Properties configuration 			= new Properties();
 	
-	protected CodecRegistry codecRegistry = new CodecRegistry();
+	protected CodecRegistry codecRegistry 		= new CodecRegistry();
 
-	protected String defaultKey = null;
-	protected long consoleTimeout = 30000l;
+	protected String defaultKey 				= null;
+	protected long consoleTimeout 				= 30000l;
 		
 	public CodecRegistry getCodecRegistry() {
 		return this.codecRegistry;
 	}
+	
 	private String introspectProperty(String value) {
 		if (value == null) {
 			return value;
@@ -102,17 +104,9 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 
 	public PropertyCodecService() throws Exception {
 		
-		String tempCanonicalPath = null;
-		// -- Add BouncyCastle provider if it is missing
-		if (Security.getProvider("BC") == null) {
-            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        }
+		configureUnlimitedStrengthEncryption();
 		
-		// -- Check if the Unlimited Strength if installed
-		if (Cipher.getMaxAllowedKeyLength("AES") == 128) {
-			warn("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
-		}
-
+		String tempCanonicalPath = null;
 		/* get the configuration file to be used for setting up the codec */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile == null) {
@@ -225,7 +219,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
 							}
 						}
-						tmpReader.init(this.defaultKey, tmpProperties);
+						tmpReader.init(tmpProperties);
 						this.properties.putAll(tmpReader.read());
 						debug("Install reader: " + tmpReader.toString());
 					}
@@ -265,6 +259,17 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 				warn("Failed to instanciate codec class: " + className);
 				ex.printStackTrace();
 			}
+		}
+	}
+	private void configureUnlimitedStrengthEncryption() throws NoSuchAlgorithmException {
+		// -- Add BouncyCastle provider if it is missing
+		if (Security.getProvider("BC") == null) {
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        }
+		
+		// -- Check if the Unlimited Strength if installed
+		if (Cipher.getMaxAllowedKeyLength("AES") == 128) {
+			warn("JCE Unlimited Strength Jurisdiction Policy files have not been installed.");
 		}
 	}
 
