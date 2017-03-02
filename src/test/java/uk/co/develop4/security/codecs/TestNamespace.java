@@ -19,18 +19,21 @@
  */
 package uk.co.develop4.security.codecs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
 
+@DisplayName("Testnamespace")
 public class TestNamespace {
 
 	@Test
+	@DisplayName("extractNamespace: extract namespace and find in string")
 	public void extractNamespace() throws Exception{
 		String VALUE   	= "hex://";
 		String data  			= "hex://aaaaaaaa";
@@ -57,7 +60,7 @@ public class TestNamespace {
 		Namespace namespace1 = new Namespace(NAMESPACE);
 		Namespace namespace2 = new Namespace(NAMESPACE);
 		
-		assertEquals("The two mamespaces should show as being equal", namespace1, namespace2);
+		assertEquals(namespace1, namespace2);
 	}
 	
 	@Test
@@ -68,7 +71,7 @@ public class TestNamespace {
 		Namespace namespace1 = new Namespace(NAMESPACE1);
 		Namespace namespace2 = new Namespace(NAMESPACE2);
 		
-		assertNotEquals("The two mamespaces should show as being unequal", namespace1, namespace2);
+		assertNotEquals(namespace1, namespace2);
 	}
 	
 	@Test
@@ -80,7 +83,7 @@ public class TestNamespace {
 		Namespace namespace = new Namespace(NAMESPACE);
 		String namespaced = namespace.addNamespacePrefix(DATA);
 		
-		assertEquals("Namespace string should equal precalculated version", NAMESPACED, namespaced);
+		assertEquals( NAMESPACED, namespaced);
 	}
 	
 	@Test
@@ -92,7 +95,7 @@ public class TestNamespace {
 		Namespace namespace = new Namespace(NAMESPACE);
 		String data = namespace.removeNamespacePrefix(NAMESPACED);
 		
-		assertEquals("Namespace string should equal precalculated version", DATA, data);
+		assertEquals(DATA, data);
 	}
 	
 	@Test
@@ -103,7 +106,7 @@ public class TestNamespace {
 		Namespace namespace = new Namespace(NAMESPACE);
 		boolean check = namespace.isValueInNamespace(NAMESPACED);
 		
-		assertTrue("Value starts with namespace", check);
+		assertTrue(check);
 	}
 
 }
