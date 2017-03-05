@@ -20,6 +20,8 @@
 package uk.co.develop4.security.codecs;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.utils.BaseCommon;
@@ -44,7 +46,7 @@ public abstract class BaseCodec extends BaseCommon {
 	public void setDescription(final String description) {
 		this.description = description;
 	}
-	
+
 	protected String removeNamespacePrefix(final String value) {
 		return namespace.removeNamespacePrefix(value);
 	}
@@ -66,6 +68,7 @@ public abstract class BaseCodec extends BaseCommon {
 		}
 		return false;
 	}
+	
 
 	public abstract void init(final Properties props) throws ConfigurationException;
 	

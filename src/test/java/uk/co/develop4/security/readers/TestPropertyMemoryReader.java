@@ -20,12 +20,12 @@
 package uk.co.develop4.security.readers;
 
 import static org.junit.Assert.assertEquals;
-
 import java.util.Properties;
-
 import org.junit.Test;
 
-public class TestPropertyMemoryReader {
+import uk.co.develop4.security.test.BaseTest;
+
+public class TestPropertyMemoryReader  extends BaseTest{
 
 	@Test
 	public void testCreateAndRead() {

@@ -23,32 +23,66 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BaseCommon {
-
-	public boolean isSnoop(Logger log) {
-		return (log.getLevel().intValue() <= Level.FINEST.intValue());
+	
+	private static Level getEffectiveLoggerLevel(Logger log) {
+		if (log.getLevel() != null) {
+			return log.getLevel();
+		}
+		if (log.getParent().getLevel() != null) {
+			return log.getParent().getLevel();
+		}
+		return Level.WARNING;
+	}
+	
+	public static boolean isSnoop(Logger log) {
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.FINEST.intValue());
 	}
 
 	public static boolean isTrace(Logger log) {
-		return (log.getLevel().intValue() <= Level.FINER.intValue());
+
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.FINER.intValue());
 	}
 
 	public static boolean isDebug(Logger log) {
-		return (log.getLevel().intValue() <= Level.FINE.intValue());
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.FINE.intValue());
 	}
 
 	public static boolean isInfo(Logger log) {
-		return (log.getLevel().intValue() <= Level.INFO.intValue());
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.INFO.intValue());
 
 	}
 
 	public static boolean isWarning(Logger log) {
-		return (log.getLevel().intValue() <= Level.WARNING.intValue());
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.WARNING.intValue());
 
 	}
 
 	public static boolean isOff(Logger log) {
-		return (log.getLevel().intValue() <= Level.OFF.intValue());
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.OFF.intValue());
 
 	}
+	
+	protected void setLoggerLevel(Logger log, String level) {
+		if (level != null) {
+			log.setLevel(Level.parse(level));
+		}
+	}
 
+	
+	public static Object nvl(Object obj1, Object obj2 ) {
+		if (obj1 != null) {
+			return obj1;
+		} else {
+			return obj2;
+		}
+	}
+	
+	public static Object nvl2(Object obj1, Object obj2, Object obj3) {
+		if (obj1 != null) {
+			return obj2;
+		} else {
+			return obj3;
+		}
+	}
+ 
 }

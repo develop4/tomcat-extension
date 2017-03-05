@@ -26,12 +26,13 @@ import java.util.Properties;
 
 import org.junit.Test;
 
+import uk.co.develop4.security.test.BaseTest;
 import uk.co.develop4.security.tomcat.PropertyCodecService;
 
 /**
  * Unit test for simple configuration
  */
-public class TestPropertyCodecService {
+public class TestPropertyCodecService  extends BaseTest{
 
 	/**
 	 * Create the test case

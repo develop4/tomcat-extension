@@ -29,7 +29,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bouncycastle.util.encoders.Base64;
-import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.ConfigurationException;
@@ -37,7 +36,7 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
- * @author wtimpany
+ * @author william timpany
  *
  */
 public class Base64Codec extends BaseCodec implements Codec, StringEncryptor {
@@ -59,11 +58,9 @@ public class Base64Codec extends BaseCodec implements Codec, StringEncryptor {
     public Map<String,Set<String>> getOptionalParameters() {
     	Map<String,Set<String>> optionalParams = new HashMap<String,Set<String>>();
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
     			));
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
-    			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
     			));
     	optionalParams.put("encode", encodeParams);
@@ -77,6 +74,8 @@ public class Base64Codec extends BaseCodec implements Codec, StringEncryptor {
 	@Override
 	public void init(Properties props)  throws ConfigurationException {
 		try {
+			setLoggerLevel(logger, props.getProperty(PropertyNaming.PROP_LOGGING.toString()));
+
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));	
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
 		} catch (Exception ex) {
@@ -99,6 +98,10 @@ public class Base64Codec extends BaseCodec implements Codec, StringEncryptor {
 			return cyphertext;
 		}
 		return new String(Base64.decode(removeNamespacePrefix(cyphertext).getBytes()));
+	}
+	
+	public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
 	}
 
 }

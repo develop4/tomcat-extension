@@ -26,15 +26,16 @@ import java.util.Properties;
 import org.junit.Test;
 
 import uk.co.develop4.security.ConfigurationException;
+import uk.co.develop4.security.test.BaseTest;
 
-public class TestNullCodec {
+public class TestNullCodec  extends BaseTest{
 
 	@Test
     public void performValidEncryptAndDecrypt() throws Exception
     {
 		Properties propeties = new Properties();
 		
-		NullCodec codec = new NullCodec();
+		ExampleCodec codec = new ExampleCodec();
 		codec.init(propeties);
 		
 		String secret = "XXXxxx TestValue xxxXXX";
@@ -47,7 +48,7 @@ public class TestNullCodec {
 	@Test
     public void initWithNullPassphraseDoesNotThrowException() throws Exception
     {
-		NullCodec codec = new NullCodec();
+		ExampleCodec codec = new ExampleCodec();
 		codec.init(new Properties());
 
     }
@@ -55,7 +56,7 @@ public class TestNullCodec {
 	@Test(expected=ConfigurationException.class) 
     public void initWithNullPropertiesThrowsException() throws Exception
     {
-		NullCodec codec = new NullCodec();
+		ExampleCodec codec = new ExampleCodec();
 		codec.init(null);
     }
 }

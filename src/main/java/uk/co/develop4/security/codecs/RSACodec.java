@@ -85,13 +85,11 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
     	Set<String> encodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
     			PropertyNaming.PROP_PROVIDER_NAME.toString(), 
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-    			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
@@ -105,6 +103,8 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 	@Override
 	public void init(final Properties props)  throws ConfigurationException {
 		try {
+			setLoggerLevel(logger, props.getProperty(PropertyNaming.PROP_LOGGING.toString()));
+			
 			setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));	
@@ -205,6 +205,10 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 
 	public void setPublicKey(PublicKey publicKey) {
 		this.publicKey = publicKey;
+	}
+	
+	public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
 	}
 
 }

@@ -29,8 +29,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import uk.co.develop4.security.test.BaseTest;
+
 @RunWith(Parameterized.class)
-public class TestNamespaceParams {
+public class TestNamespaceParams  extends BaseTest{
 	
 	private String datum;
 	private Namespace expected;
@@ -56,7 +58,7 @@ public class TestNamespaceParams {
 
     @Test
     public void test() {
-        assertEquals("Extracted namespaces should match", expected, Namespace.extractNamespace(datum).orElse(null));
+        assertEquals("Extracted namespaces should match", expected, Namespace.valueOf(datum).orElse(null));
     }
 
 }

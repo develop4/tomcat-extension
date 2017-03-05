@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import uk.co.develop4.security.codecs.NullCodec;
 import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
@@ -95,6 +94,10 @@ public class PropertyDirectoryReader extends BaseReader implements Reader {
 		builder.append(Arrays.toString(directoyNames));
 		builder.append("]");
 		return builder.toString();
+	}
+    
+    public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
 	}
 
 }

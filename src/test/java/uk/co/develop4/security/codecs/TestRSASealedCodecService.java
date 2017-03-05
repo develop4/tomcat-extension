@@ -20,13 +20,16 @@
 package uk.co.develop4.security.codecs;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+
+import uk.co.develop4.security.test.BaseTest;
 import uk.co.develop4.security.tomcat.PropertyCodecService;
 
 /**
  * Unit test for simple configuration
  */
-public class TestRSASealedCodecService {
+public class TestRSASealedCodecService extends BaseTest {
 
 	/**
 	 */

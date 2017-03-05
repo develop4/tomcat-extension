@@ -78,5 +78,9 @@ public class PropertyFileReader extends BaseReader implements Reader {
 		builder.append("]");
 		return builder.toString();
 	}
+    
+    public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
+	}
 
 }

@@ -28,20 +28,24 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.bouncycastle.util.encoders.Hex;
 import org.jasypt.encryption.StringEncryptor;
 
 import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.utils.PropertyNaming;
 
-public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
-     
-	private final static Logger logger = Logger.getLogger(HexCodec.class.getName());
+/**
+ * 
+ * @author wtimpany
+ *
+ */
+public class ExampleCodec extends BaseCodec implements Codec, StringEncryptor {
+    
+	private final static Logger logger = Logger.getLogger(ExampleCodec.class.getName());
 
-    private final String DEFAULT_NAMESPACE 		= "hex://";
-    private final String DEFAULT_DESCRIPTION 	= "Hexadecimal codec";
-
-    public Map<String,Set<String>> getRequiredParameters() {
+    private final String DEFAULT_NAMESPACE 		= "example://";
+    private final String DEFAULT_DESCRIPTION 	= "Example codec";
+    
+	public Map<String,Set<String>> getRequiredParameters() {
     	Map<String,Set<String>> requiredParams = new HashMap<String,Set<String>>();
     	Set<String> encodeParams = new HashSet<String>();
     	Set<String> decodeParams = new HashSet<String>();
@@ -63,36 +67,36 @@ public class HexCodec extends BaseCodec implements Codec, StringEncryptor {
     	return optionalParams;
     }
     
-	public HexCodec() {
+	public ExampleCodec() {
 	}
 	
 	@Override
-	public void init(final Properties props) throws ConfigurationException {
+	public void init(Properties props) throws ConfigurationException {
 		try {
 			setLoggerLevel(logger, props.getProperty(PropertyNaming.PROP_LOGGING.toString()));
 			
-			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
+			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
 		} catch (Exception ex) {
 			logger.log(Level.SEVERE, "Failed to initialized Codec: {0}", getNamespace());
-			throw new ConfigurationException("Property initialization failed", ex.fillInStackTrace());
+			throw new ConfigurationException(ex.fillInStackTrace());
 		}
 	}
 	
 	@Override
 	public String encrypt(final String cleartext) {
 		if (cleartext == null) {
-			return cleartext;
+			return null;
 		}
-		return addNamespacePrefix(Hex.encode(cleartext.getBytes()));
+		return addNamespacePrefix(cleartext);
 	}
 
 	@Override
-	public String decrypt(final String cyphertext) {
+	public String decrypt(final String cyphertext)  {
 		if (cyphertext == null) {
-			return cyphertext;
+			return null;
 		}
-		return new String(Hex.decode(removeNamespacePrefix(cyphertext).getBytes()));
+		return removeNamespacePrefix(cyphertext);
 	}
 	
 	public void setLoggerLevel(Level level) {

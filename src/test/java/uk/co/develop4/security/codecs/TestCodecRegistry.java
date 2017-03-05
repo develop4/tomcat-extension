@@ -23,10 +23,11 @@ import static org.junit.Assert.*;
 
 import java.util.Optional;
 import java.util.Properties;
-
 import org.junit.Test;
 
-public class TestCodecRegistry {
+import uk.co.develop4.security.test.BaseTest;
+
+public class TestCodecRegistry extends BaseTest  {
 
 	@Test
 	public void createRegistry() throws Exception{
@@ -36,7 +37,7 @@ public class TestCodecRegistry {
 		
 		CodecRegistry codecRegistry = new CodecRegistry();
 		
-		Optional<Namespace> namespace = Namespace.extractNamespace(data);
+		Optional<Namespace> namespace = Namespace.valueOf(data);
 
 		assertNotNull(namespace.get());
 		assertEquals(value, namespace.get().getValue());

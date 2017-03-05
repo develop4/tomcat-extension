@@ -62,6 +62,8 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	private final static Logger logger = Logger.getLogger(PropertyCodecService.class.getName());
 
 	/* Configuration Constants */
+	public static final int    MAX_CODECS           = 50;
+	public static final int    MAX_READERS          = 50;
 	public static final String CONSOLE_TIMEOUT_PROP = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_CONSOLE_TIMEOUT;
 	public static final String PASSPHRASE_PROP 		= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE;
 	public static final String PASSPHRASE_FILE_PROP = PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_PASSPHRASE_FILE;
@@ -81,7 +83,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	protected static final String DEFAULT_KEY 	= "hex://446576656c6f7034546563686e6f6c6f67696573";
 
 	protected Properties properties 			= new Properties();
-	protected Properties propertiesCommand 		= new Properties();
+	//protected Properties propertiesCommand 		= new Properties();
 	protected Properties configuration 			= new Properties();
 	
 	protected CodecRegistry codecRegistry 		= new CodecRegistry();
@@ -110,7 +112,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	public PropertyCodecService() throws Exception {
 		
 		configureUnlimitedStrengthEncryption();
-		
+				
 		String tempCanonicalPath = null;
 		/* get the configuration file to be used for setting up the codec */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
@@ -129,6 +131,9 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			}
 
 		}
+		
+		setLoggerLevel(logger, this.configuration.getProperty(LOGGING_PROP.toString()));
+		
 		
 		//this.setLogging(Boolean.parseBoolean(this.configuration.getProperty(LOGGING_PROP, "false")));
 		//this.setDebug(Boolean.parseBoolean(this.configuration.getProperty(DEBUG_PROP, "false")));
@@ -208,11 +213,11 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		} 
 		
 		// -- load properties from providers specified
-		for (int i = 50; i > 0; i--) {
+		for (int i = 1; i < MAX_READERS; i++) {
 			String propertiesMapping = PROPERTIES_PROP + "." + i;
 			String className = this.configuration.getProperty(propertiesMapping);
-			try {
-				if (className != null) {
+			if (className != null) {
+				try {
 					Reader tmpReader = (Reader) Class.forName(className).newInstance();
 					if (tmpReader != null) {
 						Properties tmpProperties = new Properties();
@@ -225,26 +230,28 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 							}
 						}
 						tmpReader.init(tmpProperties);
-						logger.log(Level.FINE, "Activate reader: \"{0}\"", tmpReader.toString());
+						logger.fine("Activate reader: [" + i + "] " + tmpReader.toString());
 						this.properties.putAll(tmpReader.read());
 					}
+				} catch (Exception ex) {
+					logger.warning("Failed to instanciate reader class: " + className);
+					ex.printStackTrace();
 				}
-			} catch (Exception ex) {
-				logger.warning("Failed to instanciate reader class: " + className);
-				ex.printStackTrace();
+			} else {
+				logger.info("Number of Readers Loaded: " + (i-1));
+				break;
 			}
-
 		}
 
 		// -- load the possible codec mappings here, in reverse order.
 		// -- this will ensure that the correct precedence is preserved.
-		for (int i = 50; i > 0; i--) {
+		for (int i = 1; i < MAX_CODECS; i++) {
 			String codecMapping = CODEC_PROP + "." + i;
 			String className = this.configuration.getProperty(codecMapping);
-			try {
-				if (className != null) {
-					Codec tmpDecoder = (Codec) Class.forName(className).newInstance();
-					if (tmpDecoder != null) {
+			if (className != null) {
+				try {
+					Codec codec = (Codec) Class.forName(className).newInstance();
+					if (codec != null) {
 						Properties tmpProperties = new Properties();
 						tmpProperties.put(PropertyNaming.PROP_PASSPHRASE.toString(), this.defaultKey);
 						for (String myKey : this.configuration.stringPropertyNames()) {
@@ -255,15 +262,20 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
 							}
 						}
-						tmpDecoder.init(tmpProperties);
-						getCodecRegistry().addCodec(tmpDecoder);
+						codec.init(tmpProperties);
+						logger.fine("Add Codec to Registry: [" + i + "] " + codec);
+						getCodecRegistry().addCodec(codec);
 					}
+				} catch (Exception ex) {
+					logger.warning("Failed to instanciate codec class: " + className);
+					ex.printStackTrace();
 				}
-			} catch (Exception ex) {
-				logger.warning("Failed to instanciate codec class: " + className);
-				ex.printStackTrace();
+			} else {
+				logger.info("Number of Codecs Loaded: " + (i-1));
+				break;
 			}
 		}
+
 	}
 	private void configureUnlimitedStrengthEncryption() throws NoSuchAlgorithmException {
 		if (Security.getProvider("BC") == null) {
@@ -279,7 +291,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			return cyphertext;
 		}
 		try {
-			Optional<Namespace> optional = Namespace.extractNamespace(cyphertext);
+			Optional<Namespace> optional = Namespace.valueOf(cyphertext);
 			if (optional.isPresent()) {
 				Namespace namespace = optional.get();
 				String stripped = namespace.removeNamespacePrefix(cyphertext);
@@ -295,6 +307,9 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		return cyphertext;
 	}
 
+	/**
+	 * Implemented from IntrospectionUtils.PropertySource
+	 */
 	public String getProperty(String key) {
 		if (key == null) {
 			return null;
@@ -308,49 +323,54 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		}
 		return decodePropertyValue(key, val);
 	}
-
+	
 	public String decodePropertyValue(String key, String data) {
-		String result = null;
 		if (data == null) {
-			return result;
+			return null;
 		}
-		logger.info("Handle Key:  \"" + key + "\"  Value: \"" + data + "\"");
-		
-		Optional<Codec> codec  = Namespace.extractNamespace(data).flatMap(x -> codecRegistry.getCodec(x));
-		if (codec.isPresent()) {
-			result = codec.get().decrypt(data);
-			/*
-			if (isSnoop()) {
-				snoop("Decoded Key: \"" + key + "\"  Value: \"" + result + "\"");
-			} else {
-				String partial = result.substring(0, 3) + "........" + result.substring(result.length()-3, result.length());
-				info("Decoded Key: \"" + key + "\"  Value: \"" + partial + "\"");
+		String result = data;
+		logger.info("Handle Key:  \"" + key + "\"  Data: \"" + data + "\"");
+		Optional<Namespace> namespace 	= Namespace.valueOf(data);
+		if (namespace.isPresent()) {
+			Optional<Codec> codec  			= codecRegistry.getCodec(namespace.get());
+			if (codec.isPresent()) {
+				result = codec.get().decrypt(data);
+				if (isSnoop(logger)) {
+					logger.finest("Decoded Key: \"" + key + "\"  Data: \"" + result + "\"");
+				} else {
+					String partial = result.substring(0, 2) + "........" + result.substring(result.length()-2, result.length());
+					logger.fine("Decoded Key: \"" + key + "\"  Data: \"" + partial + "\"");
+				}
 			}
-			*/
 		}
 		return result;
 	}
 	
 	public String encodePropertyValue(Namespace key, String data) {
-		String result = null;
 		if (data == null) {
-			return result;
+			return null;
 		}
+		String result = data;
+		logger.info("Handle Namespace:  \"" + key + "\"  Data: \"" + data + "\"");
 		Optional<Codec> codec  = codecRegistry.getCodec(key);
 		if (codec.isPresent()) {
 			result = codec.get().encrypt(data);
-			/*
-			if (isSnoop()) {
-				snoop("Encoded Value: \"" + key + "\"  Value: \"" + result + "\"");
+			if (isSnoop(logger)) {
+				logger.finest("Encoded Namespace: \"" + key + "\"  Data: \"" + result + "\"");
 			} else {
-				String partial = result.substring(0, 3) + "********" + result.substring(result.length()-3, result.length());
-				snoop("Encoded Value: \"" + key + "\"  result: \"" + partial + "\"");
+				String partial = result.substring(0, 2) + "********" + result.substring(result.length()-2, result.length());
+				logger.fine("Encoded Namespace: \"" + key + "\"  Data: \"" + partial + "\"");
 			}
-			*/
 		} else {
 			logger.warning("No Encoder found for namespace: \"" + key + "\"");
 		}
 		return result;
+	}
+	
+	protected void setLoggerLevel(Logger log, String level) {
+		if (level != null) {
+			log.setLevel(Level.parse(level));
+		}
 	}
 
 }

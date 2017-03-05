@@ -33,7 +33,7 @@ public final class Namespace {
 		this.value = value;
 	}
 	
-	public static Optional<Namespace> extractNamespace(String value) {
+	public static Optional<Namespace> valueOf(String value) {
 		try {
 			Matcher matcher = patternUri.matcher(value);
 			if (matcher.find()) {

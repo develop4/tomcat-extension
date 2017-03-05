@@ -76,7 +76,6 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
     			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
     			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
-    			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	Set<String> decodeParams = new HashSet<String>(Arrays.asList(
@@ -84,7 +83,6 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
     			PropertyNaming.PROP_ALGORITHM_NAME.toString(),
     			PropertyNaming.PROP_OBTENTION_ITERATIONS.toString(),
     			PropertyNaming.PROP_STRING_OUTPUT_TYPE.toString(),
-    			PropertyNaming.PROP_DEBUG.toString(),
     			PropertyNaming.PROP_LOGGING.toString()
     			)) ;
     	optionalParams.put("encode", encodeParams);
@@ -98,6 +96,8 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 	@Override
 	public void init(final Properties props) throws ConfigurationException  {
 		try {
+			setLoggerLevel(logger, props.getProperty(PropertyNaming.PROP_LOGGING.toString()));
+			
 			setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));			
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));		
@@ -235,6 +235,10 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 
 	public void setProviderClassName(String providerClassName) {
 		this.providerClassName = providerClassName;
+	}
+	
+	public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
 	}
 
 

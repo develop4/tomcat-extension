@@ -33,10 +33,10 @@ uk.co.develop4.security.tomcat.PropertyCodecService.configuration=${catalina.bas
 This file contains the list of Property Readers and Property Codecs, numbered in order of precedence.  Multiple readers can be configured to read the encrypted data values from multiple locations or sources.  Multiple Codecs can be specified to be used for decrypting the property values, that have a namespace prefix that matches
 the codec namespace prefix.   Specific values can be passed as properties to each codec to override the default behaviour.
 
-e.g. 'uk.co.develop4.security.tomcat.PropertyCodecService.codec.1.debug=true'
+e.g. 'uk.co.develop4.security.tomcat.PropertyCodecService.codec.1.logging=FINEST'
 ```
 uk.co.develop4.security.tomcat.PropertyCodecService.passphrase=${catalina.base}/restricted/keystore/secure.file
-uk.co.develop4.security.tomcat.PropertyCodecService.debug=true
+uk.co.develop4.security.tomcat.PropertyCodecService.logging=FINEST
 #
 # Application Properties Readers
 #
@@ -46,8 +46,8 @@ uk.co.develop4.security.tomcat.PropertyCodecService.properties.2=uk.co.develop4.
 uk.co.develop4.security.tomcat.PropertyCodecService.properties.3=uk.co.develop4.security.readers.PropertyDirectoryReader
 uk.co.develop4.security.tomcat.PropertyCodecService.properties.3.path=${catalina.base}/restricted/properties/propertySetOne;${catalina.base}/restricted/properties/propertySetTwo
 # Codecs
-uk.co.develop4.security.tomcat.PropertyCodecService.codec.1=uk.co.develop4.security.codecs.NullCodec
-uk.co.develop4.security.tomcat.PropertyCodecService.codec.1.debug=true
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.1=uk.co.develop4.security.codecs.ExampleCodec
+uk.co.develop4.security.tomcat.PropertyCodecService.codec.1.logging=FINEST
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.2=uk.co.develop4.security.codecs.Base64Codec
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.3=uk.co.develop4.security.codecs.HexCodec
 uk.co.develop4.security.tomcat.PropertyCodecService.codec.4=uk.co.develop4.security.codecs.PBECodec
@@ -144,7 +144,7 @@ e.g. In the case where multiple RSA Private keys are in use the sub-schema names
 ```
 | Codec | Prefix | Functionality
 | ------- | ------ | -------------
-| NullCodec |  null:// | Pass through, just returns the value without change.  For testing use only.
+| ExampleCodec |  null:// | Pass through, just returns the value without change.  For testing use only.
 | HexCodec | hex:// | Hexadecimal codec converts to/from Hex values
 | Base64Codec | base64:// | Base64 codec converts to/from Base64 values
 | PBECodec | pbe:// | Password Based Encryption : using Algorithm PBEWITHSHA256AND256BITAES-CBC-BC from Bouncy Castle : SHA256 hash, AES with 256 bit key, Cipher-Block Chaining 

@@ -65,7 +65,10 @@ public class PropertyURLReader extends BaseReader implements Reader {
 				logger.log(Level.SEVERE, "Exception: \"{0}\"", ex.getCause());		
 			}
 		}
-		return loader;	}
+		return loader;	
+	}
 
-
+	public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
+	}
 }

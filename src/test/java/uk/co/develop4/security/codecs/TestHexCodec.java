@@ -26,8 +26,9 @@ import java.util.Properties;
 import org.junit.Test;
 
 import uk.co.develop4.security.ConfigurationException;
+import uk.co.develop4.security.test.BaseTest;
 
-public class TestHexCodec {
+public class TestHexCodec extends BaseTest {
 
 	@Test
 	public void validEncryptAndDecryptCycle() throws Exception {

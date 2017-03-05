@@ -53,4 +53,7 @@ public class PropertyMemoryReader extends BaseReader implements Reader {
 		return builder.toString();
 	}
 
+	public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
+	}
 }

@@ -82,8 +82,13 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 
 	public Map<String, Set<String>> getRequiredParameters() {
 		Map<String, Set<String>> requiredParams = new HashMap<String, Set<String>>();
-		Set<String> encodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PASSPHRASE.toString(), PropertyNaming.PROP_PRIVATE_KEYFILE.toString()));
-		Set<String> decodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PUBLIC_KEYFILE.toString()));
+		Set<String> encodeParams = new HashSet<String>(Arrays.asList(
+				PropertyNaming.PROP_PASSPHRASE.toString(), 
+				PropertyNaming.PROP_PRIVATE_KEYFILE.toString()
+			));
+		Set<String> decodeParams = new HashSet<String>(Arrays.asList(
+				PropertyNaming.PROP_PUBLIC_KEYFILE.toString()
+			));
 		requiredParams.put("encode", encodeParams);
 		requiredParams.put("decode", decodeParams);
 		return requiredParams;
@@ -91,10 +96,16 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 
 	public Map<String, Set<String>> getOptionalParameters() {
 		Map<String, Set<String>> optionalParams = new HashMap<String, Set<String>>();
-		Set<String> encodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PROVIDER_NAME.toString(), PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-				PropertyNaming.PROP_DEBUG.toString(), PropertyNaming.PROP_LOGGING.toString()));
-		Set<String> decodeParams = new HashSet<String>(Arrays.asList(PropertyNaming.PROP_PROVIDER_NAME.toString(), PropertyNaming.PROP_ALGORITHM_NAME.toString(),
-				PropertyNaming.PROP_DEBUG.toString(), PropertyNaming.PROP_LOGGING.toString()));
+		Set<String> encodeParams = new HashSet<String>(Arrays.asList(
+				PropertyNaming.PROP_PROVIDER_NAME.toString(), 
+				PropertyNaming.PROP_ALGORITHM_NAME.toString(),
+				PropertyNaming.PROP_LOGGING.toString()
+			));
+		Set<String> decodeParams = new HashSet<String>(Arrays.asList(
+				PropertyNaming.PROP_PROVIDER_NAME.toString(), 
+				PropertyNaming.PROP_ALGORITHM_NAME.toString(),
+				PropertyNaming.PROP_LOGGING.toString()
+			));
 		optionalParams.put("encode", encodeParams);
 		optionalParams.put("decode", decodeParams);
 		return optionalParams;
@@ -106,6 +117,8 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 	@Override
 	public void init(final Properties props) throws ConfigurationException {
 		try {
+			setLoggerLevel(logger, props.getProperty(PropertyNaming.PROP_LOGGING.toString()));
+			
 			setPassphrase(props.getProperty(PropertyNaming.PROP_PASSPHRASE.toString(), DEFAULT_PASSPHRASE));
 			setNamespace(new Namespace(props.getProperty(PropertyNaming.PROP_NAMESPACE.toString(), DEFAULT_NAMESPACE)));
 			setDescription(props.getProperty(PropertyNaming.PROP_DESCRIPTION.toString(), DEFAULT_DESCRIPTION));
@@ -230,4 +243,7 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 		this.publicKey = publicKey;
 	}
 
+	public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
+	}
 }

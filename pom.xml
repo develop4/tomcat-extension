@@ -36,100 +36,118 @@
 	</licenses>
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-    	<maven.compiler.target>1.8</maven.compiler.target>
-		<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
 		<version.jasypt>1.9.2</version.jasypt>
-		<version.junit>4.11</version.junit>
 		<version.bouncycastle>1.56</version.bouncycastle>
 		<version.apache.tomcat>7.0.54</version.apache.tomcat>
 		<version.apache.commons.validator>1.4.0</version.apache.commons.validator>
 		<version.apache.codec>1.9</version.apache.codec>
-		<version.apache.codec>1.9</version.apache.codec>
-		<version.slf4j>1.7.7</version.slf4j>
-		<github.global.server>github</github.global.server>	
-		<junit.version>4.12</junit.version>
-		<junit.jupiter.version>5.0.0-M3</junit.jupiter.version>
-		<junit.vintage.version>${junit.version}.0-M3</junit.vintage.version>
-		<junit.platform.version>1.0.0-M3</junit.platform.version>
+		<github.global.server>github</github.global.server>
+		<version.junit>4.12</version.junit>	
+		
 	</properties>
 
 	<distributionManagement>
 		<snapshotRepository>
 			<uniqueVersion>false</uniqueVersion>
-		    <id>ossrh</id>
-		    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<build>
 		<plugins>
 			<plugin>
-		      <groupId>org.sonatype.plugins</groupId>
-		      <artifactId>nexus-staging-maven-plugin</artifactId>
-		      <extensions>true</extensions>
-		      <configuration>
-		        <serverId>ossrh</serverId>
-		        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-		        <autoReleaseAfterClose>true</autoReleaseAfterClose>
-		      </configuration>
-		    </plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+		    <artifactId>maven-surefire-plugin</artifactId>
+		    <version>2.19.1</version>
+		    <configuration>
+		        <systemPropertyVariables>
+		            <!-- java.util.logging.config.class>
+		                uk.co.develop4.security.LoggingConfig
+		            </java.util.logging.config.class-->
+		            <java.util.logging.config.file>src/test/resources/logging.properties</java.util.logging.config.file>
+		        </systemPropertyVariables>
+		    </configuration>
+		</plugin>
 		</plugins>
 	</build>
 
 	<profiles>
-	  <profile> 
-	    <id>release</id>
-	    <build>
-		    <plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>2.2.1</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar-no-fork</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9.1</version>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-gpg-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>sign-artifacts</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>sign</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<artifactId>maven-project-info-reports-plugin</artifactId>
-					<version>2.7</version>
-				</plugin>
-			</plugins>
-	    </build>
-	  </profile>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.2.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.9.1</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-project-info-reports-plugin</artifactId>
+						<version>2.7</version>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
+
+
 
 
 	<dependencies>
@@ -161,15 +179,6 @@
 			<version>${version.jasypt}</version>
 		</dependency>
 
-<!--  
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>${version.bouncycastle}</version>
-			<scope>compile</scope>
-		</dependency>
--->
-
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
@@ -178,19 +187,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>${junit.jupiter.version}</version>
-			<scope>test</scope>
-		</dependency>
-		
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>	
-		
+			<version>${version.junit}</version>
+			<scope>compile</scope>
+		</dependency>
+
 	</dependencies>
 
 	<scm>
@@ -198,15 +200,15 @@
 		<connection>scm:git:git://github.com/develop4/tomcat-extension.git</connection>
 		<developerConnection>scm:git:git://github.com/develop4/tomcat-extension.git</developerConnection>
 	</scm>
-	
+
 	<issueManagement>
 		<url>https://github.com/develop4/tomcat-extension/issues</url>
 		<system>Github Issues</system>
 	</issueManagement>
-	
+
 	<organization>
 		<name>Develop4 Technologies Ltd</name>
 		<url>http://www.develop4.co.uk</url>
 	</organization>
-	
+
 </project>
