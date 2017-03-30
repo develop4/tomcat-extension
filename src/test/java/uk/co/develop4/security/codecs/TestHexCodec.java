@@ -32,10 +32,8 @@ public class TestHexCodec extends BaseTest {
 
 	@Test
 	public void validEncryptAndDecryptCycle() throws Exception {
-		Properties propeties = new Properties();
-
-		HexCodec codec = new HexCodec();
-		codec.init(propeties);
+		Properties propeties = new Properties();	
+		Codec codec = CodecFactory.getCodec(HexCodec.class.getName(), propeties);
 
 		String secret = "XXXxxx TestValue xxxXXX";
 		String cyphertext = codec.encrypt(secret);
@@ -47,16 +45,12 @@ public class TestHexCodec extends BaseTest {
 	@Test
 	public void initWithNullPassphraseDoesNotThrowException() throws Exception {
 		Properties propeties = new Properties();
-
-		HexCodec codec = new HexCodec();
-		codec.init(propeties);
+		CodecFactory.getCodec(HexCodec.class.getName(), propeties);
 	}
 
 	@Test(expected = ConfigurationException.class)
 	public void initWithNullPropertiesThrowsException() throws Exception {
 		Properties propeties = null;
-
-		HexCodec codec = new HexCodec();
-		codec.init(propeties);
+		CodecFactory.getCodec(HexCodec.class.getName(), propeties);
 	}
 }

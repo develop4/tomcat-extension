@@ -34,9 +34,7 @@ public class TestExampleCodec  extends BaseTest{
     public void performValidEncryptAndDecrypt() throws Exception
     {
 		Properties propeties = new Properties();
-		
-		ExampleCodec codec = new ExampleCodec();
-		codec.init(propeties);
+		Codec codec = CodecFactory.getCodec(ExampleCodec.class.getName(), propeties);
 		
 		String secret = "XXXxxx TestValue xxxXXX";
 		String cyphertext = codec.encrypt(secret);
@@ -46,17 +44,14 @@ public class TestExampleCodec  extends BaseTest{
     }
 	
 	@Test
-    public void initWithNullPassphraseDoesNotThrowException() throws Exception
-    {
-		ExampleCodec codec = new ExampleCodec();
-		codec.init(new Properties());
-
+    public void initWithNullPassphraseDoesNotThrowException() throws Exception 
+	{
+		Codec codec = CodecFactory.getCodec(ExampleCodec.class.getName(), new Properties());
     }
 	
 	@Test(expected=ConfigurationException.class) 
     public void initWithNullPropertiesThrowsException() throws Exception
     {
-		ExampleCodec codec = new ExampleCodec();
-		codec.init(null);
+		Codec codec = CodecFactory.getCodec(ExampleCodec.class.getName(), null);
     }
 }

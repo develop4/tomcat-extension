@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -37,11 +36,13 @@ import org.apache.tomcat.util.IntrospectionUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
-import uk.co.develop4.security.InitializableObject;
+import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.codecs.Codec;
+import uk.co.develop4.security.codecs.CodecFactory;
 import uk.co.develop4.security.codecs.CodecRegistry;
 import uk.co.develop4.security.codecs.Namespace;
 import uk.co.develop4.security.readers.Reader;
+import uk.co.develop4.security.readers.ReaderFactory;
 import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
 
@@ -56,7 +57,7 @@ import uk.co.develop4.security.utils.PropertyNaming;
  *   uk.co.develop4.security.tomcat.PropertyCodecService.configuration=${catalina.base}/restricted/settings/codec.properties
  * </pre>
  * 
- * @author william timpany
+ * @author wtimpany
  *
  */
 public class PropertyCodecService extends BaseService implements IntrospectionUtils.PropertySource {
@@ -86,9 +87,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	protected static final String DEFAULT_KEY 	= "hex://446576656c6f7034546563686e6f6c6f67696573";
 
 	protected Properties properties 			= new Properties();
-	//protected Properties propertiesCommand 		= new Properties();
 	protected Properties configuration 			= new Properties();
-	
 	protected CodecRegistry codecRegistry 		= new CodecRegistry();
 
 	protected String defaultKey 				= null;
@@ -122,7 +121,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 
 	public PropertyCodecService() throws Exception {
 		
-		configureUnlimitedStrengthEncryption();
+		initialiseUnlimitedStrengthEncryption();
 		initialiseConfigurationProperties();
 		initialiseDefaultKey(); 
 		
@@ -131,7 +130,10 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			.stream()
 			.filter(map -> patternReaders.matcher(map.getKey().toString()).matches())
 			.forEach(map -> {
-				Reader reader = ((Reader)createObjectFromProperties(map.getKey(), map.getValue()));
+				Reader reader = null;
+				try {
+					reader = ReaderFactory.getReader(map.getValue().toString(), createPropertiesForMapping(map.getKey().toString()));
+				} catch (ConfigurationException e) {;}
 				addAllPropertiesFromReader(reader);			
 			});
 		
@@ -140,7 +142,10 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			.stream()
 			.filter(map -> patternCodecs.matcher(map.getKey().toString()).matches())
 			.forEach(map -> {
-				Codec codec = (Codec)createObjectFromProperties(map.getKey(), map.getValue());
+				Codec codec = null;
+				try {
+					codec = CodecFactory.getCodec(map.getValue().toString(), createPropertiesForMapping(map.getKey().toString()));
+				} catch (ConfigurationException e) {;}
 				addCodecToRegistry(codec);
 			});
 		
@@ -155,16 +160,6 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		logger.info("Reader add properties: " + reader);
 	}
 	
-	private Object createObjectFromProperties(Object key, Object value) {
-		InitializableObject iObject = null;
-		try {
-			iObject = (InitializableObject) Class.forName(value.toString()).newInstance();
-			iObject.init(createPropertiesForMapping(key.toString()));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return iObject;
-	}
 	
 	/*
 	 * The configuration of the default passphrase follows the following priority
@@ -177,6 +172,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	private void initialiseDefaultKey() throws InterruptedException, IOException {
 		
 		String localPassPhrase = isNull(System.getProperty(PASSPHRASE_PROP),getConfiguration().getProperty(PASSPHRASE_PROP));
+		
 		if (localPassPhrase == null) {
 			/* Get the file where the master key is stored */
 			String passphraseFile = System.getProperty(PASSPHRASE_FILE_PROP);
@@ -255,7 +251,6 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	}
 
 	private void initialiseConfigurationProperties() throws IOException {
-		/* get the configuration file to be used for setting up the codec */
 		String configurationFile = System.getProperty(CONFIGURATION_PROP);
 		if (configurationFile == null) {
 			configurationFile = getConfiguration().getProperty(CONFIGURATION_PROP);
@@ -285,7 +280,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		return tmpProperties;
 	}
 	
-	private void configureUnlimitedStrengthEncryption() throws NoSuchAlgorithmException {
+	private void initialiseUnlimitedStrengthEncryption() throws NoSuchAlgorithmException {
 		if (Security.getProvider("BC") == null) {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         }
@@ -378,14 +373,6 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	protected void setLoggerLevel(Logger log, String level) {
 		if (level != null) {
 			log.setLevel(Level.parse(level));
-		}
-	}
-	
-	private String isNull(String value, String defaultValue) {
-		if (value == null) {
-			return defaultValue; 
-		} else {
-			return value;
 		}
 	}
 

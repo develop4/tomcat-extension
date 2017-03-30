@@ -36,7 +36,7 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  */
 public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
     
@@ -240,6 +240,5 @@ public class PBECodec extends BaseCodec implements Codec, StringEncryptor {
 	public void setLoggerLevel(Level level) {
 		logger.setLevel(level);
 	}
-
 
 }

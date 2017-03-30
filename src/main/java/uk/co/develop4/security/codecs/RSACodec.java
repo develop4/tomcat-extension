@@ -101,7 +101,7 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 	}
 	
 	@Override
-	public void init(final Properties props)  throws ConfigurationException {
+	public void init(final Properties props) throws ConfigurationException {
 		try {
 			setLoggerLevel(logger, props.getProperty(PropertyNaming.PROP_LOGGING.toString()));
 			
@@ -115,6 +115,8 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 			setPublicKeyFile(props.getProperty(PropertyNaming.PROP_PUBLIC_KEYFILE.toString(), DEFAULT_PUBLIC_KEY_FILE));	
 			setPublicKey(PEMCertificateUtils.getPublicKey(getPublicKeyFile(), getPassphrase(), getProviderName()));
 			setPrivateKey(PEMCertificateUtils.getPrivateKey(getPrivateKeyFile(), getPassphrase(), getProviderName()));
+			
+			//logger.finest(prettryPrintProperties(props));
 		} catch (Exception ex) {
 			logger.log(Level.SEVERE, "Failed to initialized Codec: {0}", getNamespace());
 			throw new ConfigurationException(ex.fillInStackTrace());
@@ -128,7 +130,7 @@ public class RSACodec extends BaseCodec implements Codec, StringEncryptor {
 		}
 		try {
 			Cipher cipher = Cipher.getInstance(getAlgorithimName(),getProviderName());
-		    cipher.init(Cipher.ENCRYPT_MODE, getPrivateKey());
+		    cipher.init(Cipher.ENCRYPT_MODE, getPublicKey());
 		    return addNamespacePrefix(Hex.toHexString(cipher.doFinal(cleartext.getBytes())));	    
 		} catch (Exception ex) { 
 			ex.printStackTrace(); 

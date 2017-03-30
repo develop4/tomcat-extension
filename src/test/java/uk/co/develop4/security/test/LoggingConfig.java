@@ -1,11 +1,7 @@
 package uk.co.develop4.security.test;
 
 import java.io.InputStream;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 public class LoggingConfig {
 

@@ -22,18 +22,17 @@ package uk.co.develop4.security.codecs;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import uk.co.develop4.security.test.BaseTest;
-
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   TestExampleCodec.class,
   TestHexCodec.class,
+  TestRSACodec.class,
   TestRSASealedCodecService.class,
+  TestPBECodec.class,
   TestNamespace.class,
   TestNamespaceParams.class,
   TestCodecRegistry.class
 })
 
 public class CodecTestSuite {
-
 }

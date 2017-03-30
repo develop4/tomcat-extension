@@ -19,10 +19,12 @@
  */
 package uk.co.develop4.security.codecs;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Optional;
 import java.util.Properties;
+
 import org.junit.Test;
 
 import uk.co.develop4.security.test.BaseTest;
@@ -42,16 +44,16 @@ public class TestCodecRegistry extends BaseTest  {
 		assertNotNull(namespace.get());
 		assertEquals(value, namespace.get().getValue());
 				
-		Codec codecIn = new HexCodec();
-		Properties props = new Properties();
-		props.setProperty("description", "changed me");
-		codecIn.init(props);
+		Properties propeties = new Properties();	
+		propeties.setProperty("description", "changed me");
+
+		Codec codecIn = CodecFactory.getCodec(HexCodec.class.getName(), propeties);
 		
 		codecRegistry.addCodec(codecIn);
 		
-		Optional<Codec> codecOut1 = codecRegistry.getCodec(codecIn.getNamespace());
+		Optional<Codec> codecOut = codecRegistry.getCodec(codecIn.getNamespace());
 		
-		assertEquals(codecIn, codecOut1.get());
+		assertEquals(codecIn, codecOut.get());
 
 	}
 

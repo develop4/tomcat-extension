@@ -17,21 +17,28 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.readers;
+package uk.co.develop4.security.codecs;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import uk.co.develop4.security.utils.BaseCommon;
+import uk.co.develop4.security.ConfigurationException;
 
-public abstract class BaseReader extends BaseCommon {
-	
-	public abstract void init(Properties props) ;
-	
-	public abstract Properties read();
-	
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("BaseReader");
-		return builder.toString();
+public class CodecFactory {
+
+	private final static Logger logger = Logger.getLogger(CodecFactory.class.getName());
+
+	public static Codec getCodec(String classname, Properties properties) throws ConfigurationException {
+		Codec codec = null;
+		try {
+			codec = (Codec) Class.forName(classname).newInstance();
+			codec.init(properties);
+		} catch (Exception ex) {
+			logger.log(Level.WARNING, "Failed to create Codec: \"{0}\" message: \"{1}\"", new Object[] { classname, ex.getMessage() });
+			throw new ConfigurationException(ex.getCause());
+		}
+		return codec;
 	}
+
 }

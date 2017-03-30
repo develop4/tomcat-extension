@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  *
  */
 public class PropertyMemoryReader extends BaseReader implements Reader {

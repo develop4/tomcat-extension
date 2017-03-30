@@ -19,6 +19,8 @@
  */
 package uk.co.develop4.security.utils;
 
+import java.io.StringWriter;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,21 +70,44 @@ public class BaseCommon {
 		}
 	}
 
-	
-	public static Object nvl(Object obj1, Object obj2 ) {
-		if (obj1 != null) {
-			return obj1;
+	public static String isNull(String value, String defaultValue) {
+		if (value == null) {
+			return defaultValue; 
 		} else {
-			return obj2;
+			return value;
 		}
 	}
 	
-	public static Object nvl2(Object obj1, Object obj2, Object obj3) {
-		if (obj1 != null) {
-			return obj2;
+	public static Object isNull(Object value, Object defaultValue ) {
+		if (value != null) {
+			return value;
 		} else {
-			return obj3;
+			return defaultValue;
 		}
+	}
+	
+	public static Object isNull(Object value, Object notNullValue, Object defaultValue) {
+		if (value != null) {
+			return notNullValue;
+		} else {
+			return defaultValue;
+		}
+	}
+	
+	public static String isNull(String value, String notNullValue, String defaultValue) {
+		if (value != null) {
+			return notNullValue;
+		} else {
+			return defaultValue;
+		}
+	}
+	
+
+	
+	public static String prettryPrintProperties(final Properties props) throws Exception {
+		StringWriter sw = new StringWriter();
+		props.store(sw,"dump properties");
+		return "\n" + sw.toString() + "\n";
 	}
  
 }

@@ -25,7 +25,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
 
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  *
  */
 public class LocalPropertySource implements IntrospectionUtils.PropertySource {

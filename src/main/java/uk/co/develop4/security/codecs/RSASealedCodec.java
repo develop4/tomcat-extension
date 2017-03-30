@@ -246,4 +246,5 @@ public class RSASealedCodec extends BaseCodec implements Codec, StringEncryptor 
 	public void setLoggerLevel(Level level) {
 		logger.setLevel(level);
 	}
+
 }

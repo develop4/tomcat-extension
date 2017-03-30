@@ -29,7 +29,7 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  *
  */
 public class PropertyURLReader extends BaseReader implements Reader {

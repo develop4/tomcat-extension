@@ -30,7 +30,7 @@ import uk.co.develop4.security.utils.PropertyNaming;
 
 /**
  * 
- * @author william timpany
+ * @author wtimpany
  * 
  */
 public class PropertyFileReader extends BaseReader implements Reader {

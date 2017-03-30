@@ -30,7 +30,7 @@ import uk.co.develop4.security.ConfigurationException;
  * 
  * e.g. PropertyFileReader : reads local Property files
  * 
- * @author william timpany
+ * @author wtimpany
  *
  */
 public abstract interface Reader {

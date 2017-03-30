@@ -20,18 +20,25 @@
 package uk.co.develop4.security.readers;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import uk.co.develop4.security.utils.BaseCommon;
+import uk.co.develop4.security.ConfigurationException;
 
-public abstract class BaseReader extends BaseCommon {
-	
-	public abstract void init(Properties props) ;
-	
-	public abstract Properties read();
-	
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("BaseReader");
-		return builder.toString();
+public class ReaderFactory {
+
+	private final static Logger logger = Logger.getLogger(ReaderFactory.class.getName());
+
+	public static Reader getReader(String classname, Properties properties) throws ConfigurationException{
+		Reader reader = null;
+		try {
+			reader = (Reader) Class.forName(classname).newInstance();
+			reader.init(properties);
+		} catch (Exception ex) {
+			logger.log(Level.WARNING, "Failed to create Reader: \"{0}\" message: \"{1}\"", new Object[] { classname, ex.getMessage() });
+			throw new ConfigurationException(ex.getCause());
+		}
+		return reader;
 	}
+
 }

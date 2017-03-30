@@ -20,7 +20,9 @@
 package uk.co.develop4.security.readers;
 
 import static org.junit.Assert.assertEquals;
+
 import java.util.Properties;
+
 import org.junit.Test;
 
 import uk.co.develop4.security.test.BaseTest;
@@ -28,11 +30,11 @@ import uk.co.develop4.security.test.BaseTest;
 public class TestPropertyMemoryReader  extends BaseTest{
 
 	@Test
-	public void testCreateAndRead() {
-		PropertyMemoryReader propertyMemoryReader = new PropertyMemoryReader();
-		propertyMemoryReader.init(new Properties());
+	public void testCreateAndRead() throws Exception {
+		Properties propeties = new Properties();	
+		Reader reader = ReaderFactory.getReader(PropertyMemoryReader.class.getName(), propeties);
 		
-		Properties props = propertyMemoryReader.read();
+		Properties props = reader.read();
 		
 		assertEquals("Hardcoded properties match", "TEST_ONE", props.get("property.memory.reader.test1"));
 		assertEquals("Hardcoded properties match", "TEST_TWO", props.get("property.memory.reader.test2"));

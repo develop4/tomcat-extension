@@ -41,7 +41,7 @@ import uk.co.develop4.security.utils.PropertyNaming;
  * 					my.property.two
  * File Contents:	pbe://jtwefvcqbxewfjfcbewgjrtgcehrfbxywfvxfeahgdxvfxjtwFDXBWjedtxjvw
  * 
- * @author william timpany
+ * @author wtimpany
  * 
  */
 public class PropertyDirectoryReader extends BaseReader implements Reader {

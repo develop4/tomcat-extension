@@ -20,14 +20,11 @@
 package uk.co.develop4.security.codecs;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import uk.co.develop4.security.ConfigurationException;
-import uk.co.develop4.security.InitializableObject;
 import uk.co.develop4.security.utils.BaseCommon;
 
-public abstract class BaseCodec extends BaseCommon implements InitializableObject {
+public abstract class BaseCodec extends BaseCommon {
 	
 	private Namespace namespace;
 	private String description;
@@ -70,14 +67,12 @@ public abstract class BaseCodec extends BaseCommon implements InitializableObjec
 		return false;
 	}
 	
-
 	public abstract void init(final Properties props) throws ConfigurationException;
 	
 	public abstract String encrypt(final String cleartext);
 
 	public abstract String decrypt(final String cyphertext);
 
-	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -89,5 +84,4 @@ public abstract class BaseCodec extends BaseCommon implements InitializableObjec
 		builder.append("\"]");
 		return builder.toString();
 	}
-
 }
