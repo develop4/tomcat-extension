@@ -26,7 +26,7 @@ import uk.co.develop4.security.test.BaseTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  TestNullCodec.class,
+  TestExampleCodec.class,
   TestHexCodec.class,
   TestRSASealedCodecService.class,
   TestNamespace.class,

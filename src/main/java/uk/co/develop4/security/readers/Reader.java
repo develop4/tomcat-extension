@@ -21,6 +21,8 @@ package uk.co.develop4.security.readers;
 
 import java.util.Properties;
 
+import uk.co.develop4.security.ConfigurationException;
+
 /**
  * 
  * Reader Interface : this is to allow multiple application properties readers to be plugged in.  This will allow
@@ -33,7 +35,7 @@ import java.util.Properties;
  */
 public abstract interface Reader {
 	
-	public abstract void init(Properties props);
-
 	public abstract Properties read();
+	
+	public void init(Properties props) throws ConfigurationException;
 }

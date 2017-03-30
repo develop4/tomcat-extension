@@ -28,7 +28,7 @@ import org.junit.Test;
 import uk.co.develop4.security.ConfigurationException;
 import uk.co.develop4.security.test.BaseTest;
 
-public class TestNullCodec  extends BaseTest{
+public class TestExampleCodec  extends BaseTest{
 
 	@Test
     public void performValidEncryptAndDecrypt() throws Exception

@@ -24,9 +24,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import uk.co.develop4.security.ConfigurationException;
+import uk.co.develop4.security.InitializableObject;
 import uk.co.develop4.security.utils.BaseCommon;
 
-public abstract class BaseCodec extends BaseCommon {
+public abstract class BaseCodec extends BaseCommon implements InitializableObject {
 	
 	private Namespace namespace;
 	private String description;

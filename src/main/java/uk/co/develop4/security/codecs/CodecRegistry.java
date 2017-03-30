@@ -37,7 +37,8 @@ public class CodecRegistry {
 	}
 
 	public void addCodec(Codec codec) {
-		codecRepository.put(codec.getNamespace(), codec);		
+		codecRepository.put(codec.getNamespace(), codec);	
+		logger.info("Codec add to Registry: " + codec);
     }
 
     public Optional<Codec> getCodec(Namespace id) {

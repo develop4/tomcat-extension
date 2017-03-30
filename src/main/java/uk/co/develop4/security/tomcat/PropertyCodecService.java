@@ -20,9 +20,11 @@
 package uk.co.develop4.security.tomcat;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -35,10 +37,10 @@ import org.apache.tomcat.util.IntrospectionUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
+import uk.co.develop4.security.InitializableObject;
 import uk.co.develop4.security.codecs.Codec;
 import uk.co.develop4.security.codecs.CodecRegistry;
 import uk.co.develop4.security.codecs.Namespace;
-import uk.co.develop4.security.readers.PropertyDirectoryReader;
 import uk.co.develop4.security.readers.Reader;
 import uk.co.develop4.security.utils.IOCodecUtils;
 import uk.co.develop4.security.utils.PropertyNaming;
@@ -75,9 +77,10 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	public static final String SNOOP_PROP 			= PropertyCodecService.class.getName() + "." + PropertyNaming.PROP_SNOOP;
 
 	/* Default Values */
-	protected static final Pattern patternUri 		= Pattern.compile("(^\\S+://)");
+	protected static final Pattern patternUri 			= Pattern.compile("(^\\S+://)");
 	protected static final Pattern patternUriWithSuffix = Pattern.compile("(^\\S+:\\S+//)");
-
+	protected static final Pattern patternReaders 		= Pattern.compile(PROPERTIES_PROP+".\\d$");
+	protected static final Pattern patternCodecs 		= Pattern.compile(CODEC_PROP+".\\d$");
 
 	protected static final long DEFAULT_TIMEOUT_VALUE = 30000l;
 	protected static final String DEFAULT_KEY 	= "hex://446576656c6f7034546563686e6f6c6f67696573";
@@ -102,51 +105,138 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 			return IntrospectionUtils.replaceProperties(value, null, 
 					new IntrospectionUtils.PropertySource[] {
 						new SystemPropertySource(), 
-						new LocalPropertySource(this.configuration),
-						new LocalPropertySource(this.properties) 
+						new LocalPropertySource(getConfiguration()),
+						new LocalPropertySource(getProperties()) 
 						}
 					);
 		}
+	}
+	
+	private Properties getConfiguration() {
+		return this.configuration;
+	}
+	
+	private Properties getProperties() {
+		return this.properties;
 	}
 
 	public PropertyCodecService() throws Exception {
 		
 		configureUnlimitedStrengthEncryption();
-				
-		String tempCanonicalPath = null;
-		/* get the configuration file to be used for setting up the codec */
-		String configurationFile = System.getProperty(CONFIGURATION_PROP);
-		if (configurationFile == null) {
-			configurationFile = this.configuration.getProperty(CONFIGURATION_PROP);
-		}
-		if (configurationFile != null) {
-			configurationFile = introspectProperty(configurationFile);
+		initialiseConfigurationProperties();
+		initialiseDefaultKey(); 
+		
+		getConfiguration()
+			.entrySet()
+			.stream()
+			.filter(map -> patternReaders.matcher(map.getKey().toString()).matches())
+			.forEach(map -> {
+				Reader reader = ((Reader)createObjectFromProperties(map.getKey(), map.getValue()));
+				addAllPropertiesFromReader(reader);			
+			});
+		
+		getConfiguration()
+			.entrySet()
+			.stream()
+			.filter(map -> patternCodecs.matcher(map.getKey().toString()).matches())
+			.forEach(map -> {
+				Codec codec = (Codec)createObjectFromProperties(map.getKey(), map.getValue());
+				addCodecToRegistry(codec);
+			});
+		
+	}
 
-			File pFile = IOCodecUtils.isFile(configurationFile);
-			if (pFile != null) {
-				tempCanonicalPath = pFile.getCanonicalPath();
-				this.configuration = IOCodecUtils.readFileProperties(pFile);
-			} else {
-				throw new IllegalArgumentException("Unable to load configuration file:" + configurationFile);
+	private void addCodecToRegistry(Codec codec) {
+		getCodecRegistry().addCodec(codec);
+	}
+
+	private void addAllPropertiesFromReader(Reader reader) {
+		getProperties().putAll(reader.read());
+		logger.info("Reader add properties: " + reader);
+	}
+	
+	private Object createObjectFromProperties(Object key, Object value) {
+		InitializableObject iObject = null;
+		try {
+			iObject = (InitializableObject) Class.forName(value.toString()).newInstance();
+			iObject.init(createPropertiesForMapping(key.toString()));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return iObject;
+	}
+	
+	/*
+	 * The configuration of the default passphrase follows the following priority
+	 * (1) System Property
+	 * (2) Configuration Property
+	 * (3) Master passphrase file
+	 * (4) Console input | Http |
+	 * otherwise each Codec requires it's own passphrase
+	 */
+	private void initialiseDefaultKey() throws InterruptedException, IOException {
+		
+		String localPassPhrase = isNull(System.getProperty(PASSPHRASE_PROP),getConfiguration().getProperty(PASSPHRASE_PROP));
+		if (localPassPhrase == null) {
+			/* Get the file where the master key is stored */
+			String passphraseFile = System.getProperty(PASSPHRASE_FILE_PROP);
+			if (passphraseFile == null) {
+				passphraseFile = getConfiguration().getProperty(PASSPHRASE_FILE_PROP);
 			}
-
+			if (passphraseFile != null) {
+				passphraseFile = introspectProperty(passphraseFile.trim());
+			}
+			
+			if (passphraseFile != null) {
+				if (passphraseFile.startsWith("console")) {
+					localPassPhrase = readPassphraseFromConsole(); 
+				} else if (passphraseFile.startsWith("http")) {
+					// -- Read the password from a secure url
+					localPassPhrase = readPassphraseFromURL(passphraseFile, localPassPhrase);
+				} else {
+					// -- Read the password from the secure file 
+					localPassPhrase = readPassphraseFromFile(passphraseFile, localPassPhrase);
+				}
+				if (localPassPhrase != null) {
+					this.defaultKey = deobsuscate(localPassPhrase.trim());
+				} 
+			}
 		}
-		
-		setLoggerLevel(logger, this.configuration.getProperty(LOGGING_PROP.toString()));
-		
-		
-		//this.setLogging(Boolean.parseBoolean(this.configuration.getProperty(LOGGING_PROP, "false")));
-		//this.setDebug(Boolean.parseBoolean(this.configuration.getProperty(DEBUG_PROP, "false")));
-		//this.setSnoop(Boolean.parseBoolean(this.configuration.getProperty(SNOOP_PROP, "false")));
+		if (localPassPhrase != null) {
+			this.defaultKey = deobsuscate(localPassPhrase.trim());
+		} 
+	}
 
-		if (tempCanonicalPath != null) {
-			logger.info("Activate configuration file reader for file: \"" + tempCanonicalPath + "\"");
+	private String readPassphraseFromFile(String passphraseFile, String localPassPhrase) throws IOException {
+		File pFile = IOCodecUtils.isFile(passphraseFile);
+		if (pFile != null) {
+			logger.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
+			localPassPhrase = IOCodecUtils.readFileValue(pFile);
+			if (localPassPhrase == null) {
+				throw new NullPointerException("Invalid passphrase provided by file input.");
+			}
 		}
+		return localPassPhrase;
+	}
 
+	private String readPassphraseFromURL(String passphraseFile, String localPassPhrase) throws IOException {
+		URL pUrl = IOCodecUtils.isUrl(passphraseFile);
+		if (pUrl != null) {
+			logger.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
+			localPassPhrase = IOCodecUtils.readUrlValue(pUrl);
+			if (localPassPhrase == null) {
+				throw new NullPointerException("Invalid passphrase provided by file input.");
+			}
+		}
+		return localPassPhrase;
+	}
+
+	private String readPassphraseFromConsole() throws InterruptedException, IOException {
+		String localPassPhrase;
 		/* Get the console timeout value to be used as the default */
 		String csTimeout = System.getProperty(CONSOLE_TIMEOUT_PROP);
 		if (csTimeout == null) {
-			csTimeout = this.configuration.getProperty(CONSOLE_TIMEOUT_PROP);
+			csTimeout = getConfiguration().getProperty(CONSOLE_TIMEOUT_PROP);
 		}
 		if (csTimeout != null) {
 			csTimeout = csTimeout.trim();
@@ -155,128 +245,46 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 				this.consoleTimeout = Long.getLong(tmpTimeout, DEFAULT_TIMEOUT_VALUE).longValue();
 			}
 		}
-
-		/* set the default key */
-		this.defaultKey = deobsuscate(this.defaultKey);
-		
-		/* Get the master key to be used as the default value */
-		String passphrase = System.getProperty(PASSPHRASE_PROP);
-		if (passphrase == null) {
-			passphrase = this.configuration.getProperty(PASSPHRASE_PROP);
+		// -- Read passphrase from console 
+		logger.info("Activate console passphrase reader");
+		localPassPhrase = IOCodecUtils.readConsole(this.consoleTimeout);
+		if (localPassPhrase == null) {
+			throw new NullPointerException("Invalid passphrase provided by console input.");
 		}
-		if (passphrase != null) {
-			this.defaultKey = deobsuscate(passphrase.trim());
-		}
-		
-		/* Get the file where the master key is stored */
-		String passphraseFile = System.getProperty(PASSPHRASE_FILE_PROP);
-		if (passphraseFile == null) {
-			passphraseFile = this.configuration.getProperty(PASSPHRASE_FILE_PROP);
-		}
-		if (passphraseFile != null) {
-			passphraseFile = introspectProperty(passphraseFile.trim());
-		}
-		
-		if (passphrase == null && passphraseFile != null) {
-			String localPassPhrase = null;
-			if (passphraseFile.startsWith("console")) {
-				// -- Read passphrase from console 
-				logger.info("Activate console passphrase reader");
-				localPassPhrase = IOCodecUtils.readConsole(this.consoleTimeout);
-				if (localPassPhrase == null) {
-					throw new NullPointerException("Invalid passphrase provided by console input.");
-				} 
-			} else if (passphraseFile.startsWith("http")) {
-				// -- Read the password from a secure url
-				URL pUrl = IOCodecUtils.isUrl(passphraseFile);
-				if (pUrl != null) {
-					logger.info("Activate url passphrase reader from: \"" + pUrl.toString() + "\"");
-					localPassPhrase = IOCodecUtils.readUrlValue(pUrl);
-					if (localPassPhrase == null) {
-						throw new NullPointerException("Invalid passphrase provided by file input.");
-					}
-				}
-			} else {
-				// -- Read the password from the secure file 
-				File pFile = IOCodecUtils.isFile(passphraseFile);
-				if (pFile != null) {
-					logger.info("Activate file passphrase reader from: \"" + pFile.getCanonicalPath() + "\"");
-					localPassPhrase = IOCodecUtils.readFileValue(pFile);
-					if (localPassPhrase == null) {
-						throw new NullPointerException("Invalid passphrase provided by file input.");
-					}
-				}
-			}
-			if (localPassPhrase != null) {
-				this.defaultKey = deobsuscate(localPassPhrase.trim());
-			} 
-		} 
-		
-		// -- load properties from providers specified
-		for (int i = 1; i < MAX_READERS; i++) {
-			String propertiesMapping = PROPERTIES_PROP + "." + i;
-			String className = this.configuration.getProperty(propertiesMapping);
-			if (className != null) {
-				try {
-					Reader tmpReader = (Reader) Class.forName(className).newInstance();
-					if (tmpReader != null) {
-						Properties tmpProperties = new Properties();
-						for (String myKey : this.configuration.stringPropertyNames()) {
-							// -- Transfer property settings that begin with the reader mapping to ensure 
-							// -- properties settings do not leak between readers.
-							if (myKey.startsWith(propertiesMapping)) {
-								String myNewKey = myKey.replace(propertiesMapping+".", "");
-								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
-							}
-						}
-						tmpReader.init(tmpProperties);
-						logger.fine("Activate reader: [" + i + "] " + tmpReader.toString());
-						this.properties.putAll(tmpReader.read());
-					}
-				} catch (Exception ex) {
-					logger.warning("Failed to instanciate reader class: " + className);
-					ex.printStackTrace();
-				}
-			} else {
-				logger.info("Number of Readers Loaded: " + (i-1));
-				break;
-			}
-		}
-
-		// -- load the possible codec mappings here, in reverse order.
-		// -- this will ensure that the correct precedence is preserved.
-		for (int i = 1; i < MAX_CODECS; i++) {
-			String codecMapping = CODEC_PROP + "." + i;
-			String className = this.configuration.getProperty(codecMapping);
-			if (className != null) {
-				try {
-					Codec codec = (Codec) Class.forName(className).newInstance();
-					if (codec != null) {
-						Properties tmpProperties = new Properties();
-						tmpProperties.put(PropertyNaming.PROP_PASSPHRASE.toString(), this.defaultKey);
-						for (String myKey : this.configuration.stringPropertyNames()) {
-							// -- Transfer property settings that begin with the codec mapping to ensure 
-							// -- properties settings do not leak between codecs.
-							if (myKey.startsWith(codecMapping)) {
-								String myNewKey = myKey.replace(codecMapping+".", "");
-								tmpProperties.put(myNewKey, introspectProperty(this.configuration.getProperty(myKey)));
-							}
-						}
-						codec.init(tmpProperties);
-						logger.fine("Add Codec to Registry: [" + i + "] " + codec);
-						getCodecRegistry().addCodec(codec);
-					}
-				} catch (Exception ex) {
-					logger.warning("Failed to instanciate codec class: " + className);
-					ex.printStackTrace();
-				}
-			} else {
-				logger.info("Number of Codecs Loaded: " + (i-1));
-				break;
-			}
-		}
-
+		return localPassPhrase;
 	}
+
+	private void initialiseConfigurationProperties() throws IOException {
+		/* get the configuration file to be used for setting up the codec */
+		String configurationFile = System.getProperty(CONFIGURATION_PROP);
+		if (configurationFile == null) {
+			configurationFile = getConfiguration().getProperty(CONFIGURATION_PROP);
+		}
+		if (configurationFile != null) {
+			configurationFile = introspectProperty(configurationFile);
+			File pFile = IOCodecUtils.isFile(configurationFile);
+			if (pFile != null) {
+				this.configuration = IOCodecUtils.readFileProperties(pFile);
+			} else {
+				throw new IllegalArgumentException("Unable to load configuration file:" + configurationFile);
+			}
+			setLoggerLevel(logger, getConfiguration().getProperty(LOGGING_PROP.toString()));
+		}
+	}
+
+	private Properties createPropertiesForMapping(String propertiesMapping) {
+		Properties tmpProperties = new Properties();
+		tmpProperties.put(PropertyNaming.PROP_PASSPHRASE.toString(), this.defaultKey);
+		String propertiesMappingKey = propertiesMapping+".";
+		for (String myKey : getConfiguration().stringPropertyNames()) {
+			if (myKey.startsWith(propertiesMappingKey)) {
+				String myNewKey = myKey.replace(propertiesMappingKey, "");
+				tmpProperties.put(myNewKey, introspectProperty(getConfiguration().getProperty(myKey)));
+			}
+		}
+		return tmpProperties;
+	}
+	
 	private void configureUnlimitedStrengthEncryption() throws NoSuchAlgorithmException {
 		if (Security.getProvider("BC") == null) {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
@@ -288,7 +296,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 
 	public String deobsuscate(String cyphertext) {
 		if (cyphertext == null) {
-			return cyphertext;
+			return null;
 		}
 		try {
 			Optional<Namespace> optional = Namespace.valueOf(cyphertext);
@@ -314,7 +322,7 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 		if (key == null) {
 			return null;
 		}
-		String val = this.properties.getProperty(key);
+		String val = getProperties().getProperty(key);
 		if (val == null) {
 			if (System.getProperty(key) == null) {
 				return null;
@@ -370,6 +378,14 @@ public class PropertyCodecService extends BaseService implements IntrospectionUt
 	protected void setLoggerLevel(Logger log, String level) {
 		if (level != null) {
 			log.setLevel(Level.parse(level));
+		}
+	}
+	
+	private String isNull(String value, String defaultValue) {
+		if (value == null) {
+			return defaultValue; 
+		} else {
+			return value;
 		}
 	}
 

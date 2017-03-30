@@ -36,8 +36,6 @@ public interface Codec {
 
 	public String getDescription();
 
-	public void init(Properties props) throws ConfigurationException;
-
 	public String encrypt(String plaintext);
 
 	public String decrypt(String cyphertext);
@@ -45,5 +43,7 @@ public interface Codec {
 	public Map<String, Set<String>> getRequiredParameters();
 
 	public Map<String, Set<String>> getOptionalParameters();
+	
+	public void init(Properties props) throws ConfigurationException;
 
 }
