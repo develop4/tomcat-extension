@@ -19,81 +19,95 @@
  */
 package uk.co.develop4.security.utils;
 
+import java.io.StringWriter;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class BaseCommon {
-
-	private static final String INFO  = "[INFO]  ";
-	private static final String WARN  = "[WARN]  ";
-	private static final String DEBUG = "[DEBUG] ";
-	private static final String ERROR = "[ERROR] ";
-	private static final String SNOOP = "[SNOOP] ";
-
-	private boolean snoop 		= false;
-	private boolean debug 		= false;
-	private boolean error 		= false;
-	private boolean logging 	= false;
-
 	
-	public boolean isError() {
-		return error;
-	}
-
-	public void setError(boolean error) {
-		this.error = error;
-	}
-
-	public boolean isSnoop() {
-		return snoop;
-	}
-
-	public void setSnoop(final boolean snoop) {
-		this.snoop = snoop;
-	}
-	
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(final boolean debug) {
-		this.debug = debug;
-	}
-	
-	public boolean isLogging() {
-		return logging;
-	}
-
-	public void setLogging(final boolean logging) {
-		this.logging 	= logging;
-	}
-	
-	public void info(final String message) {
-		if (isLogging()) {
-			System.out.println(INFO + message);
+	private static Level getEffectiveLoggerLevel(Logger log) {
+		if (log.getLevel() != null) {
+			return log.getLevel();
 		}
-	}
-	
-	public void warn(final String message) {
-		if (isLogging()) {
-			System.out.println(WARN + message);
+		if (log.getParent().getLevel() != null) {
+			return log.getParent().getLevel();
 		}
+		return Level.WARNING;
 	}
 	
-	public void error(final String message) {
-		if (isLogging()) {
-			System.out.println(ERROR + message);
-		}
+	public static boolean isSnoop(Logger log) {
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.FINEST.intValue());
+	}
+
+	public static boolean isTrace(Logger log) {
+
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.FINER.intValue());
+	}
+
+	public static boolean isDebug(Logger log) {
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.FINE.intValue());
+	}
+
+	public static boolean isInfo(Logger log) {
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.INFO.intValue());
+
+	}
+
+	public static boolean isWarning(Logger log) {
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.WARNING.intValue());
+
+	}
+
+	public static boolean isOff(Logger log) {
+		return (getEffectiveLoggerLevel(log).intValue() <= Level.OFF.intValue());
+
 	}
 	
-	public void debug(final String message) {
-		if (isDebug()) {
-			System.out.println(DEBUG + message);
-		}
-	}
-	
-	public void snoop(final String message) {
-		if (isSnoop()) {
-			System.out.println(SNOOP + message);
+	protected void setLoggerLevel(Logger log, String level) {
+		if (level != null) {
+			log.setLevel(Level.parse(level));
 		}
 	}
 
+	public static String isNull(String value, String defaultValue) {
+		if (value == null) {
+			return defaultValue; 
+		} else {
+			return value;
+		}
+	}
+	
+	public static Object isNull(Object value, Object defaultValue ) {
+		if (value != null) {
+			return value;
+		} else {
+			return defaultValue;
+		}
+	}
+	
+	public static Object isNull(Object value, Object notNullValue, Object defaultValue) {
+		if (value != null) {
+			return notNullValue;
+		} else {
+			return defaultValue;
+		}
+	}
+	
+	public static String isNull(String value, String notNullValue, String defaultValue) {
+		if (value != null) {
+			return notNullValue;
+		} else {
+			return defaultValue;
+		}
+	}
+	
+
+	
+	public static String prettryPrintProperties(final Properties props) throws Exception {
+		StringWriter sw = new StringWriter();
+		props.store(sw,"dump properties");
+		return "\n" + sw.toString() + "\n";
+	}
+ 
 }
-

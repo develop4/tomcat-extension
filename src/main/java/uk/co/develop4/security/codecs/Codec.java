@@ -17,25 +17,33 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.codecs;
 
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+import uk.co.develop4.security.ConfigurationException;
 
 /**
  * 
  * @author wtimpany
  *
  */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
+public interface Codec {
 
-	LocalPropertySource(Properties props) {
-		this.props = props;
-	}
+	public Namespace getNamespace();
 
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
-	}
+	public String getDescription();
+
+	public String encrypt(String plaintext);
+
+	public String decrypt(String cyphertext);
+
+	public Map<String, Set<String>> getRequiredParameters();
+
+	public Map<String, Set<String>> getOptionalParameters();
+	
+	public void init(Properties props) throws ConfigurationException;
+
 }

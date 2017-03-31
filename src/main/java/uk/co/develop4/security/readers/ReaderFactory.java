@@ -17,25 +17,28 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.readers;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+import uk.co.develop4.security.ConfigurationException;
 
-/**
- * 
- * @author wtimpany
- *
- */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
+public class ReaderFactory {
 
-	LocalPropertySource(Properties props) {
-		this.props = props;
+	private final static Logger logger = Logger.getLogger(ReaderFactory.class.getName());
+
+	public static Reader getReader(String classname, Properties properties) throws ConfigurationException{
+		Reader reader = null;
+		try {
+			reader = (Reader) Class.forName(classname).newInstance();
+			reader.init(properties);
+		} catch (Exception ex) {
+			logger.log(Level.WARNING, "Failed to create Reader: \"{0}\" message: \"{1}\"", new Object[] { classname, ex.getMessage() });
+			throw new ConfigurationException(ex.getCause());
+		}
+		return reader;
 	}
 
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
-	}
 }

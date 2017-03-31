@@ -17,25 +17,22 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.codecs;
 
-import java.util.Properties;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  TestExampleCodec.class,
+  TestHexCodec.class,
+  TestRSACodec.class,
+  TestRSASealedCodecService.class,
+  TestPBECodec.class,
+  TestNamespace.class,
+  TestNamespaceParams.class,
+  TestCodecRegistry.class
+})
 
-/**
- * 
- * @author wtimpany
- *
- */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
-
-	LocalPropertySource(Properties props) {
-		this.props = props;
-	}
-
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
-	}
+public class CodecTestSuite {
 }

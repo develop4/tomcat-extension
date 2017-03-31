@@ -19,23 +19,14 @@
  */
 package uk.co.develop4.security.tomcat;
 
-import java.util.Properties;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+	TestPropertyCodecService.class
+})
 
-/**
- * 
- * @author wtimpany
- *
- */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
+public class PropertySourceTestSuite {
 
-	LocalPropertySource(Properties props) {
-		this.props = props;
-	}
-
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
-	}
 }

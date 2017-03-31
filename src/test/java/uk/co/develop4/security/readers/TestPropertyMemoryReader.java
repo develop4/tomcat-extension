@@ -17,25 +17,26 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.readers;
+
+import static org.junit.Assert.assertEquals;
 
 import java.util.Properties;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+import org.junit.Test;
 
-/**
- * 
- * @author wtimpany
- *
- */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
+import uk.co.develop4.security.test.BaseTest;
 
-	LocalPropertySource(Properties props) {
-		this.props = props;
-	}
+public class TestPropertyMemoryReader  extends BaseTest{
 
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
+	@Test
+	public void testCreateAndRead() throws Exception {
+		Properties propeties = new Properties();	
+		Reader reader = ReaderFactory.getReader(PropertyMemoryReader.class.getName(), propeties);
+		
+		Properties props = reader.read();
+		
+		assertEquals("Hardcoded properties match", "TEST_ONE", props.get("property.memory.reader.test1"));
+		assertEquals("Hardcoded properties match", "TEST_TWO", props.get("property.memory.reader.test2"));
 	}
 }

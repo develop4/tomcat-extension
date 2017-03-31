@@ -17,48 +17,21 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils;
+package uk.co.develop4.security.readers;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.Properties;
 
-public class PropertySealed implements Serializable {
+import uk.co.develop4.security.utils.BaseCommon;
 
-	private static final long serialVersionUID = 1L;
+public abstract class BaseReader extends BaseCommon {
 	
-	public String value;
-	public Date date;
+	public abstract void init(Properties props) ;
 	
-	public String getValue() {
-		return value;
-	}
-	public void setValue(String value) {
-		this.value = value;
-	}
-	public Date getDate() {
-		return date;
-	}
-	public void setDate(Date date) {
-		this.date = date;
-	}
+	public abstract Properties read();
 	
-	public PropertySealed() {
-	}
-	
-	public PropertySealed(String value, Date date) {
-		this.value = value;
-		this.date = date;
-	}
-	
-	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PropertySealed [value=");
-		builder.append(value);
-		builder.append(", date=");
-		builder.append(date);
-		builder.append("]");
+		builder.append("BaseReader");
 		return builder.toString();
 	}
-	
 }

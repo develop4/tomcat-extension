@@ -17,25 +17,25 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.tomcat;
+package uk.co.develop4.security.readers;
 
 import java.util.Properties;
 
-import org.apache.tomcat.util.IntrospectionUtils;
+import uk.co.develop4.security.ConfigurationException;
 
 /**
+ * 
+ * Reader Interface : this is to allow multiple application properties readers to be plugged in.  This will allow
+ * the application properties to be stored in multiple locations,formats.
+ * 
+ * e.g. PropertyFileReader : reads local Property files
  * 
  * @author wtimpany
  *
  */
-public class LocalPropertySource implements IntrospectionUtils.PropertySource {
-	private Properties props;
-
-	LocalPropertySource(Properties props) {
-		this.props = props;
-	}
-
-	public String getProperty(String key) {
-		return this.props.getProperty(key);
-	}
+public abstract interface Reader {
+	
+	public abstract Properties read();
+	
+	public void init(Properties props) throws ConfigurationException;
 }

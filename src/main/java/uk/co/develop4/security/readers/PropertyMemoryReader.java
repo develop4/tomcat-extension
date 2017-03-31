@@ -17,48 +17,43 @@
  * 
  * =============================================================================
  */
-package uk.co.develop4.security.utils;
+package uk.co.develop4.security.readers;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class PropertySealed implements Serializable {
+/**
+ * 
+ * @author wtimpany
+ *
+ */
+public class PropertyMemoryReader extends BaseReader implements Reader {
 
-	private static final long serialVersionUID = 1L;
-	
-	public String value;
-	public Date date;
-	
-	public String getValue() {
-		return value;
+	private final static Logger logger = Logger.getLogger(PropertyMemoryReader.class.getName());
+
+	public PropertyMemoryReader() {
 	}
-	public void setValue(String value) {
-		this.value = value;
+
+	public void init(Properties props) {
 	}
-	public Date getDate() {
-		return date;
+
+	public Properties read() {
+		logger.log(Level.FINE, "Scanning memory: \"Test\"");
+		Properties properties = new Properties();
+		properties.put("property.memory.reader.test1", "TEST_ONE");
+		properties.put("property.memory.reader.test2", "TEST_TWO");
+		return properties;
 	}
-	public void setDate(Date date) {
-		this.date = date;
-	}
-	
-	public PropertySealed() {
-	}
-	
-	public PropertySealed(String value, Date date) {
-		this.value = value;
-		this.date = date;
-	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PropertySealed [value=");
-		builder.append(value);
-		builder.append(", date=");
-		builder.append(date);
-		builder.append("]");
+		builder.append("PropertyMemoryReader");
 		return builder.toString();
 	}
-	
+
+	public void setLoggerLevel(Level level) {
+		logger.setLevel(level);
+	}
 }

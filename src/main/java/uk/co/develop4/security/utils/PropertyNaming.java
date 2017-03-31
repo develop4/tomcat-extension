@@ -25,7 +25,9 @@ package uk.co.develop4.security.utils;
  */
 public enum PropertyNaming {
 
+	PROP_INFO("info"),
 	PROP_NAMESPACE("namespace"),
+	PROP_DESCRIPTION("description"),
 	PROP_PASSPHRASE("passphrase"),
 	PROP_PASSPHRASE_FILE("passphraseFile"),
 	PROP_PROVIDER_NAME("providerName"),
@@ -46,7 +48,7 @@ public enum PropertyNaming {
 	PROP_PROPERTIES("properties"),
 	PROP_PATH("path"),
 	PROP_PATH_SEPERATOR("pathSeperator"),
-	PROP_DECODER("decoder"),
+	PROP_CODEC("codec"),
 	PROP_CATALINA_BASE("catalina.base"),
 	PROP_INPUT("input"),
 	PROP_ACTION("action"),
